@@ -1,0 +1,25 @@
+{
+  "name": "com.nebukam.orca",
+  "version": "0.1.1",
+  "displayName": "ORCA",
+  "description": "Optimal Reciprocal Collision Avoidance",
+  "unity": "2019.1",
+  "unityRelease": "10f1",
+  "keywords": [
+    "ORCA",
+    "RVO",
+    "pathfinding",
+    "navigation",
+    "avoidance",
+    "collision"
+  ],
+  "category": "Navigation",
+  "author": {
+    "name": "Timothe Lapetite",
+    "email": "nebukam@gmail.com",
+    "url": ""
+  },
+  "dependencies": {
+    "com.nebukam.utils": ""
+  }
+}
