@@ -25,7 +25,7 @@ namespace Nebukam.ORCA
             get { return m_targetPosition; }
             set { m_targetPosition = value; }
         }
-        
+
         [Header("RVO Awareness")]
         public float neighborsDist = 20.0f;
         public int neighborsMaxCount = 15;
@@ -44,6 +44,7 @@ namespace Nebukam.ORCA
 #if UNITY_EDITOR
 
         [Header("RVO Debug")]
+        public bool drawSelectedOnly = true;
         public Color drawColor = Color.black;
         public bool drawRadius = true;
         public bool drawNeighborsConnections = true;
@@ -84,7 +85,10 @@ namespace Nebukam.ORCA
                 UpdateVelocityAndPosition();
 
 #if UNITY_EDITOR
-                DrawDebug();
+                if (!drawSelectedOnly)
+                {
+                    DrawDebug();
+                }
 #endif
 
             }
@@ -135,6 +139,16 @@ namespace Nebukam.ORCA
 
         }
 
+#if UNITY_EDITOR
+
+        private void OnDrawGizmosSelected()
+        {
+            if (drawSelectedOnly)
+            {
+                DrawDebug();
+            }
+        }
+
         protected virtual void DrawDebug()
         {
             Vector3 pos = m_ORCAAgent.position;
@@ -160,6 +174,8 @@ namespace Nebukam.ORCA
                 }
             }
         }
+
+#endif
 
     }
 

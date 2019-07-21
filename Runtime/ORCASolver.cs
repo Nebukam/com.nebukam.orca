@@ -9,7 +9,7 @@ namespace Nebukam.ORCA
     /// <summary>
     /// Defines a directed line.
     /// </summary>
-    public struct Line
+    public struct ORCALine
     {
         public Vector2 dir;
         public Vector2 point;
@@ -64,7 +64,7 @@ namespace Nebukam.ORCA
     public class ORCASolver
     {
 
-        #region RVO UTILS
+        #region Statics
 
         static public ORCASolver CreateSolver(
             Vector2 defaultVelocity,
@@ -94,7 +94,7 @@ namespace Nebukam.ORCA
 
         #endregion
 
-        #region thread worker
+        #region Worker
 
         /**
          * <summary>Defines a worker.</summary>
@@ -179,7 +179,7 @@ namespace Nebukam.ORCA
         public float globalTime { get { return m_globalTime; } set { m_globalTime = value; } }
                 
 
-        #region AGENTS
+        #region Agents
 
         public void RemoveAgent(IORCAAgent agent)
         {
@@ -211,6 +211,31 @@ namespace Nebukam.ORCA
 
         private int s_totalID = 0;
         
+        /// <summary>
+        /// Adds an existing agent to the simulation
+        /// </summary>
+        /// <param name="agent"></param>
+        /// <returns></returns>
+        public IORCAAgent AddAgent(IORCAAgent agent)
+        {
+
+            ORCAAgent a = agent as ORCAAgent;
+
+            if (m_defaultAgent == null || a == null || m_agents.Contains(a))
+            {
+                return null;
+            }
+
+            a.m_id = s_totalID;
+            s_totalID++;
+            m_agents.Add(a);
+
+            a.solver = this;
+            
+            OnAgentAdded();
+            return agent;
+        }
+
         public IORCAAgent AddAgent(Vector2 position)
         {
             return AddAgent<ORCAAgent>(position);
@@ -355,7 +380,7 @@ namespace Nebukam.ORCA
 
         #endregion
 
-        #region OBSTACLES
+        #region Obstacles
 
         /// <summary>
         /// Adds a new obstacle to the simulation.
@@ -414,7 +439,7 @@ namespace Nebukam.ORCA
 
         #endregion
 
-        #region SIMULATION
+        #region Simulation
 
         /// <summary>
         /// Clears the simulation.
@@ -528,7 +553,7 @@ namespace Nebukam.ORCA
         }
 
 
-        #region UTILS
+        #region Utils
        
 
         /**
@@ -650,7 +675,12 @@ namespace Nebukam.ORCA
             if (GetNumAgents() == 0)
                 return null;
 
-            return GetAgent(m_kdTree.QueryNearAgent(point, radius));
+            int index = m_kdTree.QueryNearAgent(point, radius);
+
+            if (index == -1)
+                return null;
+
+            return GetAgent(index);
         }
 
         /**

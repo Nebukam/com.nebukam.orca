@@ -75,7 +75,7 @@ namespace Nebukam.ORCA
 
         internal IList<KeyValuePair<float, ORCAAgent>> m_agentNeighbors = new List<KeyValuePair<float, ORCAAgent>>();
         internal IList<KeyValuePair<float, Obstacle>> m_obstacleNeighbors = new List<KeyValuePair<float, Obstacle>>();
-        internal IList<Line> m_orcaLines = new List<Line>();
+        internal IList<ORCALine> m_orcaLines = new List<ORCALine>();
 
         internal Vector2 m_position;
         internal Vector2 m_prefVelocity;
@@ -206,7 +206,7 @@ namespace Nebukam.ORCA
                 float s = Maths.Mix(-relPos1, obstacleVector) / obstacleVector.AbsSq();
                 float distSqLine = (-relPos1 - s * obstacleVector).AbsSq();
 
-                Line line;
+                ORCALine line;
 
                 if (s < 0.0f && distSq1 <= radiusSq)
                 {
@@ -424,7 +424,7 @@ namespace Nebukam.ORCA
                 float cRad = m_radius + other.m_radius;
                 float cRadSq = cRad.Sqr();
 
-                Line line;
+                ORCALine line;
                 Vector2 u;
 
                 if (distSq > cRadSq)
@@ -580,7 +580,7 @@ namespace Nebukam.ORCA
         /// <param name="dirOpt">True if the direction should be optimized.</param>
         /// <param name="result">A reference to the result of the linear program.</param>
         /// <returns>True if successful.</returns>
-        private bool LP1(IList<Line> lines, int lineNo, float radius, Vector2 optVel, bool dirOpt, ref Vector2 result)
+        private bool LP1(IList<ORCALine> lines, int lineNo, float radius, Vector2 optVel, bool dirOpt, ref Vector2 result)
         {
             float dotProduct = Maths.Mix(lines[lineNo].point, lines[lineNo].dir);
             float discriminant = dotProduct.Sqr() + radius.Sqr() - lines[lineNo].point.AbsSq();
@@ -676,7 +676,7 @@ namespace Nebukam.ORCA
         /// <param name="dirOpt">True if the direction should be optimized.</param>
         /// <param name="result">A reference to the result of the linear program.</param>
         /// <returns>The number of the line it fails on, and the number of lines if successful.</returns>
-        private int LP2(IList<Line> lines, float radius, Vector2 optVel, bool dirOpt, ref Vector2 result)
+        private int LP2(IList<ORCALine> lines, float radius, Vector2 optVel, bool dirOpt, ref Vector2 result)
         {
             if (dirOpt)
             {
@@ -722,7 +722,7 @@ namespace Nebukam.ORCA
         /// <param name="beginLine">The line on which the 2-d linear program failed.</param>
         /// <param name="radius">The radius of the circular constraint.</param>
         /// <param name="result">A reference to the result of the linear program.</param>
-        private void LP3(IList<Line> lines, int numObstLines, int beginLine, float radius, ref Vector2 result)
+        private void LP3(IList<ORCALine> lines, int numObstLines, int beginLine, float radius, ref Vector2 result)
         {
             float distance = 0.0f;
 
@@ -731,7 +731,7 @@ namespace Nebukam.ORCA
                 if (Maths.Det(lines[i].dir, lines[i].point - result) > distance)
                 {
                     // Result does not satisfy constraint of line i.
-                    IList<Line> projLines = new List<Line>();
+                    IList<ORCALine> projLines = new List<ORCALine>();
                     for (int ii = 0; ii < numObstLines; ++ii)
                     {
                         projLines.Add(lines[ii]);
@@ -739,7 +739,7 @@ namespace Nebukam.ORCA
 
                     for (int j = numObstLines; j < i; ++j)
                     {
-                        Line line;
+                        ORCALine line;
 
                         float determinant = Maths.Det(lines[i].dir, lines[j].dir);
 

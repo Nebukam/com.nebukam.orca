@@ -47,7 +47,7 @@ namespace Nebukam.ORCA
             return typedAgent.m_obstacleNeighbors.Count;
         }
         
-        public static IList<Line> GetOrcaLines(this IORCAAgent a)
+        public static IList<ORCALine> GetOrcaLines(this IORCAAgent a)
         {
             return (a as ORCAAgent).m_orcaLines;
         }
