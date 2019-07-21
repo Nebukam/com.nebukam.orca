@@ -203,7 +203,7 @@ namespace Nebukam.ORCA
                 float radiusSq = m_radius.Sqr();
 
                 Vector2 obstacleVector = o2.point - o1.point;
-                float s = Maths.Mix(-relPos1, obstacleVector) / obstacleVector.AbsSq();
+                float s = Maths.Dot(-relPos1, obstacleVector) / obstacleVector.AbsSq();
                 float distSqLine = (-relPos1 - s * obstacleVector).AbsSq();
 
                 ORCALine line;
@@ -340,9 +340,9 @@ namespace Nebukam.ORCA
                 // Project current velocity on velocity obstacle.
 
                 // Check if current velocity is projected on cutoff circles.
-                float t = o1 == o2 ? 0.5f : Maths.Mix((m_velocity - leftCutOff), cutOffVector) / cutOffVector.AbsSq();
-                float tLeft = Maths.Mix((m_velocity - leftCutOff), lLegDir);
-                float tRight = Maths.Mix((m_velocity - rightCutOff), rLegDir);
+                float t = o1 == o2 ? 0.5f : Maths.Dot((m_velocity - leftCutOff), cutOffVector) / cutOffVector.AbsSq();
+                float tLeft = Maths.Dot((m_velocity - leftCutOff), lLegDir);
+                float tRight = Maths.Dot((m_velocity - rightCutOff), rLegDir);
 
                 if ((t < 0.0f && tLeft < 0.0f) || (o1 == o2 && tLeft < 0.0f && tRight < 0.0f))
                 {
@@ -434,7 +434,7 @@ namespace Nebukam.ORCA
 
                     // Vector from cutoff center to relative velocity.
                     float wLengthSq = w.AbsSq();
-                    float dotProduct1 = Maths.Mix(w, relPos);
+                    float dotProduct1 = Maths.Dot(w, relPos);
 
                     if (dotProduct1 < 0.0f && dotProduct1.Sqr() > cRadSq * wLengthSq)
                     {
@@ -461,7 +461,7 @@ namespace Nebukam.ORCA
                             line.dir = -new Vector2(relPos.x * leg + relPos.y * cRad, -relPos.x * cRad + relPos.y * leg) / distSq;
                         }
 
-                        float dotProduct2 = Maths.Mix(relVel, line.dir);
+                        float dotProduct2 = Maths.Dot(relVel, line.dir);
                         u = dotProduct2 * line.dir - relVel;
                     }
                 }
@@ -582,7 +582,7 @@ namespace Nebukam.ORCA
         /// <returns>True if successful.</returns>
         private bool LP1(IList<ORCALine> lines, int lineNo, float radius, Vector2 optVel, bool dirOpt, ref Vector2 result)
         {
-            float dotProduct = Maths.Mix(lines[lineNo].point, lines[lineNo].dir);
+            float dotProduct = Maths.Dot(lines[lineNo].point, lines[lineNo].dir);
             float discriminant = dotProduct.Sqr() + radius.Sqr() - lines[lineNo].point.AbsSq();
 
             if (discriminant < 0.0f)
@@ -633,7 +633,7 @@ namespace Nebukam.ORCA
             if (dirOpt)
             {
                 // Optimize direction.
-                if (Maths.Mix(optVel, lines[lineNo].dir ) > 0.0f)
+                if (Maths.Dot(optVel, lines[lineNo].dir ) > 0.0f)
                 {
                     // Take right extreme.
                     result = lines[lineNo].point + tRight * lines[lineNo].dir;
@@ -647,7 +647,7 @@ namespace Nebukam.ORCA
             else
             {
                 // Optimize closest point.
-                float t = Maths.Mix(lines[lineNo].dir, (optVel - lines[lineNo].point));
+                float t = Maths.Dot(lines[lineNo].dir, (optVel - lines[lineNo].point));
 
                 if (t < tLeft)
                 {
@@ -746,7 +746,7 @@ namespace Nebukam.ORCA
                         if (Mathf.Abs(determinant) <= Maths.EPSILON)
                         {
                             // Line i and line j are parallel.
-                            if (Maths.Mix(lines[i].dir, lines[j].dir) > 0.0f)
+                            if (Maths.Dot(lines[i].dir, lines[j].dir) > 0.0f)
                             {
                                 // Line i and line j point in the same direction.
                                 continue;
