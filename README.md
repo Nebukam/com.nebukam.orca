@@ -1,6 +1,6 @@
 ![version 0.0.1](https://img.shields.io/badge/version-0.0.1-blue.svg)
+![preview](https://img.shields.io/badge/-preview-red.svg)
 ![in development](https://img.shields.io/badge/status-in%20development-blue.svg)
-![preview](https://img.shields.io/badge/stage-preview-orange.svg)
 
 # N:ORCA
 #### Optimal Reciprocal Collision Avoidance for Unity
