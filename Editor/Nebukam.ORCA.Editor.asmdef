@@ -1,0 +1,15 @@
+{
+    "name": "Nebukam.ORCA.Editor",
+    "references": [
+        "GUID:9227b10d297301f44b45910c5a6140b2"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": []
+}

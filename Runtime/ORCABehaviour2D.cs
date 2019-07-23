@@ -11,15 +11,26 @@ namespace Nebukam.ORCA
         {
 
             Vector2 pos = m_ORCAAgent.position;
-            Vector2 vel = m_ORCAAgent.newVelocity;// m_RVOAgent.prefVelocity;
 
-            currentForward = Vector2.Lerp(currentForward, vel, turnSpeed * Time.deltaTime);
-
-            transform.position = pos;
-
-            if (Mathf.Abs(currentForward.x) > 0.01f && Mathf.Abs(currentForward.y) > 0.01f)
+            if (controlPosition)
             {
-                transform.up = (Vector2)currentForward.normalized;
+                transform.position = pos;
+            }
+            else
+            {
+                pos = transform.position;
+                m_ORCAAgent.position = pos;
+            }
+            
+            if (controlLookAt)
+            {
+                Vector2 vel = lookAtTarget ? m_ORCAAgent.prefVelocity : m_ORCAAgent.newVelocity;
+                currentForward = Vector2.Lerp(currentForward, vel, turnSpeed * Time.deltaTime);
+
+                if (Mathf.Abs(currentForward.x) > 0.01f && Mathf.Abs(currentForward.y) > 0.01f)
+                {
+                    transform.up = (Vector2)currentForward.normalized;
+                }
             }
         
             Vector2 goalVector = (Vector2)m_targetPosition - pos;
@@ -29,12 +40,18 @@ namespace Nebukam.ORCA
                 goalVector = goalVector.normalized * speed;
             }
 
-            /* Perturb a little to avoid deadlocks due to perfect symmetry. */
+            if (addNoise)
+            {
+                /* Perturb a little to avoid deadlocks due to perfect symmetry. */
+                float angle = Random.value * 2.0f * (float)Mathf.PI;
+                float dist = Random.value * 0.0001f;
 
-            float angle = Random.value * 2.0f * (float)Mathf.PI;
-            float dist = Random.value * 0.0001f;
-
-            m_ORCAAgent.prefVelocity = goalVector + dist * new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                m_ORCAAgent.prefVelocity = goalVector + dist * new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+            }
+            else
+            {
+                m_ORCAAgent.prefVelocity = goalVector;
+            }
 
         }
 

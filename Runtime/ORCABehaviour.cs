@@ -4,9 +4,13 @@ using Nebukam.Utils;
 namespace Nebukam.ORCA
 { 
 
+    /// <summary>
+    /// This component allows an ORCAAgent to control a gameobject's position and orientation.
+    /// Its ORCAAgent property must be provided with a valid agent from an ORCASolver in order for it to function properly.
+    /// </summary>
     public class ORCABehaviour : MonoBehaviour
     {
-
+        
         protected IORCAAgent m_ORCAAgent = null;
         public IORCAAgent ORCAAgent
         {
@@ -20,30 +24,51 @@ namespace Nebukam.ORCA
         }
 
         protected Vector3 m_targetPosition = Vector3.zero;
+        /// <summary>
+        /// The current goal of this agent.
+        /// </summary>
         public Vector3 targetPosition
         {
             get { return m_targetPosition; }
             set { m_targetPosition = value; }
         }
 
-        [Header("RVO Awareness")]
+        [Header("ORCA Awareness")]
+        [Tooltip("How far this agent look to avoid collision. Lower is better.")]
         public float neighborsDist = 20.0f;
+        [Tooltip("How many agents to consider while looking for a path. Lower is better.")]
         public int neighborsMaxCount = 15;
+        [Tooltip("How soon this agent accounts for other agents. Lower is better.")]
         public float timeHorizon = 15.0f;
+        [Tooltip("How soon this agent accounts for obstacles. Lower is better.")]
         public float timeHorizonObstacle = 5.0f;
+        [Tooltip("Add a slight amount of noise to the velocity vector each update to avoid deadlocks.")]
         public bool addNoise = true;
 
-        [Header("RVO Navigation")]
+        [Header("ORCA Navigation")]
+        [Tooltip("Collision radius of the agent")]
         public float radius = 0.5f;
-        public float speed = 2.0f;
+        [Tooltip("Moving speed of the agent")]
+        public float speed = 1.0f;
+        [Tooltip("Maximum speed of the agent. High value may cause odd accelerations.")]
         public float maxSpeed = 20.0f;
+        [Tooltip("How fast does this agent turn ?")]
         public float turnSpeed = 5.0f;
+
+        [Header("ORCA Control")]
+        [Tooltip("Should the Agent control that gameobject position ?")]
+        public bool controlPosition = true;
+        [Tooltip("Should the Agent control the gameobject orientation ?")]
+        public bool controlLookAt = true;
+        [Tooltip("Should the Agent look at his target (instead of velocity) ?")]
+        public bool lookAtTarget = true;
+        
 
         protected Vector3 currentForward = Vector3.zero;
 
 #if UNITY_EDITOR
 
-        [Header("RVO Debug")]
+        [Header("ORCA Debug")]
         public bool drawSelectedOnly = true;
         public Color drawColor = Color.black;
         public bool drawRadius = true;
@@ -68,7 +93,7 @@ namespace Nebukam.ORCA
 
         private void OnRVOAgentAssigned()
         {
-            UpdateRVO();
+            UpdateAgent();
         }
 
         // Update is called once per frame
@@ -81,7 +106,7 @@ namespace Nebukam.ORCA
 
             if(m_ORCAAgent != null)
             {
-                UpdateRVO();
+                UpdateAgent();
                 UpdateVelocityAndPosition();
 
 #if UNITY_EDITOR
@@ -95,7 +120,7 @@ namespace Nebukam.ORCA
 
         }
 
-        protected virtual void UpdateRVO()
+        protected virtual void UpdateAgent()
         {
 
             m_ORCAAgent.neighborDist = neighborsDist;
@@ -112,31 +137,47 @@ namespace Nebukam.ORCA
         {
 
             Vector2 pos = m_ORCAAgent.position;
-            Vector2 vel = m_ORCAAgent.newVelocity;// m_RVOAgent.prefVelocity;
 
-            currentForward = Vector3.Slerp(currentForward, vel, turnSpeed * Time.deltaTime);
-
-            transform.position = new Vector3(pos.x, transform.position.y, pos.y);
-
-            if (Mathf.Abs(currentForward.x) > 0.01f && Mathf.Abs(currentForward.y) > 0.01f)
+            if (controlPosition)
             {
-                transform.forward = new Vector3(currentForward.x, 0, currentForward.y).normalized;
+                transform.position = new Vector3(pos.x, transform.position.y, pos.y);
             }
-        
-            Vector2 goalVector = (Vector2)m_targetPosition - pos;
+            else
+            {
+                pos = transform.position;
+                m_ORCAAgent.position = pos;
+            }
 
+            if (controlLookAt)
+            {
+                Vector2 vel = lookAtTarget ? m_ORCAAgent.prefVelocity : m_ORCAAgent.newVelocity;
+                currentForward = Vector3.Slerp(currentForward, vel, turnSpeed * Time.deltaTime);
+
+                if (Mathf.Abs(currentForward.x) > 0.01f && Mathf.Abs(currentForward.y) > 0.01f)
+                {
+                    transform.forward = new Vector3(currentForward.x, 0, currentForward.y).normalized;
+                }
+            }
+
+            Vector2 goalVector = (Vector2)m_targetPosition - pos;
             if (goalVector.AbsSq() > 1.0f)
             {
                 goalVector = goalVector.normalized * speed;
             }
 
-            /* Perturb a little to avoid deadlocks due to perfect symmetry. */
+            if(addNoise)
+            {
+                /* Perturb a little to avoid deadlocks due to perfect symmetry. */
+                float angle = Random.value * 2.0f * (float)Mathf.PI;
+                float dist = Random.value * 0.0001f;
 
-            float angle = Random.value * 2.0f * (float)Mathf.PI;
-            float dist = Random.value * 0.0001f;
-
-            m_ORCAAgent.prefVelocity = goalVector + dist * new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
-
+                m_ORCAAgent.prefVelocity = goalVector + dist * new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+            }
+            else
+            {
+                m_ORCAAgent.prefVelocity = goalVector;
+            }
+            
         }
 
 #if UNITY_EDITOR
