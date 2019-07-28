@@ -20,6 +20,7 @@
     "url": "https://github.com/Nebukam/com.nebukam.orca.git"
   },
   "dependencies": {
-    "com.nebukam.utils": "https://github.com/Nebukam/com.nebukam.utils.git"
+    "com.nebukam.utils": "https://github.com/Nebukam/com.nebukam.utils.git",
+    "com.unity.mathematics": "1.1.0"
   }
 }

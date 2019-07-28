@@ -1,7 +1,8 @@
 {
     "name": "Nebukam.ORCA",
     "references": [
-        "GUID:e084d9e086196ec48a84228cb4d5535e"
+        "Unity.Mathematics",
+        "Nebukam.Utils"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],
