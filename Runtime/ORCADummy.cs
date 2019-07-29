@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using Unity.Mathematics;
+using static Unity.Mathematics.math;
 
 namespace Nebukam.ORCA
 {
@@ -10,15 +12,15 @@ namespace Nebukam.ORCA
     public class ORCADummy : ORCAAgent
     {
         
-        public override Vector2 prefVelocity
+        public override float2 prefVelocity
         {
             get { return m_prefVelocity; }
-            set { m_prefVelocity = Vector2.zero; }
+            set { m_prefVelocity = float2(false); }
         }
-        public override Vector2 velocity
+        public override float2 velocity
         {
             get { return m_velocity; }
-            set { m_velocity = Vector2.zero; }
+            set { m_velocity = float2(false); }
         }
 
         public override int maxNeighbors
@@ -90,7 +92,7 @@ namespace Nebukam.ORCA
         /// </summary>
         internal override void Commit()
         {
-            m_velocity = Vector2.zero;
+            m_velocity = float2(false);
         }
         
     }

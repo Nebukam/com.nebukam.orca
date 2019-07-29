@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
+using Unity.Mathematics;
+using static Unity.Mathematics.math;
 using Nebukam.Utils;
+using Random = UnityEngine.Random;
 
 namespace Nebukam.ORCA
 { 
@@ -32,12 +35,12 @@ namespace Nebukam.ORCA
                     transform.up = (Vector2)currentForward.normalized;
                 }
             }
-        
-            Vector2 goalVector = (Vector2)m_targetPosition - pos;
 
-            if (goalVector.AbsSq() > 1.0f)
+            float2 goalVector = (Vector2)m_targetPosition - pos;
+
+            if (lengthsq(goalVector) > 1.0f)
             {
-                goalVector = goalVector.normalized * speed;
+                goalVector = normalize(goalVector) * speed;
             }
 
             if (addNoise)
@@ -46,7 +49,7 @@ namespace Nebukam.ORCA
                 float angle = Random.value * 2.0f * (float)Mathf.PI;
                 float dist = Random.value * 0.0001f;
 
-                m_ORCAAgent.prefVelocity = goalVector + dist * new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+                m_ORCAAgent.prefVelocity = goalVector + dist * float2(Mathf.Cos(angle), Mathf.Sin(angle));
             }
             else
             {
@@ -64,7 +67,7 @@ namespace Nebukam.ORCA
 
             if (drawRadius)
             {
-                Draw.Circle2D(pos, m_ORCAAgent.radius, drawColor);
+                Draw.Circle2D(float3(pos, 0f), m_ORCAAgent.radius, drawColor);
             }
 
             if (drawNeighborsConnections)
@@ -74,7 +77,7 @@ namespace Nebukam.ORCA
                 for(int i = 0; i < count; i++)
                 {
                     oPos = r.m_agentNeighbors[i].Value.position;
-                    Draw.Line(pos, Vector3.Lerp(pos, oPos, 0.5f), drawColor);
+                    Draw.Line(float3(pos, 0f), Vector3.Lerp(pos, oPos, 0.5f), drawColor);
                 }
             }
         }

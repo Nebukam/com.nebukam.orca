@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 using Nebukam.Utils;
+using Unity.Mathematics;
+using static Unity.Mathematics.math;
 
 namespace Nebukam.ORCA
 {
@@ -11,8 +13,8 @@ namespace Nebukam.ORCA
     /// </summary>
     public struct ORCALine
     {
-        public Vector2 dir;
-        public Vector2 point;
+        public float2 dir;
+        public float2 point;
     }
 
     /// <summary>
@@ -23,8 +25,8 @@ namespace Nebukam.ORCA
 
         internal Obstacle next;
         internal Obstacle prev;
-        internal Vector2 dir;
-        internal Vector2 point;
+        internal float2 dir;
+        internal float2 point;
         internal int id;
         internal bool convex;
 
@@ -67,7 +69,7 @@ namespace Nebukam.ORCA
         #region Statics
 
         static public ORCASolver CreateSolver(
-            Vector2 defaultVelocity,
+            float2 defaultVelocity,
             float timestep = 0.25f,
             float defaultNeighborDist = 15.0f,
             int defaultNeighborCount = 10,
@@ -236,7 +238,7 @@ namespace Nebukam.ORCA
             return agent;
         }
 
-        public IORCAAgent AddAgent(Vector2 position)
+        public IORCAAgent AddAgent(float2 position)
         {
             return AddAgent<ORCAAgent>(position);
         }
@@ -246,7 +248,7 @@ namespace Nebukam.ORCA
         /// </summary>
         /// <param name="position">The two-dimensional starting position of this agent.</param>
         /// <returns>The number of the agent, or -1 when the agent defaults have not been set.</returns>
-        public IORCAAgent AddAgent<T>(Vector2 position)
+        public IORCAAgent AddAgent<T>(float2 position)
             where T : ORCAAgent, IORCAAgent, new()
         {
             if (m_defaultAgent == null)
@@ -296,14 +298,14 @@ namespace Nebukam.ORCA
         }
 
         public IORCAAgent AddAgent(
-            Vector2 position,
+            float2 position,
             float neighborDist,
             int maxNeighbors,
             float timeHorizon,
             float timeHorizonObst,
             float radius,
             float maxSpeed,
-            Vector2 velocity)
+            float2 velocity)
         {
             return AddAgent<ORCAAgent>(
                 position,
@@ -352,14 +354,14 @@ namespace Nebukam.ORCA
             * this agent.</param>
             */
         public IORCAAgent AddAgent<T>(
-            Vector2 position, 
+            float2 position, 
             float neighborDist, 
             int maxNeighbors, 
             float timeHorizon, 
             float timeHorizonObst, 
             float radius, 
             float maxSpeed, 
-            Vector2 velocity)
+            float2 velocity)
             where T : ORCAAgent, IORCAAgent, new()
         {
             T agent = new T();
@@ -393,7 +395,7 @@ namespace Nebukam.ORCA
         /// To add a "negative" obstacle, e.g. a bounding polygon around
         /// the environment, the vertices should be listed in clockwise order.
         /// </remarks>
-        public int AddObstacle(IList<Vector2> vertices)
+        public int AddObstacle(IList<float2> vertices)
         {
             if (vertices.Count < 2)
             {
@@ -419,7 +421,7 @@ namespace Nebukam.ORCA
                     obstacle.next.prev = obstacle;
                 }
 
-                obstacle.dir = (vertices[(i == vertices.Count - 1 ? 0 : i + 1)] - vertices[i]).normalized;
+                obstacle.dir = normalize(vertices[(i == vertices.Count - 1 ? 0 : i + 1)] - vertices[i]);
 
                 if (vertices.Count == 2)
                 {
@@ -614,7 +616,7 @@ namespace Nebukam.ORCA
          * <param name="vertexNo">The number of the obstacle vertex to be
          * retrieved.</param>
          */
-        public Vector2 GetObstacleVertex(int vertexNo)
+        public float2 GetObstacleVertex(int vertexNo)
         {
             return m_obstacles[vertexNo].point;
         }
@@ -665,12 +667,12 @@ namespace Nebukam.ORCA
          * the two points and the obstacles in order for the points to be
          * mutually visible (optional). Must be non-negative.</param>
          */
-        public bool QueryVisibility(Vector2 point1, Vector2 point2, float radius)
+        public bool QueryVisibility(float2 point1, float2 point2, float radius)
         {
             return m_kdTree.QueryVisibility(point1, point2, radius);
         }
 
-        public IORCAAgent QueryNearAgent(Vector2 point, float radius)
+        public IORCAAgent QueryNearAgent(float2 point, float radius)
         {
             if (GetNumAgents() == 0)
                 return null;
@@ -722,7 +724,7 @@ namespace Nebukam.ORCA
             float timeHorizonObst, 
             float radius, 
             float maxSpeed, 
-            Vector2 velocity)
+            float2 velocity)
         {
             if (m_defaultAgent == null)
             {
@@ -764,7 +766,7 @@ namespace Nebukam.ORCA
             Clear();
         }
 
-        public static float m(Vector2 A, Vector2 B)
+        public static float m(float2 A, float2 B)
         {
             return A.x * B.x + A.y * B.y;
         }

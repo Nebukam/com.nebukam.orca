@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Nebukam.Utils;
+using Unity.Mathematics;
+using static Unity.Mathematics.math;
 
 namespace Nebukam.ORCA
 {
@@ -225,12 +227,12 @@ namespace Nebukam.ORCA
         /// <param name="q2">The second point between which visibility is to be tested</param>
         /// <param name="radius">The radius within which visibility is to be tested</param>
         /// <returns>True if q1 and q2 are mutually visible within the radius; false otherwise.</returns>
-        internal bool QueryVisibility(Vector2 q1, Vector2 q2, float radius)
+        internal bool QueryVisibility(float2 q1, float2 q2, float radius)
         {
             return QueryVisibilityRecursive(q1, q2, radius, m_obstacleTree);
         }
 
-        internal int QueryNearAgent(Vector2 point, float radius)
+        internal int QueryNearAgent(float2 point, float radius)
         {
             float rangeSq = float.MaxValue;
             int agentNo = -1;
@@ -426,7 +428,7 @@ namespace Nebukam.ORCA
                         // Split obstacle j.
                         float t = Maths.Det(obstacleI2.point - obstacleI1.point, obstacleJ1.point - obstacleI1.point) / Maths.Det(obstacleI2.point - obstacleI1.point, obstacleJ1.point - obstacleJ2.point);
 
-                        Vector2 splitPoint = obstacleJ1.point + t * (obstacleJ2.point - obstacleJ1.point);
+                        float2 splitPoint = obstacleJ1.point + t * (obstacleJ2.point - obstacleJ1.point);
 
                         Obstacle newObstacle = new Obstacle();
                         newObstacle.point = splitPoint;
@@ -463,13 +465,13 @@ namespace Nebukam.ORCA
             }
         }
 
-        private void QueryAgentTreeRecursive(Vector2 position, ref float rangeSq, ref int agentNo, int node)
+        private void QueryAgentTreeRecursive(float2 position, ref float rangeSq, ref int agentNo, int node)
         {
             if (m_agentTree[node].end - m_agentTree[node].begin <= MAX_LEAF_SIZE)
             {
                 for (int i = m_agentTree[node].begin; i < m_agentTree[node].end; ++i)
                 {
-                    float distSq = Maths.AbsSq(position - m_agents[i].m_position);
+                    float distSq = lengthsq(position - m_agents[i].m_position);
                     if (distSq < rangeSq)
                     {
                         rangeSq = distSq;
@@ -479,14 +481,14 @@ namespace Nebukam.ORCA
             }
             else
             {
-                float distSqLeft = (Mathf.Max(0.0f, m_agentTree[m_agentTree[node].left].minX - position.x)).Sqr() 
-                    + (Mathf.Max(0.0f, position.x - m_agentTree[m_agentTree[node].left].maxX)).Sqr() 
-                    + (Mathf.Max(0.0f, m_agentTree[m_agentTree[node].left].minY - position.y)).Sqr()
-                    + (Mathf.Max(0.0f, position.y - m_agentTree[m_agentTree[node].left].maxY)).Sqr();
-                float distSqRight = (Mathf.Max(0.0f, m_agentTree[m_agentTree[node].right].minX - position.x)).Sqr()
-                    + (Mathf.Max(0.0f, position.x - m_agentTree[m_agentTree[node].right].maxX)).Sqr()
-                    + (Mathf.Max(0.0f, m_agentTree[m_agentTree[node].right].minY - position.y)).Sqr() 
-                    + (Mathf.Max(0.0f, position.y - m_agentTree[m_agentTree[node].right].maxY)).Sqr();
+                float distSqLeft = lengthsq(max(0.0f, m_agentTree[m_agentTree[node].left].minX - position.x)) 
+                    + lengthsq(max(0.0f, position.x - m_agentTree[m_agentTree[node].left].maxX)) 
+                    + lengthsq(max(0.0f, m_agentTree[m_agentTree[node].left].minY - position.y))
+                    + lengthsq(max(0.0f, position.y - m_agentTree[m_agentTree[node].left].maxY));
+                float distSqRight = lengthsq(max(0.0f, m_agentTree[m_agentTree[node].right].minX - position.x))
+                    + lengthsq(max(0.0f, position.x - m_agentTree[m_agentTree[node].right].maxX))
+                    + lengthsq(max(0.0f, m_agentTree[m_agentTree[node].right].minY - position.y))
+                    + lengthsq(max(0.0f, position.y - m_agentTree[m_agentTree[node].right].maxY));
 
                 if (distSqLeft < distSqRight)
                 {
@@ -533,14 +535,14 @@ namespace Nebukam.ORCA
             }
             else
             {
-                float distSqLeft = (Mathf.Max(0.0f, m_agentTree[m_agentTree[node].left].minX - agent.m_position.x)).Sqr()
-                    + (Mathf.Max(0.0f, agent.m_position.x - m_agentTree[m_agentTree[node].left].maxX)).Sqr()
-                    + (Mathf.Max(0.0f, m_agentTree[m_agentTree[node].left].minY - agent.m_position.y)).Sqr()
-                    + (Mathf.Max(0.0f, agent.m_position.y - m_agentTree[m_agentTree[node].left].maxY)).Sqr();
-                float distSqRight = (Mathf.Max(0.0f, m_agentTree[m_agentTree[node].right].minX - agent.m_position.x)).Sqr()
-                    + (Mathf.Max(0.0f, agent.m_position.x - m_agentTree[m_agentTree[node].right].maxX)).Sqr()
-                    + (Mathf.Max(0.0f, m_agentTree[m_agentTree[node].right].minY - agent.m_position.y)).Sqr()
-                    + (Mathf.Max(0.0f, agent.m_position.y - m_agentTree[m_agentTree[node].right].maxY)).Sqr();
+                float distSqLeft = lengthsq(max(0.0f, m_agentTree[m_agentTree[node].left].minX - agent.m_position.x))
+                    + lengthsq(max(0.0f, agent.m_position.x - m_agentTree[m_agentTree[node].left].maxX))
+                    + lengthsq(max(0.0f, m_agentTree[m_agentTree[node].left].minY - agent.m_position.y))
+                    + lengthsq(max(0.0f, agent.m_position.y - m_agentTree[m_agentTree[node].left].maxY));
+                float distSqRight = lengthsq(max(0.0f, m_agentTree[m_agentTree[node].right].minX - agent.m_position.x))
+                    + lengthsq(max(0.0f, agent.m_position.x - m_agentTree[m_agentTree[node].right].maxX))
+                    + lengthsq(max(0.0f, m_agentTree[m_agentTree[node].right].minY - agent.m_position.y))
+                    + lengthsq(max(0.0f, agent.m_position.y - m_agentTree[m_agentTree[node].right].maxY));
 
                 if (distSqLeft < distSqRight)
                 {
@@ -587,7 +589,7 @@ namespace Nebukam.ORCA
 
                 QueryObstacleTreeRecursive(agent, rangeSq, agentLeftOfLine >= 0.0f ? node.left : node.right);
 
-                float distSqLine = agentLeftOfLine.Sqr() / Maths.AbsSq(obstacle2.point - obstacle1.point);
+                float distSqLine = lengthsq(agentLeftOfLine) / lengthsq(obstacle2.point - obstacle1.point);
 
                 if (distSqLine < rangeSq)
                 {
@@ -612,7 +614,7 @@ namespace Nebukam.ORCA
         /// <param name="radius">The radius within which visibility is to be tested</param>
         /// <param name="node">The current obstacle k-D node.</param>
         /// <returns>True if q1 and q2 are mutually visible within the radius; false otherwise.</returns>
-        private bool QueryVisibilityRecursive(Vector2 q1, Vector2 q2, float radius, ObstacleTreeNode node)
+        private bool QueryVisibilityRecursive(float2 q1, float2 q2, float radius, ObstacleTreeNode node)
         {
             if (node == null)
             {
@@ -624,20 +626,20 @@ namespace Nebukam.ORCA
 
             float q1LeftOfI = Maths.LeftOf(obstacle1.point, obstacle2.point, q1);
             float q2LeftOfI = Maths.LeftOf(obstacle1.point, obstacle2.point, q2);
-            float invLengthI = 1.0f / Maths.AbsSq(obstacle2.point - obstacle1.point);
+            float invLengthI = 1.0f / lengthsq(obstacle2.point - obstacle1.point);
 
-            float rSqr = radius.Sqr();
+            float rSqr = lengthsq(radius);
 
             if (q1LeftOfI >= 0.0f && q2LeftOfI >= 0.0f)
             {
                 return QueryVisibilityRecursive(q1, q2, radius, node.left) 
-                    && ((q1LeftOfI.Sqr() * invLengthI >= rSqr && q2LeftOfI.Sqr() * invLengthI >= rSqr) || QueryVisibilityRecursive(q1, q2, radius, node.right));
+                    && ((lengthsq(q1LeftOfI) * invLengthI >= rSqr && lengthsq(q2LeftOfI) * invLengthI >= rSqr) || QueryVisibilityRecursive(q1, q2, radius, node.right));
             }
 
             if (q1LeftOfI <= 0.0f && q2LeftOfI <= 0.0f)
             {
                 return QueryVisibilityRecursive(q1, q2, radius, node.right) 
-                    && ((q1LeftOfI.Sqr() * invLengthI >= rSqr && q2LeftOfI.Sqr() * invLengthI >= rSqr) || QueryVisibilityRecursive(q1, q2, radius, node.left));
+                    && ((lengthsq(q1LeftOfI) * invLengthI >= rSqr && lengthsq(q2LeftOfI) * invLengthI >= rSqr) || QueryVisibilityRecursive(q1, q2, radius, node.left));
             }
 
             if (q1LeftOfI >= 0.0f && q2LeftOfI <= 0.0f)
@@ -649,10 +651,10 @@ namespace Nebukam.ORCA
 
             float point1LeftOfQ = Maths.LeftOf(q1, q2, obstacle1.point);
             float point2LeftOfQ = Maths.LeftOf(q1, q2, obstacle2.point);
-            float invLengthQ = 1.0f / Maths.AbsSq(q2 - q1);
+            float invLengthQ = 1.0f / lengthsq(q2 - q1);
 
             return point1LeftOfQ * point2LeftOfQ >= 0.0f 
-                && point1LeftOfQ.Sqr() * invLengthQ > rSqr && point2LeftOfQ.Sqr() * invLengthQ > rSqr 
+                && lengthsq(point1LeftOfQ) * invLengthQ > rSqr && lengthsq(point2LeftOfQ) * invLengthQ > rSqr 
                 && QueryVisibilityRecursive(q1, q2, radius, node.left) 
                 && QueryVisibilityRecursive(q1, q2, radius, node.right);
         }

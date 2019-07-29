@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Nebukam.Utils;
+using Unity.Mathematics;
+using static Unity.Mathematics.math;
 
 namespace Nebukam.ORCA
 {
@@ -12,13 +14,13 @@ namespace Nebukam.ORCA
 
         int id { get; }
 
-        Vector2 position { get; set; }
-        Vector2 prefVelocity { get; set; }
+        float2 position { get; set; }
+        float2 prefVelocity { get; set; }
 
         /// <summary>
         /// The default initial two-dimensional linear velocity of this agent.
         /// </summary>
-        Vector2 velocity { get; set; }
+        float2 velocity { get; set; }
 
         /// <summary>
         /// The maximum number of other agents this agent takes into account in the navigation.
@@ -61,7 +63,7 @@ namespace Nebukam.ORCA
         /// </summary>
         float timeHorizonObst { get; set; }
 
-        Vector2 newVelocity { get; }
+        float2 newVelocity { get; }
 
     }
 
@@ -77,9 +79,9 @@ namespace Nebukam.ORCA
         internal IList<KeyValuePair<float, Obstacle>> m_obstacleNeighbors = new List<KeyValuePair<float, Obstacle>>();
         internal IList<ORCALine> m_orcaLines = new List<ORCALine>();
 
-        internal Vector2 m_position;
-        internal Vector2 m_prefVelocity;
-        internal Vector2 m_velocity;
+        internal float2 m_position;
+        internal float2 m_prefVelocity;
+        internal float2 m_velocity;
         
         internal int m_maxNeighbors = 0;
         internal float m_maxSpeed = 0.0f;
@@ -89,22 +91,22 @@ namespace Nebukam.ORCA
         internal float m_timeHorizonObst = 0.0f;
         internal bool m_needDelete = false;
 
-        private Vector2 m_newVelocity;
+        private float2 m_newVelocity;
 
         public int id
         {
             get { return m_id; }
         }
 
-        public virtual Vector2 position {
+        public virtual float2 position {
             get { return m_position; }
             set { m_position = value; }
         }
-        public virtual Vector2 prefVelocity {
+        public virtual float2 prefVelocity {
             get { return m_prefVelocity; }
             set { m_prefVelocity = value; }
         }
-        public virtual Vector2 velocity {
+        public virtual float2 velocity {
             get { return m_velocity; }
             set { m_velocity = value; }
         }
@@ -136,7 +138,7 @@ namespace Nebukam.ORCA
         }
 
         
-        public virtual Vector2 newVelocity
+        public virtual float2 newVelocity
         {
             get { return m_newVelocity; }
         }
@@ -146,14 +148,14 @@ namespace Nebukam.ORCA
         internal virtual void ComputeNeighbors()
         {
             m_obstacleNeighbors.Clear();
-            float rangeSq = (m_timeHorizonObst * m_maxSpeed + m_radius).Sqr();
+            float rangeSq = lengthsq(m_timeHorizonObst * m_maxSpeed + m_radius);
             m_solver.m_kdTree.ComputeObstacleNeighbors(this, rangeSq);
 
             m_agentNeighbors.Clear();
 
             if (m_maxNeighbors > 0)
             {
-                rangeSq = m_neighborDist.Sqr();
+                rangeSq = lengthsq(m_neighborDist);
                 m_solver.m_kdTree.ComputeAgentNeighbors(this, ref rangeSq);
             }
         }
@@ -174,8 +176,8 @@ namespace Nebukam.ORCA
                 Obstacle o1 = m_obstacleNeighbors[i].Value;
                 Obstacle o2 = o1.next;
 
-                Vector2 relPos1 = o1.point - m_position;
-                Vector2 relPos2 = o2.point - m_position;
+                float2 relPos1 = o1.point - m_position;
+                float2 relPos2 = o2.point - m_position;
                 
                 // Check if velocity obstacle of obstacle is already taken care
                 // of by previously constructed obstacle ORCA lines.
@@ -197,14 +199,14 @@ namespace Nebukam.ORCA
                 }
 
                 // Not yet covered. Check for collisions.
-                float distSq1 = relPos1.AbsSq();
-                float distSq2 = relPos2.AbsSq();
+                float distSq1 = lengthsq(relPos1);
+                float distSq2 = lengthsq(relPos2);
 
-                float radiusSq = m_radius.Sqr();
+                float radiusSq = lengthsq(m_radius);
 
-                Vector2 obstacleVector = o2.point - o1.point;
-                float s = Maths.Dot(-relPos1, obstacleVector) / obstacleVector.AbsSq();
-                float distSqLine = (-relPos1 - s * obstacleVector).AbsSq();
+                float2 obstacleVector = o2.point - o1.point;
+                float s = lengthsq(obstacleVector / dot(-relPos1, obstacleVector));
+                float distSqLine =  lengthsq(-relPos1 - (s * obstacleVector));
 
                 ORCALine line;
 
@@ -213,8 +215,8 @@ namespace Nebukam.ORCA
                     // Collision with left vertex. Ignore if non-convex.
                     if (o1.convex)
                     {
-                        line.point = Vector2.zero;
-                        line.dir = (new Vector2(-relPos1.y, relPos1.x)).normalized;
+                        line.point = float2(false);
+                        line.dir = normalize(float2(-relPos1.y, relPos1.x));
                         m_orcaLines.Add(line);
                     }
 
@@ -226,8 +228,8 @@ namespace Nebukam.ORCA
                     // it will be taken care of by neighboring obstacle.
                     if (o2.convex && Maths.Det(relPos2, o2.dir) >= 0.0f)
                     {
-                        line.point = Vector2.zero;
-                        line.dir = (new Vector2(-relPos2.y, relPos2.x)).normalized;
+                        line.point = float2(false);
+                        line.dir = normalize(float2(-relPos2.y, relPos2.x));
                         m_orcaLines.Add(line);
                     }
 
@@ -236,18 +238,18 @@ namespace Nebukam.ORCA
                 else if (s >= 0.0f && s < 1.0f && distSqLine <= radiusSq)
                 {
                     // Collision with obstacle segment.
-                    line.point = Vector2.zero;
+                    line.point = float2(false);
                     line.dir = -o1.dir;
                     m_orcaLines.Add(line);
 
                     continue;
                 }
-                
+
                 // No collision. Compute legs. When obliquely viewed, both legs
                 // can come from a single vertex. Legs extend cut-off line when
                 // non-convex vertex.
 
-                Vector2 lLegDir, rLegDir;
+                float2 lLegDir, rLegDir;
 
                 if (s < 0.0f && distSqLine <= radiusSq)
                 {
@@ -262,9 +264,9 @@ namespace Nebukam.ORCA
 
                     o2 = o1;
 
-                    float leg1 = Mathf.Sqrt(distSq1 - radiusSq);
-                    lLegDir = new Vector2(relPos1.x * leg1 - relPos1.y * m_radius, relPos1.x * m_radius + relPos1.y * leg1) / distSq1;
-                    rLegDir = new Vector2(relPos1.x * leg1 + relPos1.y * m_radius, -relPos1.x * m_radius + relPos1.y * leg1) / distSq1;
+                    float leg1 = sqrt(distSq1 - radiusSq);
+                    lLegDir = float2(relPos1.x * leg1 - relPos1.y * m_radius, relPos1.x * m_radius + relPos1.y * leg1) / distSq1;
+                    rLegDir = float2(relPos1.x * leg1 + relPos1.y * m_radius, -relPos1.x * m_radius + relPos1.y * leg1) / distSq1;
                 }
                 else if (s > 1.0f && distSqLine <= radiusSq)
                 {
@@ -279,17 +281,17 @@ namespace Nebukam.ORCA
 
                     o1 = o2;
 
-                    float leg2 = Mathf.Sqrt(distSq2 - radiusSq);
-                    lLegDir = new Vector2(relPos2.x * leg2 - relPos2.y * m_radius, relPos2.x * m_radius + relPos2.y * leg2) / distSq2;
-                    rLegDir = new Vector2(relPos2.x * leg2 + relPos2.y * m_radius, -relPos2.x * m_radius + relPos2.y * leg2) / distSq2;
+                    float leg2 = sqrt(distSq2 - radiusSq);
+                    lLegDir = float2(relPos2.x * leg2 - relPos2.y * m_radius, relPos2.x * m_radius + relPos2.y * leg2) / distSq2;
+                    rLegDir = float2(relPos2.x * leg2 + relPos2.y * m_radius, -relPos2.x * m_radius + relPos2.y * leg2) / distSq2;
                 }
                 else
                 {
                     // Usual situation.
                     if (o1.convex)
                     {
-                        float leg1 = Mathf.Sqrt(distSq1 - radiusSq);
-                        lLegDir = new Vector2(relPos1.x * leg1 - relPos1.y * m_radius, relPos1.x * m_radius + relPos1.y * leg1) / distSq1;
+                        float leg1 = sqrt(distSq1 - radiusSq);
+                        lLegDir = float2(relPos1.x * leg1 - relPos1.y * m_radius, relPos1.x * m_radius + relPos1.y * leg1) / distSq1;
                     }
                     else
                     {
@@ -299,8 +301,8 @@ namespace Nebukam.ORCA
 
                     if (o2.convex)
                     {
-                        float leg2 = Mathf.Sqrt(distSq2 - radiusSq);
-                        rLegDir = new Vector2(relPos2.x * leg2 + relPos2.y * m_radius, -relPos2.x * m_radius + relPos2.y * leg2) / distSq2;
+                        float leg2 = sqrt(distSq2 - radiusSq);
+                        rLegDir = float2(relPos2.x * leg2 + relPos2.y * m_radius, -relPos2.x * m_radius + relPos2.y * leg2) / distSq2;
                     }
                     else
                     {
@@ -333,23 +335,23 @@ namespace Nebukam.ORCA
                 }
 
                 // Compute cut-off centers.
-                Vector2 leftCutOff = invTimeHorizonObst * (o1.point - m_position);
-                Vector2 rightCutOff = invTimeHorizonObst * (o2.point - m_position);
-                Vector2 cutOffVector = rightCutOff - leftCutOff;
+                float2 leftCutOff = invTimeHorizonObst * (o1.point - m_position);
+                float2 rightCutOff = invTimeHorizonObst * (o2.point - m_position);
+                float2 cutOffVector = rightCutOff - leftCutOff;
 
                 // Project current velocity on velocity obstacle.
 
                 // Check if current velocity is projected on cutoff circles.
-                float t = o1 == o2 ? 0.5f : Maths.Dot((m_velocity - leftCutOff), cutOffVector) / cutOffVector.AbsSq();
-                float tLeft = Maths.Dot((m_velocity - leftCutOff), lLegDir);
-                float tRight = Maths.Dot((m_velocity - rightCutOff), rLegDir);
+                float t = o1 == o2 ? 0.5f : dot((m_velocity - leftCutOff), cutOffVector) / lengthsq(cutOffVector);
+                float tLeft = dot((m_velocity - leftCutOff), lLegDir);
+                float tRight = dot((m_velocity - rightCutOff), rLegDir);
 
                 if ((t < 0.0f && tLeft < 0.0f) || (o1 == o2 && tLeft < 0.0f && tRight < 0.0f))
                 {
                     // Project on left cut-off circle.
-                    Vector2 unitW = (m_velocity - leftCutOff).normalized;
+                    float2 unitW = normalize(m_velocity - leftCutOff);
 
-                    line.dir = new Vector2(unitW.y, -unitW.x);
+                    line.dir = float2(unitW.y, -unitW.x);
                     line.point = leftCutOff + m_radius * invTimeHorizonObst * unitW;
                     m_orcaLines.Add(line);
 
@@ -358,9 +360,9 @@ namespace Nebukam.ORCA
                 else if (t > 1.0f && tRight < 0.0f)
                 {
                     // Project on right cut-off circle.
-                    Vector2 unitW = (m_velocity - rightCutOff).normalized;
+                    float2 unitW = normalize(m_velocity - rightCutOff);
 
-                    line.dir = new Vector2(unitW.y, -unitW.x);
+                    line.dir = float2(unitW.y, -unitW.x);
                     line.point = rightCutOff + m_radius * invTimeHorizonObst * unitW;
                     m_orcaLines.Add(line);
 
@@ -369,15 +371,15 @@ namespace Nebukam.ORCA
 
                 // Project on left leg, right leg, or cut-off line, whichever is
                 // closest to velocity.
-                float distSqCutoff = (t < 0.0f || t > 1.0f || o1 == o2) ? float.PositiveInfinity : Maths.AbsSq(m_velocity - (leftCutOff + t * cutOffVector));
-                float distSqLeft = tLeft < 0.0f ? float.PositiveInfinity : Maths.AbsSq(m_velocity - (leftCutOff + tLeft * lLegDir));
-                float distSqRight = tRight < 0.0f ? float.PositiveInfinity : Maths.AbsSq(m_velocity - (rightCutOff + tRight * rLegDir));
+                float distSqCutoff = (t < 0.0f || t > 1.0f || o1 == o2) ? float.PositiveInfinity : lengthsq(m_velocity - (leftCutOff + t * cutOffVector));
+                float distSqLeft = tLeft < 0.0f ? float.PositiveInfinity : lengthsq(m_velocity - (leftCutOff + tLeft * lLegDir));
+                float distSqRight = tRight < 0.0f ? float.PositiveInfinity : lengthsq(m_velocity - (rightCutOff + tRight * rLegDir));
 
                 if (distSqCutoff <= distSqLeft && distSqCutoff <= distSqRight)
                 {
                     // Project on cut-off line.
                     line.dir = -o1.dir;
-                    line.point = leftCutOff + m_radius * invTimeHorizonObst * new Vector2(-line.dir.y, line.dir.x);
+                    line.point = leftCutOff + m_radius * invTimeHorizonObst * float2(-line.dir.y, line.dir.x);
                     m_orcaLines.Add(line);
 
                     continue;
@@ -392,7 +394,7 @@ namespace Nebukam.ORCA
                     }
 
                     line.dir = lLegDir;
-                    line.point = leftCutOff + m_radius * invTimeHorizonObst * new Vector2(-line.dir.y, line.dir.x);
+                    line.point = leftCutOff + m_radius * invTimeHorizonObst * float2(-line.dir.y, line.dir.x);
                     m_orcaLines.Add(line);
 
                     continue;
@@ -405,7 +407,7 @@ namespace Nebukam.ORCA
                 }
 
                 line.dir = -rLegDir;
-                line.point = rightCutOff + m_radius * invTimeHorizonObst * new Vector2(-line.dir.y, line.dir.x);
+                line.point = rightCutOff + m_radius * invTimeHorizonObst * float2(-line.dir.y, line.dir.x);
                 m_orcaLines.Add(line);
             }
 
@@ -418,50 +420,50 @@ namespace Nebukam.ORCA
             {
                 ORCAAgent other = m_agentNeighbors[i].Value;
 
-                Vector2 relPos = other.m_position - m_position;
-                Vector2 relVel = m_velocity - other.m_velocity;
-                float distSq = relPos.AbsSq();
+                float2 relPos = other.m_position - m_position;
+                float2 relVel = m_velocity - other.m_velocity;
+                float distSq = lengthsq(relPos);
                 float cRad = m_radius + other.m_radius;
-                float cRadSq = cRad.Sqr();
+                float cRadSq = lengthsq(cRad);
 
                 ORCALine line;
-                Vector2 u;
+                float2 u;
 
                 if (distSq > cRadSq)
                 {
                     // No collision.
-                    Vector2 w = relVel - invTimeHorizon * relPos;
+                    float2 w = relVel - invTimeHorizon * relPos;
 
                     // Vector from cutoff center to relative velocity.
-                    float wLengthSq = w.AbsSq();
-                    float dotProduct1 = Maths.Dot(w, relPos);
+                    float wLengthSq = lengthsq(w);
+                    float dotProduct1 = dot(w, relPos);
 
-                    if (dotProduct1 < 0.0f && dotProduct1.Sqr() > cRadSq * wLengthSq)
+                    if (dotProduct1 < 0.0f && lengthsq(dotProduct1) > cRadSq * wLengthSq)
                     {
                         // Project on cut-off circle.
-                        float wLength = Mathf.Sqrt(wLengthSq);
-                        Vector2 unitW = w / wLength;
+                        float wLength = sqrt(wLengthSq);
+                        float2 unitW = w / wLength;
 
-                        line.dir = new Vector2(unitW.y, -unitW.x);
+                        line.dir = float2(unitW.y, -unitW.x);
                         u = (cRad * invTimeHorizon - wLength) * unitW;
                     }
                     else
                     {
                         // Project on legs.
-                        float leg = Mathf.Sqrt(distSq - cRadSq);
+                        float leg = sqrt(distSq - cRadSq);
 
                         if (Maths.Det(relPos, w) > 0.0f)
                         {
                             // Project on left leg.
-                            line.dir = new Vector2(relPos.x * leg - relPos.y * cRad, relPos.x * cRad + relPos.y * leg) / distSq;
+                            line.dir = float2(relPos.x * leg - relPos.y * cRad, relPos.x * cRad + relPos.y * leg) / distSq;
                         }
                         else
                         {
                             // Project on right leg.
-                            line.dir = -new Vector2(relPos.x * leg + relPos.y * cRad, -relPos.x * cRad + relPos.y * leg) / distSq;
+                            line.dir = -float2(relPos.x * leg + relPos.y * cRad, -relPos.x * cRad + relPos.y * leg) / distSq;
                         }
 
-                        float dotProduct2 = Maths.Dot(relVel, line.dir);
+                        float dotProduct2 = dot(relVel, line.dir);
                         u = dotProduct2 * line.dir - relVel;
                     }
                 }
@@ -471,12 +473,12 @@ namespace Nebukam.ORCA
                     float invTimeStep = 1.0f / m_solver.m_timeStep;
 
                     // Vector from cutoff center to relative velocity.
-                    Vector2 w = relVel - invTimeStep * relPos;
+                    float2 w = relVel - invTimeStep * relPos;
 
-                    float wLength = w.Abs();
-                    Vector2 unitW = w / wLength;
+                    float wLength = length(w);
+                    float2 unitW = w / wLength;
 
-                    line.dir = new Vector2(unitW.y, -unitW.x);
+                    line.dir = float2(unitW.y, -unitW.x);
                     u = (cRad * invTimeStep - wLength) * unitW;
                 }
 
@@ -505,7 +507,7 @@ namespace Nebukam.ORCA
                 //TODO : Add ignore rules here
                 //Need to implement a layer system to ignore only specific flags
 
-                float distSq = Maths.AbsSq(m_position - agent.m_position);
+                float distSq = lengthsq(m_position - agent.m_position);
 
                 if (distSq < rangeSq)
                 {
@@ -580,10 +582,10 @@ namespace Nebukam.ORCA
         /// <param name="dirOpt">True if the direction should be optimized.</param>
         /// <param name="result">A reference to the result of the linear program.</param>
         /// <returns>True if successful.</returns>
-        private bool LP1(IList<ORCALine> lines, int lineNo, float radius, Vector2 optVel, bool dirOpt, ref Vector2 result)
+        private bool LP1(IList<ORCALine> lines, int lineNo, float radius, float2 optVel, bool dirOpt, ref float2 result)
         {
-            float dotProduct = Maths.Dot(lines[lineNo].point, lines[lineNo].dir);
-            float discriminant = dotProduct.Sqr() + radius.Sqr() - lines[lineNo].point.AbsSq();
+            float dotProduct = dot(lines[lineNo].point, lines[lineNo].dir);
+            float discriminant = lengthsq(dotProduct) + lengthsq(radius) - lengthsq(lines[lineNo].point);
 
             if (discriminant < 0.0f)
             {
@@ -600,7 +602,7 @@ namespace Nebukam.ORCA
                 float denominator = Maths.Det(lines[lineNo].dir, lines[i].dir);
                 float numerator = Maths.Det(lines[i].dir, lines[lineNo].point - lines[i].point);
 
-                if (Mathf.Abs(denominator) <= Maths.EPSILON)
+                if (abs(denominator) <= Maths.EPSILON)
                 {
                     // Lines lineNo and i are (almost) parallel.
                     if (numerator < 0.0f)
@@ -616,12 +618,12 @@ namespace Nebukam.ORCA
                 if (denominator >= 0.0f)
                 {
                     // Line i bounds line lineNo on the right.
-                    tRight = Mathf.Min(tRight, t);
+                    tRight = min(tRight, t);
                 }
                 else
                 {
                     // Line i bounds line lineNo on the left.
-                    tLeft = Mathf.Max(tLeft, t);
+                    tLeft = max(tLeft, t);
                 }
 
                 if (tLeft > tRight)
@@ -633,7 +635,7 @@ namespace Nebukam.ORCA
             if (dirOpt)
             {
                 // Optimize direction.
-                if (Maths.Dot(optVel, lines[lineNo].dir ) > 0.0f)
+                if (dot(optVel, lines[lineNo].dir ) > 0.0f)
                 {
                     // Take right extreme.
                     result = lines[lineNo].point + tRight * lines[lineNo].dir;
@@ -647,7 +649,7 @@ namespace Nebukam.ORCA
             else
             {
                 // Optimize closest point.
-                float t = Maths.Dot(lines[lineNo].dir, (optVel - lines[lineNo].point));
+                float t = dot(lines[lineNo].dir, (optVel - lines[lineNo].point));
 
                 if (t < tLeft)
                 {
@@ -676,7 +678,7 @@ namespace Nebukam.ORCA
         /// <param name="dirOpt">True if the direction should be optimized.</param>
         /// <param name="result">A reference to the result of the linear program.</param>
         /// <returns>The number of the line it fails on, and the number of lines if successful.</returns>
-        private int LP2(IList<ORCALine> lines, float radius, Vector2 optVel, bool dirOpt, ref Vector2 result)
+        private int LP2(IList<ORCALine> lines, float radius, float2 optVel, bool dirOpt, ref float2 result)
         {
             if (dirOpt)
             {
@@ -684,10 +686,10 @@ namespace Nebukam.ORCA
                 // unit length in this case.
                 result = optVel * radius;
             }
-            else if (optVel.AbsSq() > radius.Sqr())
+            else if (lengthsq(optVel) > (radius * radius))
             {
                 // Optimize closest point and outside circle.
-                result = optVel.normalized * radius;
+                result = normalize(optVel) * radius;
             }
             else
             {
@@ -700,7 +702,7 @@ namespace Nebukam.ORCA
                 if (Maths.Det(lines[i].dir, lines[i].point - result) > 0.0f)
                 {
                     // Result does not satisfy constraint i. Compute new optimal result.
-                    Vector2 tempResult = result;
+                    float2 tempResult = result;
                     if (!LP1(lines, i, radius, optVel, dirOpt, ref result))
                     {
                         result = tempResult;
@@ -722,7 +724,7 @@ namespace Nebukam.ORCA
         /// <param name="beginLine">The line on which the 2-d linear program failed.</param>
         /// <param name="radius">The radius of the circular constraint.</param>
         /// <param name="result">A reference to the result of the linear program.</param>
-        private void LP3(IList<ORCALine> lines, int numObstLines, int beginLine, float radius, ref Vector2 result)
+        private void LP3(IList<ORCALine> lines, int numObstLines, int beginLine, float radius, ref float2 result)
         {
             float distance = 0.0f;
 
@@ -746,7 +748,7 @@ namespace Nebukam.ORCA
                         if (Mathf.Abs(determinant) <= Maths.EPSILON)
                         {
                             // Line i and line j are parallel.
-                            if (Maths.Dot(lines[i].dir, lines[j].dir) > 0.0f)
+                            if (dot(lines[i].dir, lines[j].dir) > 0.0f)
                             {
                                 // Line i and line j point in the same direction.
                                 continue;
@@ -762,12 +764,12 @@ namespace Nebukam.ORCA
                             line.point = lines[i].point + (Maths.Det(lines[j].dir, lines[i].point - lines[j].point) / determinant) * lines[i].dir;
                         }
 
-                        line.dir = (lines[j].dir - lines[i].dir).normalized;
+                        line.dir = normalize(lines[j].dir - lines[i].dir);
                         projLines.Add(line);
                     }
 
-                    Vector2 tempResult = result;
-                    if (LP2(projLines, radius, new Vector2(-lines[i].dir.y, lines[i].dir.x), true, ref result) < projLines.Count)
+                    float2 tempResult = result;
+                    if (LP2(projLines, radius, float2(-lines[i].dir.y, lines[i].dir.x), true, ref result) < projLines.Count)
                     {
                         // This should in principle not happen. The result is by
                         // definition already in the feasible region of this
