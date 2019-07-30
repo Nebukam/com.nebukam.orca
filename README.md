@@ -12,7 +12,6 @@ N:ORCA is currently in development, and while the repo is available to use and d
 The simulation occurs on the XY (2D) plane, though results can be used for 3D projects as well.
 
 Upcoming features include : 
-- Collision check matrix
 - Dynamic obstacle support (complex polygons)
 - Converting Unity Polygon Collider 2D into obstacles.
 
