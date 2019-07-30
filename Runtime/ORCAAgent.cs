@@ -14,6 +14,34 @@ namespace Nebukam.ORCA
 
         int id { get; }
 
+        bool requirePreparation { get; set; }
+        int preparationOrder { get; set; }
+
+        /// <summary>
+        /// A list of specific agents to ignore.
+        /// Only checked, and not maintained in any way.
+        /// </summary>
+        HashSet<IORCAAgent> ignoreHash { get; }
+
+        /// <summary>
+        /// ORCA layers on which this Agent exists.
+        /// </summary>
+        ORCALayer layerPresence { get; set; }
+
+        /// <summary>
+        /// ORCA layers this agent ignores. 
+        /// An agent may exist on ignored layers, as well as colliding with layers it does not exist on.
+        /// </summary>
+        ORCALayer layerIgnore { get; set; }
+
+        /// <summary>
+        /// Return whether a given agent will be ignored based solely
+        /// on ignoreHash & layer setup.
+        /// </summary>
+        /// <param name="agent"></param>
+        /// <returns></returns>
+        bool WillIgnore(IORCAAgent agent);
+
         float2 position { get; set; }
         float2 prefVelocity { get; set; }
 
@@ -79,6 +107,12 @@ namespace Nebukam.ORCA
         internal IList<KeyValuePair<float, Obstacle>> m_obstacleNeighbors = new List<KeyValuePair<float, Obstacle>>();
         internal IList<ORCALine> m_orcaLines = new List<ORCALine>();
 
+        internal bool m_requirePreparation = false;
+        internal int m_preparationOrder = 0;
+        
+        internal ORCALayer m_layerPresence = ORCALayer.ALL;
+        internal ORCALayer m_layerIgnore = ORCALayer.NONE;
+
         internal float2 m_position;
         internal float2 m_prefVelocity;
         internal float2 m_velocity;
@@ -90,12 +124,38 @@ namespace Nebukam.ORCA
         internal float m_timeHorizon = 0.0f;
         internal float m_timeHorizonObst = 0.0f;
         internal bool m_needDelete = false;
-
+        
         private float2 m_newVelocity;
 
         public int id
         {
             get { return m_id; }
+        }
+        
+
+        public bool requirePreparation
+        {
+            get { return m_requirePreparation; }
+            set { m_requirePreparation = value; }
+        }
+
+        public int preparationOrder
+        {
+            get { return m_preparationOrder; }
+            set { m_preparationOrder = value; }
+        }
+
+        protected HashSet<IORCAAgent> m_ignoreHash = new HashSet<IORCAAgent>();
+        public HashSet<IORCAAgent> ignoreHash { get { return m_ignoreHash; } }
+
+        public ORCALayer layerPresence {
+            get { return m_layerPresence; }
+            set { m_layerPresence = value; }
+        }
+
+        public ORCALayer layerIgnore {
+            get { return m_layerIgnore; }
+            set { m_layerIgnore = value; }
         }
 
         public virtual float2 position {
@@ -501,39 +561,57 @@ namespace Nebukam.ORCA
         /// <param name="rangeSq">The squared range around this agent.</param>
         internal virtual void InsertAgentNeighbor(ORCAAgent agent, ref float rangeSq)
         {
-            if (this != agent)
+
+            //If the inserted agent is self, or exists only on layers this agent ignores, ignore.
+            if (this == agent) { return; }
+            if(m_ignoreHash.Count > 0 && m_ignoreHash.Contains(agent)) { return; }
+            if((agent.m_layerPresence & ~m_layerIgnore) == 0) { return; }
+            
+            float distSq = lengthsq(m_position - agent.m_position);
+
+            if (distSq < rangeSq)
             {
-
-                //TODO : Add ignore rules here
-                //Need to implement a layer system to ignore only specific flags
-
-                float distSq = lengthsq(m_position - agent.m_position);
-
-                if (distSq < rangeSq)
+                if (m_agentNeighbors.Count < m_maxNeighbors)
                 {
-                    if (m_agentNeighbors.Count < m_maxNeighbors)
-                    {
-                        m_agentNeighbors.Add(new KeyValuePair<float, ORCAAgent>(distSq, agent));
-                    }
+                    m_agentNeighbors.Add(new KeyValuePair<float, ORCAAgent>(distSq, agent));
+                }
 
-                    int i = m_agentNeighbors.Count - 1;
+                int i = m_agentNeighbors.Count - 1;
 
-                    while (i != 0 && distSq < m_agentNeighbors[i - 1].Key)
-                    {
-                        m_agentNeighbors[i] = m_agentNeighbors[i - 1];
-                        --i;
-                    }
+                while (i != 0 && distSq < m_agentNeighbors[i - 1].Key)
+                {
+                    m_agentNeighbors[i] = m_agentNeighbors[i - 1];
+                    --i;
+                }
 
-                    m_agentNeighbors[i] = new KeyValuePair<float, ORCAAgent>(distSq, agent);
+                m_agentNeighbors[i] = new KeyValuePair<float, ORCAAgent>(distSq, agent);
 
-                    if (m_agentNeighbors.Count == m_maxNeighbors)
-                    {
-                        rangeSq = m_agentNeighbors[m_agentNeighbors.Count - 1].Key;
-                    }
+                if (m_agentNeighbors.Count == m_maxNeighbors)
+                {
+                    rangeSq = m_agentNeighbors[m_agentNeighbors.Count - 1].Key;
                 }
             }
+            
         }
-        
+
+        /// <summary>
+        /// Return whether a given agent will be ignored based solely
+        /// on ignoreHash & layer setup.
+        /// </summary>
+        /// <param name="agent"></param>
+        /// <returns></returns>
+        public virtual bool WillIgnore(IORCAAgent agent)
+        {
+            if (this == agent 
+                || (m_ignoreHash.Count > 0 && m_ignoreHash.Contains(agent))
+                || ((agent.layerPresence & ~m_layerIgnore) == 0))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Inserts a static obstacle neighbor into the set of neighbors of this agent.
         /// </summary>
@@ -560,6 +638,12 @@ namespace Nebukam.ORCA
             }
         }
         
+        //
+        internal virtual void Prepare()
+        {
+            
+        }
+
         /// <summary>
         /// Updates the two-dimensional position and two-dimensional velocity of this agent.
         /// </summary>

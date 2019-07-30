@@ -60,6 +60,82 @@ namespace Nebukam.ORCA
         }
     }
 
+
+    internal class PreparationComparer : IComparer<ORCAAgent>
+    {
+        public int Compare(ORCAAgent x, ORCAAgent y)
+        {
+            return x.m_preparationOrder - y.m_preparationOrder;
+        }
+    }
+
+    /// <summary>
+    /// An agent config struct.
+    /// </summary>
+    public struct AgentConfig {
+
+
+        public int maxNeighbors;
+        public float maxSpeed;
+        public float neighborDist;
+        public float radius;
+        public float timeHorizon;
+        public float timeHorizonObst;
+        public float2 velocity;
+
+        public static AgentConfig From(ORCAAgent agent)
+        {
+            return new AgentConfig()
+            {
+                maxNeighbors = agent.m_maxNeighbors,
+                maxSpeed = agent.m_maxSpeed,
+                neighborDist = agent.m_neighborDist,
+                radius = agent.m_radius,
+                timeHorizon = agent.m_timeHorizon,
+                timeHorizonObst = agent.m_timeHorizonObst,
+                velocity = agent.m_velocity
+            };
+        }
+
+        public static AgentConfig From(IORCAAgent agent)
+        {
+            return new AgentConfig()
+            {
+                maxNeighbors = agent.maxNeighbors,
+                maxSpeed = agent.maxSpeed,
+                neighborDist = agent.neighborDist,
+                radius = agent.radius,
+                timeHorizon = agent.timeHorizon,
+                timeHorizonObst = agent.timeHorizonObst,
+                velocity = agent.velocity
+            };
+        }
+
+        public void ApplyTo(ORCAAgent agent)
+        {
+            agent.m_maxNeighbors = maxNeighbors;
+            agent.m_maxSpeed = maxSpeed;
+            agent.m_neighborDist = neighborDist;
+            agent.m_radius = radius;
+            agent.m_timeHorizon = timeHorizon;
+            agent.m_timeHorizonObst = timeHorizonObst;
+            agent.m_velocity = velocity;
+        }
+
+        public void ApplyTo(IORCAAgent agent)
+        {
+            agent.maxNeighbors = maxNeighbors;
+            agent.maxSpeed = maxSpeed;
+            agent.neighborDist = neighborDist;
+            agent.radius = radius;
+            agent.timeHorizon = timeHorizon;
+            agent.timeHorizonObst = timeHorizonObst;
+            agent.velocity = velocity;
+        }
+
+    }
+
+
     /// <summary>
     /// Defines the simulation.
     /// </summary>
@@ -67,6 +143,8 @@ namespace Nebukam.ORCA
     {
 
         #region Statics
+
+        static internal PreparationComparer m_preparationComparer = new PreparationComparer();
 
         static public ORCASolver CreateSolver(
             float2 defaultVelocity,
@@ -135,10 +213,12 @@ namespace Nebukam.ORCA
              */
             internal void step(object obj)
             {
+                ORCAAgent agent;
                 for (int index = m_start; index < m_end; ++index)
                 {
-                    m_solver.m_agents[index].ComputeNeighbors();
-                    m_solver.m_agents[index].ComputeNewVelocity();
+                    agent = m_solver.m_agents[index];
+                    agent.ComputeNeighbors();
+                    agent.ComputeNewVelocity();
                 }
                 m_doneEvent.Set();
             }
@@ -167,6 +247,9 @@ namespace Nebukam.ORCA
         internal IList<ORCAAgent> m_agents = new List<ORCAAgent>();
         internal IList<Obstacle> m_obstacles = new List<Obstacle>();
         internal IList<Obstacle> m_dynamicObstacles = new List<Obstacle>();
+        internal List<ORCAAgent> m_unorderedPrepList = new List<ORCAAgent>();
+        internal List<ORCAAgent> m_orderedPrepList = new List<ORCAAgent>();
+        
         internal ORCAKdTree m_kdTree;
         internal float m_timeStep;
         
@@ -195,6 +278,10 @@ namespace Nebukam.ORCA
 
         void UpdateDeleteAgent()
         {
+
+            m_unorderedPrepList.Clear();
+            m_orderedPrepList.Clear();
+
             ORCAAgent agent;
             bool isDelete = false;
             for (int i = m_agents.Count - 1; i >= 0; i--)
@@ -203,12 +290,74 @@ namespace Nebukam.ORCA
                 if (agent.m_needDelete)
                 {
                     m_agents.RemoveAt(i);
+                    OnAgentRemoved(agent);
                     agent.solver = null;
                     isDelete = true;
+                }else if(agent.m_requirePreparation) 
+                {
+                    if(agent.m_preparationOrder != 0)
+                    {
+                        m_orderedPrepList.Add(agent);
+                    }
+                    else
+                    {
+                        m_unorderedPrepList.Add(agent);
+                    }
                 }
             }
+
             if (isDelete)
                 OnAgentRemoved();
+
+            //TODO : optimize this to avoid sorting each frame.
+            m_orderedPrepList.Sort(m_preparationComparer);
+        }
+
+        void PrepareAgents()
+        {
+            int unorderedCount = m_unorderedPrepList.Count, orderedCount = m_orderedPrepList.Count;
+            bool unorderedPrepared = unorderedCount > 0 ? false : true;
+            
+            if(orderedCount > 0)
+            {
+                if(m_orderedPrepList[0].m_preparationOrder <= 0)
+                {
+                    ORCAAgent agent;
+
+                    //Ordered preparation to take care of in the middle of the unordered ones
+                    for (int i = 0; i < orderedCount; i++)
+                    {
+                        agent = m_orderedPrepList[i];
+                        if(!unorderedPrepared && agent.m_preparationOrder > 0)
+                        {
+                            PrepareUnorderedAgents();
+                            unorderedPrepared = true;
+                        }
+                        agent.Prepare();
+                    }
+                }
+                else
+                {
+                    //Ordered agents all have a prep order > 0
+                    if (unorderedCount > 0) { PrepareUnorderedAgents(); }
+                    for(int i = 0; i < orderedCount; i++)
+                    {
+
+                    }
+                }
+            }
+            else if(unorderedCount > 0)
+            {
+                PrepareUnorderedAgents();
+            }
+        }
+
+        void PrepareUnorderedAgents()
+        {
+            for(int i = 0, count = m_unorderedPrepList.Count; i < count; i++)
+            {
+                m_unorderedPrepList[i].Prepare();
+            }
         }
 
         private int s_totalID = 0;
@@ -231,10 +380,8 @@ namespace Nebukam.ORCA
             a.m_id = s_totalID;
             s_totalID++;
             m_agents.Add(a);
-
-            a.solver = this;
-            
-            OnAgentAdded();
+                        
+            OnAgentAdded(a);
             return agent;
         }
 
@@ -267,14 +414,29 @@ namespace Nebukam.ORCA
             agent.timeHorizon = m_defaultAgent.timeHorizon;
             agent.timeHorizonObst = m_defaultAgent.timeHorizonObst;
             agent.velocity = m_defaultAgent.velocity;
-            agent.solver = this;
+
             m_agents.Add(agent);
-            OnAgentAdded();
+            OnAgentAdded(agent);
             return agent;
         }
+                
+        /// <summary>
+        /// Called whenever a specific agent deletion is committed.
+        /// </summary>
+        /// <param name="agent"></param>
+        void OnAgentRemoved(ORCAAgent agent)
+        {
+            m_orderedPrepList.Remove(agent);
+            agent.solver = null;
+        }
 
+        /// <summary>
+        /// Called whenever the agent list has been updated and any number
+        /// of agent has been removed. It update indexes lists & dicts
+        /// </summary>
         void OnAgentRemoved()
         {
+
             m_agentNo2indexDict.Clear();
             m_index2agentNoDict.Clear();
 
@@ -286,10 +448,23 @@ namespace Nebukam.ORCA
             }
         }
 
-        void OnAgentAdded()
+        /// <summary>
+        /// Called whenever an agent is added to the simulation
+        /// </summary>
+        /// <param name="agent"></param>
+        void OnAgentAdded(ORCAAgent agent)
         {
             if (m_agents.Count == 0)
                 return;
+
+            agent.solver = this;
+
+            //Check if the agent should be added to the list of 
+            //agents requiring preparation
+            if (agent.m_preparationOrder != 0)
+            {
+                m_orderedPrepList.Add(agent);
+            }
 
             int index = m_agents.Count - 1;
             int agentNo = m_agents[index].m_id;
@@ -376,7 +551,7 @@ namespace Nebukam.ORCA
             agent.m_timeHorizonObst = timeHorizonObst;
             agent.m_velocity = velocity;
             m_agents.Add(agent);
-            OnAgentAdded();
+            OnAgentAdded(agent);
             return agent;
         }
 
@@ -471,6 +646,7 @@ namespace Nebukam.ORCA
         public float DoStep()
         {
             UpdateDeleteAgent();
+            PrepareAgents();
 
             if (m_workers == null)
             {
@@ -738,6 +914,10 @@ namespace Nebukam.ORCA
             m_defaultAgent.m_timeHorizon = timeHorizon;
             m_defaultAgent.m_timeHorizonObst = timeHorizonObst;
             m_defaultAgent.m_velocity = velocity;
+
+            //TODO : Add layerPresence & layerIgnore default setup
+            //also update Add methods to reflect that.
+
         }
         
         /**

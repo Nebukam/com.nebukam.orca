@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
-using Nebukam.Utils;
 using Unity.Mathematics;
 using static Unity.Mathematics.math;
 using Random = UnityEngine.Random;
+using Nebukam.Utils;
 
 namespace Nebukam.ORCA
 { 
@@ -57,6 +57,12 @@ namespace Nebukam.ORCA
         public float maxSpeed = 20.0f;
         [Tooltip("How fast does this agent turn ?")]
         public float turnSpeed = 5.0f;
+        [EnumFlags]
+        [Tooltip("Layer on which this agent can be seen by other agents")]
+        public ORCALayer layerPresence = ORCALayer.ALL;
+        [EnumFlags]
+        [Tooltip("Layer this agent will not look at while resolving RVOs")]
+        public ORCALayer layerIgnore = ORCALayer.NONE;
 
         [Header("ORCA Control")]
         [Tooltip("Should the Agent control that gameobject position ?")]
@@ -66,7 +72,6 @@ namespace Nebukam.ORCA
         [Tooltip("Should the Agent look at his target (instead of velocity) ?")]
         public bool lookAtTarget = true;
         
-
         protected Vector3 currentForward = Vector3.zero;
 
 #if UNITY_EDITOR
@@ -127,12 +132,15 @@ namespace Nebukam.ORCA
         {
 
             m_ORCAAgent.neighborDist = neighborsDist;
-            m_ORCAAgent.maxNeighbors = neighborsMaxCount;
+            m_ORCAAgent.maxNeighbors = layerIgnore == ORCALayer.ALL ? 0 : neighborsMaxCount;
             m_ORCAAgent.timeHorizon = timeHorizon;
             m_ORCAAgent.timeHorizonObst = timeHorizonObstacle;
 
             m_ORCAAgent.radius = radius;
             m_ORCAAgent.maxSpeed = maxSpeed;
+
+            m_ORCAAgent.layerPresence = layerPresence;
+            m_ORCAAgent.layerIgnore = layerIgnore;
 
         }
 
