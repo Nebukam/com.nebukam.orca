@@ -38,8 +38,8 @@ Each _ORCASolver_ needs to be manually updated (along with its timestep) each fr
 
 ---
 ## Dependencies
-**Unity.Mathematics 1.1.0** -- [com.unity.mathematics](https://github.com/Unity-Technologies/Unity.Mathematics)
-**N:Utils** -- [com.nebukam.utils](https://github.com/Nebukam/com.nebukam.utils)
+- **Unity.Mathematics 1.1.0** -- [com.unity.mathematics](https://github.com/Unity-Technologies/Unity.Mathematics)
+- **N:Utils** -- [com.nebukam.utils](https://github.com/Nebukam/com.nebukam.utils)
 
 ---
 ## Credits
