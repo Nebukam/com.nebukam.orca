@@ -3,7 +3,7 @@
 namespace Nebukam.ORCA.Ed
 {
 
-    [CustomEditor(typeof(ORCABehaviour2D))]
+    [CustomEditor(typeof(ORCAAgentComponent2D))]
     [CanEditMultipleObjects]
     public class ORCABehaviour2DEditor : Editor
     {

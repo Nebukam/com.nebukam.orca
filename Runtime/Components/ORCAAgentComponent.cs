@@ -11,9 +11,11 @@ namespace Nebukam.ORCA
     /// This component allows an ORCAAgent to control a gameobject's position and orientation.
     /// Its ORCAAgent property must be provided with a valid agent from an ORCASolver in order for it to function properly.
     /// </summary>
-    public class ORCABehaviour : MonoBehaviour
+    public class ORCAAgentComponent : MonoBehaviour
     {
-        
+
+        const string sdef = "useSolverSettings";
+
         protected IORCAAgent m_ORCAAgent = null;
         public IORCAAgent ORCAAgent
         {
@@ -22,11 +24,11 @@ namespace Nebukam.ORCA
             {
                 if (m_ORCAAgent == value) { return; }
                 m_ORCAAgent = value;
-                if (m_ORCAAgent != null) { OnRVOAgentAssigned(); }
             }
         }
 
         protected Vector3 m_targetPosition = Vector3.zero;
+
         /// <summary>
         /// The current goal of this agent.
         /// </summary>
@@ -36,37 +38,66 @@ namespace Nebukam.ORCA
             set { m_targetPosition = value; }
         }
 
-        [Header("ORCA Awareness")]
+        [ConditionalField("fixedStep")]
+
+        [Header("ORCA Solver")]
+
+        [Tooltip("Should this agent use the default available ORCA solver ?")]
+        public bool useDefaultSolver = false;
+        [ConditionalField("useDefaultSolver", null, true)]
+        [Tooltip("Solver Component controlling this agent")]
+        public ORCASolverComponent solverComponent = null;
+        
+
+        [Header("ORCA Settings")]
+        public bool useSolverSettings = true;
+        
+        [ConditionalField(sdef, null, true)]
         [Tooltip("How far this agent look to avoid collision. Lower is better.")]
         public float neighborsDist = 20.0f;
+
+        [ConditionalField(sdef, null, true)]
         [Tooltip("How many agents to consider while looking for a path. Lower is better.")]
         public int neighborsMaxCount = 15;
+
+        [ConditionalField(sdef, null, true)]
         [Tooltip("How soon this agent accounts for other agents. Lower is better.")]
         public float timeHorizon = 15.0f;
+
+        [ConditionalField(sdef, null, true)]
         [Tooltip("How soon this agent accounts for obstacles. Lower is better.")]
         public float timeHorizonObstacle = 5.0f;
-        [Tooltip("Add a slight amount of noise to the velocity vector each update to avoid deadlocks.")]
-        public bool addNoise = true;
-
-        [Header("ORCA Navigation")]
+        
+        [ConditionalField(sdef, null, true)]
         [Tooltip("Collision radius of the agent")]
         public float radius = 0.5f;
+
+        [ConditionalField(sdef, null, true)]
         [Tooltip("Moving speed of the agent")]
         public float speed = 1.0f;
+
+        [ConditionalField(sdef, null, true)]
         [Tooltip("Maximum speed of the agent. High value may cause odd accelerations.")]
         public float maxSpeed = 20.0f;
+        
         [Tooltip("How fast does this agent turn ?")]
         public float turnSpeed = 5.0f;
+        
         [EnumFlags]
         [Tooltip("Layer on which this agent can be seen by other agents")]
         public ORCALayer layerPresence = ORCALayer.ALL;
+        
         [EnumFlags]
         [Tooltip("Layer this agent will not look at while resolving RVOs")]
         public ORCALayer layerIgnore = ORCALayer.NONE;
 
-        [Header("ORCA Control")]
-        [Tooltip("Should the Agent control that gameobject position ?")]
-        public bool controlPosition = true;
+        [Header("Controls")]
+        [Tooltip("Add a slight amount of noise to the velocity vector each update to avoid deadlocks.")]
+        public bool addNoise = true;
+        [Tooltip("Is the Agent navigation simulated ?")]
+        public bool navigationEnabled = true;
+        [Tooltip("Is the Agent collision with other agents simulated ?")]
+        public bool collisionEnabled = true;
         [Tooltip("Should the Agent control the gameobject orientation ?")]
         public bool controlLookAt = true;
         [Tooltip("Should the Agent look at his target (instead of velocity) ?")]
@@ -86,7 +117,54 @@ namespace Nebukam.ORCA
         // Use this for initialization
         void Start()
         {
+            if (enabled)
+            {
+                TryAssignAgent();
+            }
+        }
+
+        /// <summary>
+        /// Try to auto-assign a solver and an agent.
+        /// </summary>
+        void TryAssignAgent()
+        {
+
+            if (m_ORCAAgent != null) { return; }
+
+            ORCASolverComponent comp = null;
+
+            if (useDefaultSolver)
+            {
+                comp = ORCA.instance.defaultSolver;
+            }
+            else
+            {
+                comp = solverComponent;
+            }
+
+            if(comp == null) { return; }
+
+            solverComponent = comp;
+
+            if (useSolverSettings)
+            {
+                neighborsDist = comp.neighborsDist;
+                neighborsMaxCount = comp.neighborsMaxCount;
+                timeHorizon = comp.timeHorizon;
+                timeHorizonObstacle = comp.timeHorizonObstacle;
+                radius = comp.radius;
+                maxSpeed = comp.maxSpeed;
+            }
             
+            m_ORCAAgent = comp.solver.AddAgent(currentPos);
+
+        }
+
+        protected virtual float2 currentPos {
+            get{
+                Vector3 pos = transform.position;
+                return float2(pos.x, pos.z);
+            }
         }
 
         private void Awake()
@@ -98,19 +176,11 @@ namespace Nebukam.ORCA
             }
 #endif
         }
-
-        private void OnRVOAgentAssigned()
-        {
-            UpdateAgent();
-        }
-
+        
         // Update is called once per frame
         void Update()
         {
-            if (!enabled)
-            {
-                return;
-            }
+            if (!enabled) { return; }
 
             if(m_ORCAAgent != null)
             {
@@ -124,6 +194,10 @@ namespace Nebukam.ORCA
                 }
 #endif
 
+            }
+            else
+            {
+                TryAssignAgent();
             }
 
         }
@@ -142,6 +216,9 @@ namespace Nebukam.ORCA
             m_ORCAAgent.layerPresence = layerPresence;
             m_ORCAAgent.layerIgnore = layerIgnore;
 
+            m_ORCAAgent.navigationEnabled= navigationEnabled;
+            m_ORCAAgent.collisionEnabled = collisionEnabled;
+
         }
 
         protected virtual void UpdateVelocityAndPosition()
@@ -149,7 +226,7 @@ namespace Nebukam.ORCA
 
             Vector2 pos = m_ORCAAgent.position;
 
-            if (controlPosition)
+            if (navigationEnabled)
             {
                 transform.position = new Vector3(pos.x, transform.position.y, pos.y);
             }
@@ -191,6 +268,15 @@ namespace Nebukam.ORCA
             
         }
 
+        private void OnDestroy()
+        {
+            if(m_ORCAAgent != null)
+            {
+                m_ORCAAgent.solver.RemoveAgent(m_ORCAAgent);
+                m_ORCAAgent = null;
+            }
+        }
+
 #if UNITY_EDITOR
 
         private void OnDrawGizmosSelected()
@@ -203,6 +289,9 @@ namespace Nebukam.ORCA
 
         protected virtual void DrawDebug()
         {
+
+            if(m_ORCAAgent == null) { return; }
+
             Vector3 pos = (Vector2)m_ORCAAgent.position;
             Vector3 oPos;
             pos.z = pos.y;

@@ -9,9 +9,19 @@ namespace Nebukam.ORCA
 
     public interface IORCAAgent
     {
-        
-        ORCASolver solver { get; }
 
+        /// <summary>
+        /// Whether or not this agent navigation is simulated
+        /// </summary>
+        bool navigationEnabled { get; set; }
+
+        /// <summary>
+        /// Whether or not this agent collision is accounted for in the simulation
+        /// </summary>
+        bool collisionEnabled { get; set; }
+
+        ORCASolver solver { get; }
+        
         int id { get; }
 
         bool requirePreparation { get; set; }
@@ -22,7 +32,7 @@ namespace Nebukam.ORCA
         /// Only checked, and not maintained in any way.
         /// </summary>
         HashSet<IORCAAgent> ignoreHash { get; }
-
+        
         /// <summary>
         /// ORCA layers on which this Agent exists.
         /// </summary>
@@ -101,6 +111,9 @@ namespace Nebukam.ORCA
     public class ORCAAgent : SolverChild, IORCAAgent
     {
 
+        internal bool m_navigationEnabled = true;
+        internal bool m_collisionEnabled = true;
+
         internal int m_id = 0;
 
         internal IList<KeyValuePair<float, ORCAAgent>> m_agentNeighbors = new List<KeyValuePair<float, ORCAAgent>>();
@@ -126,6 +139,18 @@ namespace Nebukam.ORCA
         internal bool m_needDelete = false;
         
         private float2 m_newVelocity;
+        
+        public bool navigationEnabled
+        {
+            get { return m_navigationEnabled; }
+            set { m_navigationEnabled = value; }
+        }
+
+        public bool collisionEnabled
+        {
+            get { return m_collisionEnabled; }
+            set { m_collisionEnabled = value; }
+        }
 
         public int id
         {

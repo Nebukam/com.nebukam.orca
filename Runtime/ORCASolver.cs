@@ -217,6 +217,7 @@ namespace Nebukam.ORCA
                 for (int index = m_start; index < m_end; ++index)
                 {
                     agent = m_solver.m_agents[index];
+                    if (!agent.m_navigationEnabled){ continue; }
                     agent.ComputeNeighbors();
                     agent.ComputeNewVelocity();
                 }

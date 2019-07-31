@@ -7,15 +7,24 @@ using Random = UnityEngine.Random;
 namespace Nebukam.ORCA
 { 
 
-    public class ORCABehaviour2D : ORCABehaviour
+    public class ORCAAgentComponent2D : ORCAAgentComponent
     {
-        
+
+        protected override float2 currentPos
+        {
+            get
+            {
+                Vector3 pos = transform.position;
+                return float2(pos.x, pos.y);
+            }
+        }
+
         protected override void UpdateVelocityAndPosition()
         {
 
             Vector2 pos = m_ORCAAgent.position;
 
-            if (controlPosition)
+            if (navigationEnabled)
             {
                 transform.position = pos;
             }
@@ -62,6 +71,9 @@ namespace Nebukam.ORCA
         
         protected override void DrawDebug()
         {
+
+            if (m_ORCAAgent == null) { return; }
+
             Vector2 pos = m_ORCAAgent.position;
             Vector2 oPos;
 

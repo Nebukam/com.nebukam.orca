@@ -528,9 +528,12 @@ namespace Nebukam.ORCA
         {
             if (m_agentTree[node].end - m_agentTree[node].begin <= MAX_LEAF_SIZE)
             {
+                ORCAAgent a;
                 for (int i = m_agentTree[node].begin; i < m_agentTree[node].end; ++i)
                 {
-                    agent.InsertAgentNeighbor(m_agents[i], ref rangeSq);
+                    a = m_agents[i];
+                    if (!a.m_collisionEnabled) { continue; }
+                    agent.InsertAgentNeighbor(a, ref rangeSq);
                 }
             }
             else
