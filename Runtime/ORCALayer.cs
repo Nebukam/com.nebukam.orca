@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Nebukam.ORCA
+﻿namespace Nebukam.ORCA
 {
 
     /**
@@ -21,7 +15,7 @@ namespace Nebukam.ORCA
      foo |= A; //Adds A to foo
      */
 
-    [Flags]
+    [System.Flags]
     public enum ORCALayer
     {
         NONE    = 0,

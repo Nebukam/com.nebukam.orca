@@ -20,7 +20,19 @@
     "url": "https://github.com/Nebukam/com.nebukam.orca.git"
   },
   "dependencies": {
-    "com.nebukam.utils": "https://github.com/Nebukam/com.nebukam.utils.git",
-    "com.unity.mathematics": "1.1.0"
-  }
+    "com.unity.burst": "1.1.2",
+    "com.unity.mathematics": "1.1.0",
+    "com.unity.collections": "0.0.9",
+    "com.unity.jobs": "0.0.7",
+	"com.nebukam.common": "https://github.com/Nebukam/com.nebukam.common.git",
+	"com.nebukam.utils": "https://github.com/Nebukam/com.nebukam.utils.git",
+    "com.nebukam.job-assist": "https://github.com/Nebukam/com.nebukam.job-assist.git"
+  },
+  "samples": [
+    {
+      "displayName": "Setup Example",
+      "description": "An example setup. See in editor view, not game view.",
+      "path": "Samples~/Setup"
+    }
+  ]
 }
