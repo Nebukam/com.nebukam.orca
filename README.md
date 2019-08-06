@@ -43,6 +43,10 @@ The package include a Setup sample showing how to use the library. Note that it 
 - Intersecting & crossing segments in a same obstacle will cause undesired behaviors. (Overlapping different obstacles is OK.)
 - **A dynamic obstacle is considered 'dynamic' because it lives in a stack that is recomputed _each cycle_**, compared to 'static' ones (e.g. undestructible, unmovable) which are computed at the beginning of the simulation only (as well as when new obstacles are added to the obstacle group). Although static obstacles can be recomputed at will, not doing so is much more efficient. As such, dynamic obstacles are not _physical_ obstacles. Moving such obstacles may cause inter-penetration with agents. If you are looking for "push" behavior, use an Agent with ```navigationEnabled = false;``` instead.
 
+#### Rough overview of job chain using [**N:JobAssist**](https://github.com/Nebukam/com.nebukam.job-assist.git)
+
+![Imgur](https://i.imgur.com/aG6MvCY.png)
+
 ---
 ## Dependencies
 - **Unity.Burst 1.1.2** [com.unity.burst](),
