@@ -15,16 +15,18 @@ namespace Nebukam.ORCA
         public AxisPair plane { get; set; } = AxisPair.XY;
 
         protected IAgentProvider m_agentProvider;
-        public IAgentProvider agentProvider { get { return m_agentProvider; } }
-
         protected IAgentKDTreeProvider m_agentKDTreeProvider;
+        protected IStaticObstacleProvider m_staticObstaclesProvider;
+        protected IStaticObstacleKDTreeProvider m_staticObstacleKDTreeProvider;
+        protected IDynObstacleProvider m_dynObstaclesProvider;
+        protected IDynObstacleKDTreeProvider m_dynObstacleKDTreeProvider;
+
+        public IAgentProvider agentProvider { get { return m_agentProvider; } }
         public IAgentKDTreeProvider distributionProvider { get { return m_agentKDTreeProvider; } }
-
-        protected IObstacleProvider m_obstaclesProvider;
-        public IObstacleProvider obstaclesProvider { get { return m_obstaclesProvider; } }
-
-        protected IObstacleKDTreeProvider m_obstacleKDTreeProvider;
-        public IObstacleKDTreeProvider obstacleKDTreeProvider { get { return m_obstacleKDTreeProvider; } }
+        public IStaticObstacleProvider staticObstaclesProvider { get { return m_staticObstaclesProvider; } }
+        public IStaticObstacleKDTreeProvider staticObstacleKDTreeProvider { get { return m_staticObstacleKDTreeProvider; } }
+        public IDynObstacleProvider dynObstaclesProvider { get { return m_dynObstaclesProvider; } }
+        public IDynObstacleKDTreeProvider dynObstacleKDTreeProvider { get { return m_dynObstacleKDTreeProvider; } }
 
         protected NativeArray<AgentDataResult> m_results = new NativeArray<AgentDataResult>(0, Allocator.Persistent);
         public NativeArray<AgentDataResult> results { get { return m_results; } }
@@ -36,15 +38,20 @@ namespace Nebukam.ORCA
         {
 
             if (!TryGetFirstInGroup(out m_agentProvider, true)
-                || !TryGetFirstInGroup(out m_obstaclesProvider, true)
                 || !TryGetFirstInGroup(out m_agentKDTreeProvider, true)
-                || !TryGetFirstInGroup(out m_obstacleKDTreeProvider, true))
+                || !TryGetFirstInGroup(out m_staticObstaclesProvider, true)
+                || !TryGetFirstInGroup(out m_staticObstacleKDTreeProvider, true)
+                || !TryGetFirstInGroup(out m_dynObstaclesProvider, true)
+                || !TryGetFirstInGroup(out m_dynObstacleKDTreeProvider, true))
             {
-                string msg = string.Format("Missing provider : IAgentProvider = {0}, IObstacleProvider = {1}, IAgentKDTreeProvider = {2}, IObstacleKDTreeProvider = {3}, group = {4}",
+                string msg = string.Format("Missing provider : Agents = {0}, Static obs = {1}, Agent KD = {2}, Static obs KD= {3}, " +
+                    "Dyn obs = {5}, Dyn obs KD= {6}, group = {4}",
                     m_agentProvider,
-                    m_obstaclesProvider, 
+                    m_staticObstaclesProvider, 
                     m_agentKDTreeProvider, 
-                    m_obstacleKDTreeProvider, m_group);
+                    m_staticObstacleKDTreeProvider, 
+                    m_dynObstaclesProvider,
+                    m_dynObstacleKDTreeProvider, m_group);
 
                 throw new System.Exception(msg);
             }
@@ -60,11 +67,17 @@ namespace Nebukam.ORCA
             job.m_inputAgents = m_agentProvider.outputAgents;
             job.m_inputAgentTree = m_agentKDTreeProvider.outputTree;
 
-            //Obstacles data
-            job.m_inputObstacleInfos = m_obstaclesProvider.outputObstacleInfos;
-            job.m_referenceObstacles = m_obstaclesProvider.referenceObstacles;
-            job.m_inputObstacles = m_obstaclesProvider.outputObstacles;
-            job.m_inputObstacleTree = m_obstacleKDTreeProvider.outputTree;
+            //Static obstacles data
+            job.m_staticObstacleInfos = m_staticObstaclesProvider.outputObstacleInfos;
+            job.m_staticRefObstacles = m_staticObstaclesProvider.referenceObstacles;
+            job.m_staticObstacles = m_staticObstaclesProvider.outputObstacles;
+            job.m_staticObstacleTree = m_staticObstacleKDTreeProvider.outputTree;
+
+            //Dynamic obstacles data
+            job.m_dynObstacleInfos = m_dynObstaclesProvider.outputObstacleInfos;
+            job.m_dynRefObstacles = m_dynObstaclesProvider.referenceObstacles;
+            job.m_dynObstacles = m_dynObstaclesProvider.outputObstacles;
+            job.m_dynObstacleTree = m_dynObstacleKDTreeProvider.outputTree;
 
             job.m_results = m_results;
             job.m_timestep = delta / 0.25f;

@@ -24,14 +24,15 @@ namespace Nebukam.ORCA
         protected ORCAPreparation m_preparation;
         protected ORCAProcessor m_orca;
 
-        public IObstacleGroup obstacles { get { return m_preparation.obstacles; } set { m_preparation.obstacles = value; } }
+        public IObstacleGroup staticObstacles { get { return m_preparation.staticObstacles; } set { m_preparation.staticObstacles = value; } }
+        public IObstacleGroup dynamicObstacles { get { return m_preparation.dynamicObstacles; } set { m_preparation.dynamicObstacles = value; } }
         public IAgentGroup agents { get { return m_preparation.agents; } set { m_preparation.agents = value; } }
 
         public ORCA()
         {
 
-            m_preparation = Add(new ORCAPreparation());
-            m_orca = Add(new ORCAProcessor());
+            Add(ref m_preparation);
+            Add(ref m_orca);
             m_orca.chunkSize = 5; //Linear programs are hefty >.<
 
         }

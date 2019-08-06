@@ -16,20 +16,28 @@ namespace Nebukam.ORCA
 
         private AgentGroup<Agent> agents;
         private ObstacleGroup obstacles;
+        private ObstacleGroup dynObstacles;
         private ORCA simulation;
-        private ObstacleKDTreeBuilder obstacleBuilder;
 
+        [Header("Settings")]
         public int seed = 12345;
-        public float deltaMultiplier = 1f;
+        public Transform target;
+
+        [Header("Agents")]
         public int agentCount = 50;
-        public int obstacleCount = 100;
         public float maxAgentRadius = 2f;
+
+        [Header("Obstacles")]
+        public int obstacleCount = 100;
+        public int dynObstacleCount = 20;
         public float maxObstacleRadius = 2f;
         public int minObstacleEdgeCount = 2;
         public int maxObstacleEdgeCount = 2;
-        public Transform target;
-
         public float2 min, max; //obstacle spawn boundaries
+        
+        [Header("Debug")]
+        Color staticObstacleColor = Color.red;
+        Color dynObstacleColor = Color.yellow;
 
         private void Awake()
         {
@@ -37,11 +45,12 @@ namespace Nebukam.ORCA
             agents = new AgentGroup<Agent>();
 
             obstacles = new ObstacleGroup();
+            dynObstacles = new ObstacleGroup();
 
             simulation = new ORCA();
             simulation.agents = agents;
-            simulation.obstacles = obstacles;
-            simulation.deltaMultiplier = deltaMultiplier;
+            simulation.staticObstacles = obstacles;
+            simulation.dynamicObstacles = dynObstacles;
 
         }
 
@@ -52,7 +61,7 @@ namespace Nebukam.ORCA
 
             #region create obstacles
 
-            float dirRange = 20f;
+            float dirRange = 2f;
             List<float3> vList = new List<float3>();
             for (int i = 0; i < obstacleCount; i++)
             {
@@ -70,7 +79,7 @@ namespace Nebukam.ORCA
 
                 for (int j = 0; j < vCount; j++)
                 {
-                    dir = normalize(Maths.RotateAroundPivot(dir, float3(false), float3(0f, 0f, Random.value)));
+                    dir = normalize(Maths.RotateAroundPivot(dir, float3(false), float3(0f, 0f, (math.PI) / vCount)));
                     pt = pt + dir * Random.Range(1f, maxObstacleRadius);
                     vList.Add(pt);
                 }
@@ -81,9 +90,42 @@ namespace Nebukam.ORCA
             }
 
             #endregion
-            
+
+            Random.InitState(seed+10);
+
+            #region create dyanmic obstacles
+
+            for (int i = 0; i < dynObstacleCount; i++)
+            {
+                int vCount = Random.Range(minObstacleEdgeCount, maxObstacleEdgeCount);
+                vList.Clear();
+                vList.Capacity = vCount;
+
+                //build branch-like obstacle
+
+                float3 start = float3(Random.Range(min.x, max.x), Random.Range(min.y, max.y), 0f),
+                    pt = start,
+                    dir = float3(Random.Range(-dirRange, dirRange), Random.Range(-dirRange, dirRange), 0f);
+                vList.Add(start);
+                vCount--;
+
+                for (int j = 0; j < vCount; j++)
+                {
+                    dir = normalize(Maths.RotateAroundPivot(dir, float3(false), float3(0f, 0f, (math.PI) / vCount)));
+                    pt = pt + dir * Random.Range(1f, maxObstacleRadius);
+                    vList.Add(pt);
+                }
+
+                //if (vCount != 2) { vList.Add(start); }
+
+                dynObstacles.Add(vList);
+            }
+
+            #endregion
+
+
             #region create agents
-            
+
             float inc = Maths.TAU / (float)agentCount;
             IAgent a;
 
@@ -103,7 +145,7 @@ namespace Nebukam.ORCA
 
             //Schedule the simulation job. 
             simulation.Schedule(Time.deltaTime);
-
+            
             //Store "target" position
             float2 tr = float2(target.position.x, target.position.y);
 
@@ -125,7 +167,9 @@ namespace Nebukam.ORCA
 
             }
 
-            //Draw obstacles
+            #region draw obstacles
+
+            //Draw static obstacles
             Obstacle o;
             int oCount = obstacles.Count, subCount;
             for (int i = 0; i < oCount; i++)
@@ -136,22 +180,50 @@ namespace Nebukam.ORCA
                 //Draw each segment
                 for (int j = 1, count = o.Count; j < count; j++)
                 {
-                    Draw.Line(o[j - 1].pos, o[j].pos);
+                    Draw.Line(o[j - 1].pos, o[j].pos, staticObstacleColor);
                 }
                 //Draw closing segment (simulation consider 2+ segments to be closed.)
-                Draw.Line(o[subCount - 1].pos, o[0].pos);
+                Draw.Line(o[subCount - 1].pos, o[0].pos, staticObstacleColor);
             }
-            
+
+            float delta = Time.deltaTime * 50f;
+
+            //Draw dynamic obstacles
+            oCount = dynObstacles.Count;
+            for (int i = 0; i < oCount; i++)
+            {
+                o = dynObstacles[i];
+                subCount = o.Count;
+
+                //Draw each segment
+                for (int j = 1, count = o.Count; j < count; j++)
+                {
+                    Draw.Line(o[j - 1].pos, o[j].pos, dynObstacleColor);
+                }
+                //Draw closing segment (simulation consider 2+ segments to be closed.)
+                Draw.Line(o[subCount - 1].pos, o[0].pos, dynObstacleColor);
+
+            }
+
+            #endregion
+
         }
 
         private void LateUpdate()
         {
-            //This will force the simulation to complete on the main thread and apply its results
-            //simulation.Complete();
+            //Attempt to complete and apply the simulation results, only if the job is done.
+            //TryComplete will not force job completion.
+            if (simulation.TryComplete())
+            {
 
-            //This will apply the simulation job results, as soon as it is finished
-            simulation.TryComplete();
+                //Move dynamic obstacles randomly
+                Obstacle o;
+                int oCount = dynObstacles.Count, subCount;
+                float delta = Time.deltaTime * 50f;
+                for (int i = 0; i < oCount; i++)
+                    dynObstacles[i].Offset(float3(Random.Range(-delta, delta), Random.Range(-delta, delta), 0f));
 
+            }
         }
 
         private void OnApplicationQuit()

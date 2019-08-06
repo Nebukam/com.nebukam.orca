@@ -13,15 +13,19 @@ namespace Nebukam.ORCA
         NativeArray<ObstacleTreeNode> outputTree { get; }
     }
 
-    public class ObstacleKDTreeProcessor : Processor<ObstacleKDTreeJob>, IObstacleKDTreeProvider
+    public interface IDynObstacleKDTreeProvider : IObstacleKDTreeProvider { }
+    public interface IStaticObstacleKDTreeProvider : IObstacleKDTreeProvider { }
+
+    public class ObstacleKDTreeProcessor<T> : Processor<ObstacleKDTreeJob>, IObstacleKDTreeProvider
+        where T : class, IProcessor, IObstacleProvider
     {
 
-        
+
         protected NativeArray<ObstacleTreeNode> m_outputTree = new NativeArray<ObstacleTreeNode>(0, Allocator.Persistent);
         public NativeArray<ObstacleTreeNode> outputTree { get { return m_outputTree; } }
 
-        protected IObstacleProvider m_obstaclesProvider;
-        public IObstacleProvider obstaclesProvider { get { return m_obstaclesProvider; } }
+        protected T m_obstaclesProvider;
+        public T obstaclesProvider { get { return m_obstaclesProvider; } }
 
         protected override void InternalLock() { }
         protected override void InternalUnlock() { }
@@ -33,7 +37,7 @@ namespace Nebukam.ORCA
             {
                 throw new System.Exception("No IObstacleSplitProvider or IObstacleProvider in chain !");
             }
-            
+
             if (m_obstaclesProvider.recompute)
             {
                 job.m_recompute = true;
@@ -50,7 +54,7 @@ namespace Nebukam.ORCA
             {
                 job.m_recompute = false;
             }
-            
+
             job.m_inputObstacleInfos = m_obstaclesProvider.outputObstacleInfos;
             job.m_referenceObstacles = m_obstaclesProvider.referenceObstacles;
             job.m_inputObstacles = m_obstaclesProvider.outputObstacles;
@@ -73,4 +77,8 @@ namespace Nebukam.ORCA
         }
 
     }
+
+    public class DynObstacleKDTreeProcessor : ObstacleKDTreeProcessor<IDynObstacleProvider>, IDynObstacleKDTreeProvider { }
+    public class StaticObstacleKDTreeProcessor : ObstacleKDTreeProcessor<IStaticObstacleProvider>, IStaticObstacleKDTreeProvider { }
+
 }

@@ -34,15 +34,25 @@ namespace Nebukam.ORCA
         public NativeArray<AgentData> m_inputAgents;
         [ReadOnly]
         public NativeArray<AgentTreeNode> m_inputAgentTree;
+
         [ReadOnly]
-        public NativeArray<ObstacleInfos> m_inputObstacleInfos;
+        public NativeArray<ObstacleInfos> m_staticObstacleInfos;
         [ReadOnly]
-        public NativeArray<ObstacleVertexData> m_referenceObstacles;
+        public NativeArray<ObstacleVertexData> m_staticRefObstacles;
         [ReadOnly]
-        public NativeArray<ObstacleVertexData> m_inputObstacles;
+        public NativeArray<ObstacleVertexData> m_staticObstacles;
         [ReadOnly]
-        public NativeArray<ObstacleTreeNode> m_inputObstacleTree;
-        
+        public NativeArray<ObstacleTreeNode> m_staticObstacleTree;
+
+        [ReadOnly]
+        public NativeArray<ObstacleInfos> m_dynObstacleInfos;
+        [ReadOnly]
+        public NativeArray<ObstacleVertexData> m_dynRefObstacles;
+        [ReadOnly]
+        public NativeArray<ObstacleVertexData> m_dynObstacles;
+        [ReadOnly]
+        public NativeArray<ObstacleTreeNode> m_dynObstacleTree;
+
         public NativeArray<AgentDataResult> m_results;
         public float m_timestep;
 
@@ -63,7 +73,8 @@ namespace Nebukam.ORCA
             AgentData otherAgent;
             float reachRadius = lengthsq(agent.neighborDist + agent.radius);
             NativeList<DVP> agentNeighbors = new NativeList<DVP>(10, Allocator.Temp);
-            NativeList<DVP> obstacleNeighbors = new NativeList<DVP>(10, Allocator.Temp);
+            NativeList<DVP> staticObstacleNeighbors = new NativeList<DVP>(10, Allocator.Temp);
+            NativeList<DVP> dynObstacleNeighbors = new NativeList<DVP>(10, Allocator.Temp);
 
             float2 a_position = agent.position;
             float2 a_prefVelocity = agent.prefVelocity;
@@ -81,7 +92,14 @@ namespace Nebukam.ORCA
             #region Find neighbors
 
             float obsRangeSq = lengthsq(a_timeHorizonObst * a_maxSpeed + a_radius);
-            QueryObstacleTreeRecursive(ref a_position, ref agent, ref obsRangeSq, 0, ref obstacleNeighbors);
+
+            if (m_staticObstacleTree.Length > 0)
+                QueryObstacleTreeRecursive(ref a_position, ref agent, ref obsRangeSq, 0, ref staticObstacleNeighbors,
+                ref m_staticObstacles, ref m_staticRefObstacles, ref m_staticObstacleInfos, ref m_staticObstacleTree);
+
+            if(m_dynObstacleTree.Length > 0)
+                QueryObstacleTreeRecursive(ref a_position, ref agent, ref obsRangeSq, 0, ref dynObstacleNeighbors,
+                    ref m_dynObstacles, ref m_dynRefObstacles, ref m_dynObstacleInfos, ref m_dynObstacleTree);
 
             float rangeSq = lengthsq(agent.radius + agent.neighborDist);
             QueryAgentTreeRecursive(ref a_position, ref agent, ref rangeSq, 0, ref agentNeighbors);
@@ -96,13 +114,14 @@ namespace Nebukam.ORCA
             #region Create obstacle ORCA lines
 
             float invTimeHorizonObst = 1.0f / agent.timeHorizonObst;
-            
+
+            #region static obstacles
             // Create obstacle ORCA lines. */
-            for (int i = 0; i < obstacleNeighbors.Length; ++i)
+            for (int i = 0; i < staticObstacleNeighbors.Length; ++i)
             {
 
-                ObstacleVertexData vertex = m_inputObstacles[obstacleNeighbors[i].index];
-                ObstacleVertexData nextVertex = m_referenceObstacles[vertex.next];
+                ObstacleVertexData vertex = m_staticObstacles[staticObstacleNeighbors[i].index];
+                ObstacleVertexData nextVertex = m_staticRefObstacles[vertex.next];
 
                 float2 relPos1 = vertex.pos - a_position;
                 float2 relPos2 = nextVertex.pos - a_position;
@@ -243,7 +262,7 @@ namespace Nebukam.ORCA
                 // vertex, take cutoff-line of neighboring edge instead. If
                 // velocity projected on "foreign" leg, no constraint is added.
 
-                ObstacleVertexData leftNeighbor = m_referenceObstacles[vertex.prev];
+                ObstacleVertexData leftNeighbor = m_staticRefObstacles[vertex.prev];
 
                 bool isLeftLegForeign = false;
                 bool isRightLegForeign = false;
@@ -338,6 +357,254 @@ namespace Nebukam.ORCA
                 line.point = rightCutOff + a_radius * invTimeHorizonObst * float2(-line.dir.y, line.dir.x);
                 m_orcaLines.Add(line);
             }
+
+            #endregion
+
+            #region dynamic obstacles
+
+            for (int i = 0; i < dynObstacleNeighbors.Length; ++i)
+            {
+
+                ObstacleVertexData vertex = m_dynObstacles[dynObstacleNeighbors[i].index];
+                ObstacleVertexData nextVertex = m_dynRefObstacles[vertex.next];
+
+                float2 relPos1 = vertex.pos - a_position;
+                float2 relPos2 = nextVertex.pos - a_position;
+
+                // Check if velocity obstacle of obstacle is already taken care
+                // of by previously constructed obstacle ORCA lines.
+                bool alreadyCovered = false;
+
+                for (int j = 0; j < m_orcaLines.Length; ++j)
+                {
+                    if (Det(invTimeHorizonObst * relPos1 - m_orcaLines[j].point, m_orcaLines[j].dir) - invTimeHorizonObst * a_radius
+                        >= -EPSILON && Det(invTimeHorizonObst * relPos2 - m_orcaLines[j].point, m_orcaLines[j].dir) - invTimeHorizonObst * a_radius >= -EPSILON)
+                    {
+                        alreadyCovered = true;
+                        break;
+                    }
+                }
+
+                if (alreadyCovered)
+                {
+                    continue;
+                }
+
+                // Not yet covered. Check for collisions.
+                float distSq1 = lengthsq(relPos1);
+                float distSq2 = lengthsq(relPos2);
+
+                float radiusSq = lengthsq(a_radius);
+
+                float2 obstacleVector = nextVertex.pos - vertex.pos;
+                float s = lengthsq(obstacleVector / dot(-relPos1, obstacleVector));
+                float distSqLine = lengthsq(-relPos1 - (s * obstacleVector));
+
+                ORCALine line;
+
+                if (s < 0.0f && distSq1 <= radiusSq)
+                {
+                    // Collision with left vertex. Ignore if non-convex.
+                    if (vertex.convex)
+                    {
+                        line.point = float2(false);
+                        line.dir = normalize(float2(-relPos1.y, relPos1.x));
+                        m_orcaLines.Add(line);
+                    }
+
+                    continue;
+                }
+                else if (s > 1.0f && distSq2 <= radiusSq)
+                {
+                    // Collision with right vertex. Ignore if non-convex or if
+                    // it will be taken care of by neighboring obstacle.
+                    if (nextVertex.convex && Det(relPos2, nextVertex.dir) >= 0.0f)
+                    {
+                        line.point = float2(false);
+                        line.dir = normalize(float2(-relPos2.y, relPos2.x));
+                        m_orcaLines.Add(line);
+                    }
+
+                    continue;
+                }
+                else if (s >= 0.0f && s < 1.0f && distSqLine <= radiusSq)
+                {
+                    // Collision with obstacle segment.
+                    line.point = float2(false);
+                    line.dir = -vertex.dir;
+                    m_orcaLines.Add(line);
+
+                    continue;
+                }
+
+                // No collision. Compute legs. When obliquely viewed, both legs
+                // can come from a single vertex. Legs extend cut-off line when
+                // non-convex vertex.
+
+                float2 lLegDir, rLegDir;
+
+                if (s < 0.0f && distSqLine <= radiusSq)
+                {
+
+                    // Obstacle viewed obliquely so that left vertex
+                    // defines velocity obstacle.
+                    if (!vertex.convex)
+                    {
+                        // Ignore obstacle.
+                        continue;
+                    }
+
+                    nextVertex = vertex;
+
+                    float leg1 = sqrt(distSq1 - radiusSq);
+                    lLegDir = float2(relPos1.x * leg1 - relPos1.y * a_radius, relPos1.x * a_radius + relPos1.y * leg1) / distSq1;
+                    rLegDir = float2(relPos1.x * leg1 + relPos1.y * a_radius, -relPos1.x * a_radius + relPos1.y * leg1) / distSq1;
+                }
+                else if (s > 1.0f && distSqLine <= radiusSq)
+                {
+
+                    // Obstacle viewed obliquely so that
+                    // right vertex defines velocity obstacle.
+                    if (!nextVertex.convex)
+                    {
+                        // Ignore obstacle.
+                        continue;
+                    }
+
+                    vertex = nextVertex;
+
+                    float leg2 = sqrt(distSq2 - radiusSq);
+                    lLegDir = float2(relPos2.x * leg2 - relPos2.y * a_radius, relPos2.x * a_radius + relPos2.y * leg2) / distSq2;
+                    rLegDir = float2(relPos2.x * leg2 + relPos2.y * a_radius, -relPos2.x * a_radius + relPos2.y * leg2) / distSq2;
+                }
+                else
+                {
+                    // Usual situation.
+                    if (vertex.convex)
+                    {
+                        float leg1 = sqrt(distSq1 - radiusSq);
+                        lLegDir = float2(relPos1.x * leg1 - relPos1.y * a_radius, relPos1.x * a_radius + relPos1.y * leg1) / distSq1;
+                    }
+                    else
+                    {
+                        // Left vertex non-convex; left leg extends cut-off line.
+                        lLegDir = -vertex.dir;
+                    }
+
+                    if (nextVertex.convex)
+                    {
+                        float leg2 = sqrt(distSq2 - radiusSq);
+                        rLegDir = float2(relPos2.x * leg2 + relPos2.y * a_radius, -relPos2.x * a_radius + relPos2.y * leg2) / distSq2;
+                    }
+                    else
+                    {
+                        // Right vertex non-convex; right leg extends cut-off line.
+                        rLegDir = vertex.dir;
+                    }
+                }
+
+                // Legs can never point into neighboring edge when convex
+                // vertex, take cutoff-line of neighboring edge instead. If
+                // velocity projected on "foreign" leg, no constraint is added.
+
+                ObstacleVertexData leftNeighbor = m_dynRefObstacles[vertex.prev];
+
+                bool isLeftLegForeign = false;
+                bool isRightLegForeign = false;
+
+                if (vertex.convex && Det(lLegDir, -leftNeighbor.dir) >= 0.0f)
+                {
+                    // Left leg points into obstacle.
+                    lLegDir = -leftNeighbor.dir;
+                    isLeftLegForeign = true;
+                }
+
+                if (nextVertex.convex && Det(rLegDir, nextVertex.dir) <= 0.0f)
+                {
+                    // Right leg points into obstacle.
+                    rLegDir = nextVertex.dir;
+                    isRightLegForeign = true;
+                }
+
+                // Compute cut-off centers.
+                float2 leftCutOff = invTimeHorizonObst * (vertex.pos - a_position);
+                float2 rightCutOff = invTimeHorizonObst * (nextVertex.pos - a_position);
+                float2 cutOffVector = rightCutOff - leftCutOff;
+
+                // Project current velocity on velocity obstacle.
+
+                // Check if current velocity is projected on cutoff circles.
+                float t = vertex.index == nextVertex.index ? 0.5f : dot((a_velocity - leftCutOff), cutOffVector) / lengthsq(cutOffVector);
+                float tLeft = dot((a_velocity - leftCutOff), lLegDir);
+                float tRight = dot((a_velocity - rightCutOff), rLegDir);
+
+                if ((t < 0.0f && tLeft < 0.0f) || (vertex.index == nextVertex.index && tLeft < 0.0f && tRight < 0.0f))
+                {
+                    // Project on left cut-off circle.
+                    float2 unitW = normalize(a_velocity - leftCutOff);
+
+                    line.dir = float2(unitW.y, -unitW.x);
+                    line.point = leftCutOff + a_radius * invTimeHorizonObst * unitW;
+                    m_orcaLines.Add(line);
+
+                    continue;
+                }
+                else if (t > 1.0f && tRight < 0.0f)
+                {
+                    // Project on right cut-off circle.
+                    float2 unitW = normalize(a_velocity - rightCutOff);
+
+                    line.dir = float2(unitW.y, -unitW.x);
+                    line.point = rightCutOff + a_radius * invTimeHorizonObst * unitW;
+                    m_orcaLines.Add(line);
+
+                    continue;
+                }
+
+                // Project on left leg, right leg, or cut-off line, whichever is
+                // closest to velocity.
+                float distSqCutoff = (t < 0.0f || t > 1.0f || vertex.index == nextVertex.index) ? float.PositiveInfinity : lengthsq(a_velocity - (leftCutOff + t * cutOffVector));
+                float distSqLeft = tLeft < 0.0f ? float.PositiveInfinity : lengthsq(a_velocity - (leftCutOff + tLeft * lLegDir));
+                float distSqRight = tRight < 0.0f ? float.PositiveInfinity : lengthsq(a_velocity - (rightCutOff + tRight * rLegDir));
+
+                if (distSqCutoff <= distSqLeft && distSqCutoff <= distSqRight)
+                {
+                    // Project on cut-off line.
+                    line.dir = -vertex.dir;
+                    line.point = leftCutOff + a_radius * invTimeHorizonObst * float2(-line.dir.y, line.dir.x);
+                    m_orcaLines.Add(line);
+
+                    continue;
+                }
+
+                if (distSqLeft <= distSqRight)
+                {
+                    // Project on left leg.
+                    if (isLeftLegForeign)
+                    {
+                        continue;
+                    }
+
+                    line.dir = lLegDir;
+                    line.point = leftCutOff + a_radius * invTimeHorizonObst * float2(-line.dir.y, line.dir.x);
+                    m_orcaLines.Add(line);
+
+                    continue;
+                }
+
+                // Project on right leg.
+                if (isRightLegForeign)
+                {
+                    continue;
+                }
+
+                line.dir = -rLegDir;
+                line.point = rightCutOff + a_radius * invTimeHorizonObst * float2(-line.dir.y, line.dir.x);
+                m_orcaLines.Add(line);
+            }
+
+
+            #endregion
 
             numObstLines = m_orcaLines.Length;
 
@@ -436,7 +703,7 @@ namespace Nebukam.ORCA
             #endregion
             
             result.velocity = a_newVelocity;
-            result.position = a_position + a_newVelocity * m_timestep; //0.25f
+            result.position = a_position + a_newVelocity * m_timestep;
 
             m_results[index] = result;
             
@@ -545,9 +812,18 @@ namespace Nebukam.ORCA
 
         #region Obstacle KDTree Query
         
-        private void QueryObstacleTreeRecursive(ref float2 center, ref AgentData agent, ref float rangeSq, int node, ref NativeList<DVP> obstacleNeighbors)
+        private void QueryObstacleTreeRecursive(
+            ref float2 center, 
+            ref AgentData agent, 
+            ref float rangeSq, 
+            int node, 
+            ref NativeList<DVP> obstacleNeighbors,
+            ref NativeArray<ObstacleVertexData> obstacles,
+            ref NativeArray<ObstacleVertexData> refObstacles,
+            ref NativeArray<ObstacleInfos> obstaclesInfos,
+            ref NativeArray<ObstacleTreeNode> kdTree)
         {
-            ObstacleTreeNode treeNode = m_inputObstacleTree[node];
+            ObstacleTreeNode treeNode = kdTree[node];
 
             if (treeNode.end - treeNode.begin <= AgentTreeNode.MAX_LEAF_SIZE)
             {
@@ -555,15 +831,15 @@ namespace Nebukam.ORCA
                 ObstacleInfos infos;
                 for (int i = treeNode.begin; i < treeNode.end; ++i)
                 {
-                    o = m_inputObstacles[i];
-                    infos = m_inputObstacleInfos[o.infos];
+                    o = obstacles[i];
+                    infos = obstaclesInfos[o.infos];
                     
                     if (!infos.collisionEnabled || (infos.layerOccupation & ~agent.layerIgnore) == 0)
                     {
                         continue;
                     }
                 
-                    ObstacleVertexData next = m_referenceObstacles[o.next];
+                    ObstacleVertexData next = refObstacles[o.next];
                     float distSq = DistSqPointLineSegment(o.pos, next.pos, center);
 
                     if (distSq < rangeSq)
@@ -607,8 +883,8 @@ namespace Nebukam.ORCA
             else
             {
 
-                ObstacleTreeNode leftNode = m_inputObstacleTree[treeNode.left], 
-                    rightNode = m_inputObstacleTree[treeNode.right];
+                ObstacleTreeNode leftNode = kdTree[treeNode.left], 
+                    rightNode = kdTree[treeNode.right];
 
                 float distSqLeft = lengthsq(max(0.0f, leftNode.minX - center.x))
                     + lengthsq(max(0.0f, center.x - leftNode.maxX))
@@ -623,11 +899,13 @@ namespace Nebukam.ORCA
                 {
                     if (distSqLeft < rangeSq)
                     {
-                        QueryObstacleTreeRecursive(ref center, ref agent, ref rangeSq, treeNode.left, ref obstacleNeighbors);
+                        QueryObstacleTreeRecursive(ref center, ref agent, ref rangeSq, treeNode.left, ref obstacleNeighbors,
+                            ref obstacles, ref refObstacles, ref obstaclesInfos, ref kdTree);
 
                         if (distSqRight < rangeSq)
                         {
-                            QueryObstacleTreeRecursive(ref center, ref agent, ref rangeSq, treeNode.right, ref obstacleNeighbors);
+                            QueryObstacleTreeRecursive(ref center, ref agent, ref rangeSq, treeNode.right, ref obstacleNeighbors,
+                            ref obstacles, ref refObstacles, ref obstaclesInfos, ref kdTree);
                         }
                     }
                 }
@@ -635,11 +913,13 @@ namespace Nebukam.ORCA
                 {
                     if (distSqRight < rangeSq)
                     {
-                        QueryObstacleTreeRecursive(ref center, ref agent, ref rangeSq, treeNode.right, ref obstacleNeighbors);
+                        QueryObstacleTreeRecursive(ref center, ref agent, ref rangeSq, treeNode.right, ref obstacleNeighbors,
+                            ref obstacles, ref refObstacles, ref obstaclesInfos, ref kdTree);
 
                         if (distSqLeft < rangeSq)
                         {
-                            QueryObstacleTreeRecursive(ref center, ref agent, ref rangeSq, treeNode.left, ref obstacleNeighbors);
+                            QueryObstacleTreeRecursive(ref center, ref agent, ref rangeSq, treeNode.left, ref obstacleNeighbors,
+                            ref obstacles, ref refObstacles, ref obstaclesInfos, ref kdTree);
                         }
                     }
                 }

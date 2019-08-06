@@ -10,13 +10,18 @@ using Nebukam.JobAssist;
 namespace Nebukam.ORCA
 {
 
-    public interface IObstacleProvider : IProcessor
+    public interface IObstacleProvider : IProcessor, IPlanar
     {
+        IObstacleGroup obstacles { get; set; }
+
         bool recompute { get; } //Allows KDTree builders to rebuild or skip rebuild
         NativeArray<ObstacleInfos> outputObstacleInfos { get; }
         NativeArray<ObstacleVertexData> referenceObstacles { get; }
         NativeArray<ObstacleVertexData> outputObstacles { get; }
     }
+
+    public interface IDynObstacleProvider : IObstacleProvider { }
+    public interface IStaticObstacleProvider : IObstacleProvider { }
 
     public class ObstacleProvider : Processor<Unemployed>, IObstacleProvider
     {
@@ -27,9 +32,13 @@ namespace Nebukam.ORCA
         public bool recompute { get { return m_recompute; } set { m_recompute = true; } }
 
         protected IObstacleGroup m_obstacles = null;
-        public IObstacleGroup obstacles { get { return m_obstacles; } set { m_obstacles = value; } }
-
-        protected List<IVertex> lockedObstacles = new List<IVertex>();
+        public IObstacleGroup obstacles {
+            get { return m_obstacles; }
+            set {
+                m_obstacles = value;
+                m_recompute = true;
+            }
+        }
 
         protected NativeArray<ObstacleInfos> m_outputObstacleInfos = new NativeArray<ObstacleInfos>(0, Allocator.Persistent);
         public NativeArray<ObstacleInfos> outputObstacleInfos { get { return m_outputObstacleInfos; } }
@@ -57,6 +66,7 @@ namespace Nebukam.ORCA
             }
 
             ObstacleInfos infos;
+
             for (int i = 0; i < obsCount; i++)
             {
                 //Keep collision infos & ORCALayer up-to-date
@@ -68,8 +78,6 @@ namespace Nebukam.ORCA
 
                 vCount += infos.length;
             }
-            
-            m_recompute = true; //remove this
 
             if (!m_recompute)
             {
@@ -177,4 +185,16 @@ namespace Nebukam.ORCA
         }
 
     }
+
+    public class StaticObstacleProvider : ObstacleProvider, IStaticObstacleProvider { }
+    public class DynObstacleProvider : ObstacleProvider, IDynObstacleProvider
+    {
+        protected override void Prepare(ref Unemployed job, float delta)
+        {
+            m_recompute = true; //force always recompute 
+            base.Prepare(ref job, delta);
+        }
+    }
+    
+
 }

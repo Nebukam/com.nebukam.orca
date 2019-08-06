@@ -14,6 +14,8 @@ namespace Nebukam.ORCA
     public struct ObstacleOrientationJob : IJobParallelFor
     {
 
+        public bool m_recompute;
+
         [ReadOnly]
         public NativeArray<ObstacleInfos> m_inputObstacleInfos;
 
@@ -23,6 +25,8 @@ namespace Nebukam.ORCA
         
         public void Execute(int index)
         {
+
+            if (!m_recompute) { return; }
 
             //Compute whether a vertex is convex or concave
             //as well as its direction

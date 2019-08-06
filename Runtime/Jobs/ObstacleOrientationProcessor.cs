@@ -8,11 +8,12 @@ using Nebukam.JobAssist;
 namespace Nebukam.ORCA
 {
 
-    public class ObstacleOrientationProcessor : ParallelProcessor<ObstacleOrientationJob>
+    public class ObstacleOrientationProcessor<T> : ParallelProcessor<ObstacleOrientationJob>
+        where T : class, IProcessor, IObstacleProvider
     {
 
-        protected IObstacleProvider m_obstaclesProvider;
-        public IObstacleProvider obstaclesProvider { get { return m_obstaclesProvider; } }
+        protected T m_obstaclesProvider;
+        public T obstaclesProvider { get { return m_obstaclesProvider; } }
 
         protected override void InternalLock() { }
         protected override void InternalUnlock() { }
@@ -25,8 +26,7 @@ namespace Nebukam.ORCA
                 throw new System.Exception("No IObstacleProvider or IObstacleSplitProvider in chain !");
             }
 
-            if (!m_obstaclesProvider.recompute) { return 0; }
-
+            job.m_recompute = m_obstaclesProvider.recompute;
             job.m_inputObstacleInfos = m_obstaclesProvider.outputObstacleInfos;
             job.m_referenceObstacles = m_obstaclesProvider.referenceObstacles;
             job.m_inputObstacles = m_obstaclesProvider.outputObstacles;

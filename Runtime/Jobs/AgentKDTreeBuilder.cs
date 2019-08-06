@@ -27,10 +27,8 @@ namespace Nebukam.ORCA
                 
         public AgentKDTreeBuilder()
         {
-
-            m_agentSource = Add(new AgentProvider());
-            m_agentKDTreeProvider = Add(new AgentKDTreeProcessor());
-
+            Add(ref m_agentSource);
+            Add(ref m_agentKDTreeProvider);
         }
 
         protected override void Apply()

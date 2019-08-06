@@ -150,15 +150,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31913d26deb4e884e93f6b022ca3a9f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seed: 1234567890
-  deltaMultiplier: 1
-  agentCount: 50
-  obstacleCount: 100
-  maxAgentRadius: 0.5
-  maxObstacleRadius: 5
-  minObstacleEdgeCount: 2
-  maxObstacleEdgeCount: 8
+  seed: 1234
   target: {fileID: 1867022039}
+  agentCount: 100
+  maxAgentRadius: 2
+  obstacleCount: 50
+  dynObstacleCount: 10
+  maxObstacleRadius: 5
+  minObstacleEdgeCount: 3
+  maxObstacleEdgeCount: 12
   min:
     x: -100
     y: -100
