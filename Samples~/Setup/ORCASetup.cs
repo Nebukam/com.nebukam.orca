@@ -22,6 +22,7 @@ namespace Nebukam.ORCA
         [Header("Settings")]
         public int seed = 12345;
         public Transform target;
+        public AxisPair axis = AxisPair.XY;
 
         [Header("Agents")]
         public int agentCount = 50;
@@ -34,7 +35,7 @@ namespace Nebukam.ORCA
         public int minObstacleEdgeCount = 2;
         public int maxObstacleEdgeCount = 2;
         public float2 min, max; //obstacle spawn boundaries
-        
+
         [Header("Debug")]
         Color staticObstacleColor = Color.red;
         Color dynObstacleColor = Color.yellow;
@@ -48,6 +49,7 @@ namespace Nebukam.ORCA
             dynObstacles = new ObstacleGroup();
 
             simulation = new ORCA();
+            simulation.plane = axis;
             simulation.agents = agents;
             simulation.staticObstacles = obstacles;
             simulation.dynamicObstacles = dynObstacles;
@@ -71,27 +73,36 @@ namespace Nebukam.ORCA
 
                 //build branch-like obstacle
 
-                float3 start = float3(Random.Range(min.x, max.x), Random.Range(min.y, max.y), 0f), 
-                    pt = start, 
+                float3 start = float3(Random.Range(min.x, max.x), Random.Range(min.y, max.y), 0f),
+                    pt = start,
                     dir = float3(Random.Range(-dirRange, dirRange), Random.Range(-dirRange, dirRange), 0f);
+
+                if (axis == AxisPair.XZ)
+                {
+                    pt = start = float3(start.x, 0f, start.y);
+                    dir = float3(dir.x, 0f, dir.y);
+                }
+
                 vList.Add(start);
                 vCount--;
 
                 for (int j = 0; j < vCount; j++)
                 {
-                    dir = normalize(Maths.RotateAroundPivot(dir, float3(false), float3(0f, 0f, (math.PI) / vCount)));
+                    dir = normalize(Maths.RotateAroundPivot(dir, float3(false),
+                        axis == AxisPair.XY ? float3(0f, 0f, (math.PI) / vCount) : float3(0f, (math.PI) / vCount, 0f)));
+
                     pt = pt + dir * Random.Range(1f, maxObstacleRadius);
                     vList.Add(pt);
                 }
 
                 //if (vCount != 2) { vList.Add(start); }
 
-                obstacles.Add(vList);
+                obstacles.Add(vList, axis == AxisPair.XZ);
             }
 
             #endregion
 
-            Random.InitState(seed+10);
+            Random.InitState(seed + 10);
 
             #region create dyanmic obstacles
 
@@ -106,19 +117,27 @@ namespace Nebukam.ORCA
                 float3 start = float3(Random.Range(min.x, max.x), Random.Range(min.y, max.y), 0f),
                     pt = start,
                     dir = float3(Random.Range(-dirRange, dirRange), Random.Range(-dirRange, dirRange), 0f);
+
+                if (axis == AxisPair.XZ)
+                {
+                    pt = start = float3(start.x, 0f, start.y);
+                    dir = float3(dir.x, 0f, dir.y);
+                }
+
                 vList.Add(start);
                 vCount--;
 
                 for (int j = 0; j < vCount; j++)
                 {
-                    dir = normalize(Maths.RotateAroundPivot(dir, float3(false), float3(0f, 0f, (math.PI) / vCount)));
+                    dir = normalize(Maths.RotateAroundPivot(dir, float3(false),
+                        axis == AxisPair.XY ? float3(0f, 0f, (math.PI) / vCount) : float3(0f, (math.PI) / vCount, 0f)));
                     pt = pt + dir * Random.Range(1f, maxObstacleRadius);
                     vList.Add(pt);
                 }
 
                 //if (vCount != 2) { vList.Add(start); }
 
-                dynObstacles.Add(vList);
+                dynObstacles.Add(vList, axis == AxisPair.XZ);
             }
 
             #endregion
@@ -129,7 +148,7 @@ namespace Nebukam.ORCA
             float inc = Maths.TAU / (float)agentCount;
             IAgent a;
 
-            for(int i = 0; i < agentCount; i++)
+            for (int i = 0; i < agentCount; i++)
             {
                 a = agents.Add((float3)transform.position + float3(Random.value, Random.value, Random.value)) as IAgent;
                 a.radius = 0.5f + Random.value * maxAgentRadius;
@@ -145,25 +164,25 @@ namespace Nebukam.ORCA
 
             //Schedule the simulation job. 
             simulation.Schedule(Time.deltaTime);
-            
+
             //Store "target" position
-            float2 tr = float2(target.position.x, target.position.y);
+            float2 tr = axis == AxisPair.XY ? float2(target.position.x, target.position.y) : float2(target.position.x, target.position.z);
 
             //Draw agents debug
             IAgent agent;
-            for(int i = 0, count = agents.Count; i < count; i++)
+            for (int i = 0, count = agents.Count; i < count; i++)
             {
                 agent = agents[i] as IAgent;
-                
+
                 //Agent body
-                Draw.Circle2D(agent.pos, agent.radius, Color.green, 12);
+                if (axis == AxisPair.XY) { Draw.Circle2D(agent.pos, agent.radius, Color.green, 12); } else { Draw.Circle(agent.pos, agent.radius, Color.green, 12); }
                 //Agent simulated velocity (ORCA compliant)
                 Draw.Line(agent.pos, agent.pos + (normalize(float3(agent.velocity, 0f)) * agent.radius), Color.green);
                 //Agent goal vector
                 Draw.Line(agent.pos, agent.pos + (normalize(float3(agent.prefVelocity, 0f)) * agent.radius), Color.grey);
 
                 //Update agent preferred velocity so it always tries to reach the "target" object
-                agent.prefVelocity = normalize(tr - agent.XY) * 10f;
+                agent.prefVelocity = normalize(tr - agent.Pair(axis)) * 10f;
 
             }
 
