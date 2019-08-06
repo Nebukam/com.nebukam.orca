@@ -20,11 +20,18 @@ namespace Nebukam.ORCA
         where T : class, IProcessor, IObstacleProvider
     {
 
+        /// 
+        /// Fields
+        /// 
 
+        protected T m_obstaclesProvider;
         protected NativeArray<ObstacleTreeNode> m_outputTree = new NativeArray<ObstacleTreeNode>(0, Allocator.Persistent);
         public NativeArray<ObstacleTreeNode> outputTree { get { return m_outputTree; } }
 
-        protected T m_obstaclesProvider;
+        /// 
+        /// Properties
+        /// 
+
         public T obstaclesProvider { get { return m_obstaclesProvider; } }
 
         protected override void InternalLock() { }

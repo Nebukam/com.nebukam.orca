@@ -10,9 +10,16 @@ namespace Nebukam.ORCA
     public class AgentKDTreeProcessor : Processor<AgentKDTreeJob>, IAgentKDTreeProvider
     {
 
+        /// 
+        /// Fields
+        ///
 
         protected IAgentProvider m_agentProvider;
         protected NativeArray<AgentTreeNode> m_outputTree = new NativeArray<AgentTreeNode>(0, Allocator.Persistent);
+
+        /// 
+        /// Properties
+        ///
 
         public IAgentProvider agentProvider { get { return m_agentProvider; } }
         public NativeArray<AgentTreeNode> outputTree { get { return m_outputTree; } }

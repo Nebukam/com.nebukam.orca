@@ -71,6 +71,10 @@ namespace Nebukam.ORCA
     public class Agent : Vertex, IAgent
     {
 
+        /// 
+        /// Fields
+        /// 
+
         internal float2 m_prefVelocity = float2(false);
         internal float2 m_velocity { get; set; } = float2(false);
 
@@ -88,6 +92,10 @@ namespace Nebukam.ORCA
         internal ORCALayer m_layerIgnore = ORCALayer.NONE;
         internal bool m_navigationEnabled = true;
         internal bool m_collisionEnabled = true;
+
+        /// 
+        /// Properties
+        /// 
 
         public float2 prefVelocity {
             get { return m_prefVelocity; }

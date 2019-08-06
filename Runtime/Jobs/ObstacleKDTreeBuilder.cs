@@ -15,12 +15,16 @@ namespace Nebukam.ORCA
         where KD : ObstacleKDTreeProcessor<T>, new()
     {
 
+        #region IPlanar
+
         protected AxisPair m_plane = AxisPair.XY;
         public AxisPair plane
         {
             get { return m_plane; }
             set { m_plane = m_obstacleProvider.plane = value; }
         }
+
+        #endregion
 
         protected P m_obstacleProvider;
         public IObstacleGroup obstacles { get { return m_obstacleProvider.obstacles; } set { m_obstacleProvider.obstacles = value; } }

@@ -13,6 +13,8 @@ namespace Nebukam.ORCA
     public class ORCAPreparation : ProcessorGroup, IPlanar
     {
 
+        #region IPlanar
+
         protected AxisPair m_plane = AxisPair.XY;
         public AxisPair plane
         {
@@ -20,21 +22,32 @@ namespace Nebukam.ORCA
             set { m_plane = m_staticObstacles.plane = m_dynamicObstacles.plane = m_agents.plane = value; }
         }
 
+        #endregion
+
+        /// 
+        /// Fields
+        ///
 
         protected ObstacleKDTreeBuilder<IDynObstacleProvider, DynObstacleProvider, DynObstacleKDTreeProcessor> m_dynamicObstacles;
+        protected ObstacleKDTreeBuilder<IStaticObstacleProvider, StaticObstacleProvider, StaticObstacleKDTreeProcessor> m_staticObstacles;
+        protected AgentKDTreeBuilder m_agents;
+
+
+        /// 
+        /// Properties
+        ///
+
         public IObstacleGroup dynamicObstacles
         {
             get { return m_dynamicObstacles.obstacles; }
             set { m_dynamicObstacles.obstacles = value; }
         }
 
-        protected ObstacleKDTreeBuilder<IStaticObstacleProvider, StaticObstacleProvider, StaticObstacleKDTreeProcessor> m_staticObstacles;
         public IObstacleGroup staticObstacles {
             get { return m_staticObstacles.obstacles; }
             set { m_staticObstacles.obstacles = value; }
         }
         
-        protected AgentKDTreeBuilder m_agents;
         public IAgentGroup agents {
             get { return m_agents.agents; }
             set { m_agents.agents = value; }

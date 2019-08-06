@@ -11,8 +11,10 @@ using Nebukam.JobAssist;
 namespace Nebukam.ORCA
 {
 
-    public class ORCA : ProcessorChain
+    public class ORCA : ProcessorChain, IPlanar
     {
+
+        #region IPlanar
 
         protected AxisPair m_plane = AxisPair.XY;
         public AxisPair plane
@@ -21,8 +23,18 @@ namespace Nebukam.ORCA
             set { m_plane = m_preparation.plane = m_orca.plane = value; }
         }
 
+        #endregion
+
+        /// 
+        /// Fields
+        /// 
+
         protected ORCAPreparation m_preparation;
         protected ORCAProcessor m_orca;
+
+        /// 
+        /// Properties
+        /// 
 
         public IObstacleGroup staticObstacles { get { return m_preparation.staticObstacles; } set { m_preparation.staticObstacles = value; } }
         public IObstacleGroup dynamicObstacles { get { return m_preparation.dynamicObstacles; } set { m_preparation.dynamicObstacles = value; } }

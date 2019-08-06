@@ -21,13 +21,20 @@ namespace Nebukam.ORCA
 
         public AxisPair plane { get; set; } = AxisPair.XY;
 
+        /// 
+        /// Fields
+        ///
+
         protected IAgentGroup m_agents = null;
-        public IAgentGroup agents { get { return m_agents; } set { m_agents = value; } }
-
         protected List<Agent> m_lockedAgents = new List<Agent>();
-        public List<Agent> lockedAgents { get { return m_lockedAgents; } }
-
         protected NativeArray<AgentData> m_outputAgents = new NativeArray<AgentData>(0, Allocator.Persistent);
+
+        /// 
+        /// Properties
+        ///
+
+        public IAgentGroup agents { get { return m_agents; } set { m_agents = value; } }
+        public List<Agent> lockedAgents { get { return m_lockedAgents; } }
         public NativeArray<AgentData> outputAgents { get { return m_outputAgents; } }
 
         protected override void InternalLock()

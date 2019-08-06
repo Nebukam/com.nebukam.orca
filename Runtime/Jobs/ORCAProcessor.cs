@@ -14,12 +14,23 @@ namespace Nebukam.ORCA
 
         public AxisPair plane { get; set; } = AxisPair.XY;
 
+        /// 
+        /// Fields
+        /// 
+
         protected IAgentProvider m_agentProvider;
         protected IAgentKDTreeProvider m_agentKDTreeProvider;
         protected IStaticObstacleProvider m_staticObstaclesProvider;
         protected IStaticObstacleKDTreeProvider m_staticObstacleKDTreeProvider;
         protected IDynObstacleProvider m_dynObstaclesProvider;
         protected IDynObstacleKDTreeProvider m_dynObstacleKDTreeProvider;
+
+        protected NativeArray<AgentDataResult> m_results = new NativeArray<AgentDataResult>(0, Allocator.Persistent);
+
+
+        /// 
+        /// Properties
+        /// 
 
         public IAgentProvider agentProvider { get { return m_agentProvider; } }
         public IAgentKDTreeProvider distributionProvider { get { return m_agentKDTreeProvider; } }
@@ -28,7 +39,6 @@ namespace Nebukam.ORCA
         public IDynObstacleProvider dynObstaclesProvider { get { return m_dynObstaclesProvider; } }
         public IDynObstacleKDTreeProvider dynObstacleKDTreeProvider { get { return m_dynObstacleKDTreeProvider; } }
 
-        protected NativeArray<AgentDataResult> m_results = new NativeArray<AgentDataResult>(0, Allocator.Persistent);
         public NativeArray<AgentDataResult> results { get { return m_results; } }
 
         protected override void InternalLock() { }

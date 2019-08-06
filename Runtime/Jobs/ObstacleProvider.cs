@@ -28,25 +28,28 @@ namespace Nebukam.ORCA
 
         public AxisPair plane { get; set; } = AxisPair.XY;
 
-        protected bool m_recompute = true;
-        public bool recompute { get { return m_recompute; } set { m_recompute = true; } }
+        /// 
+        /// Fields
+        ///
 
+        protected bool m_recompute = true;
         protected IObstacleGroup m_obstacles = null;
+        protected NativeArray<ObstacleInfos> m_outputObstacleInfos = new NativeArray<ObstacleInfos>(0, Allocator.Persistent);
+        protected NativeArray<ObstacleVertexData> m_referenceObstacles = new NativeArray<ObstacleVertexData>(0, Allocator.Persistent);
+        protected NativeArray<ObstacleVertexData> m_outputObstacles = new NativeArray<ObstacleVertexData>(0, Allocator.Persistent);
+
+
+        /// 
+        /// Properties
+        ///
+
+        public bool recompute { get { return m_recompute; } set { m_recompute = true; } }
         public IObstacleGroup obstacles {
             get { return m_obstacles; }
-            set {
-                m_obstacles = value;
-                m_recompute = true;
-            }
+            set { m_obstacles = value; m_recompute = true; }
         }
-
-        protected NativeArray<ObstacleInfos> m_outputObstacleInfos = new NativeArray<ObstacleInfos>(0, Allocator.Persistent);
         public NativeArray<ObstacleInfos> outputObstacleInfos { get { return m_outputObstacleInfos; } }
-
-        protected NativeArray<ObstacleVertexData> m_referenceObstacles = new NativeArray<ObstacleVertexData>(0, Allocator.Persistent);
         public NativeArray<ObstacleVertexData> referenceObstacles { get { return m_referenceObstacles; } }
-
-        protected NativeArray<ObstacleVertexData> m_outputObstacles = new NativeArray<ObstacleVertexData>(0, Allocator.Persistent);
         public NativeArray<ObstacleVertexData> outputObstacles { get { return m_outputObstacles; } }
         
         protected override void InternalLock() { }
