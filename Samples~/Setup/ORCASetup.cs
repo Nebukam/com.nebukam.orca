@@ -142,7 +142,6 @@ namespace Nebukam.ORCA
 
             #endregion
 
-
             #region create agents
 
             float inc = Maths.TAU / (float)agentCount;
@@ -152,6 +151,7 @@ namespace Nebukam.ORCA
             {
                 a = agents.Add((float3)transform.position + float3(Random.value, Random.value, Random.value)) as IAgent;
                 a.radius = 0.5f + Random.value * maxAgentRadius;
+                a.radiusObst = a.radius + Random.value * maxAgentRadius;
                 a.prefVelocity = float2(false);
             }
 
@@ -170,16 +170,25 @@ namespace Nebukam.ORCA
 
             //Draw agents debug
             IAgent agent;
+            float3 agentPos;
             for (int i = 0, count = agents.Count; i < count; i++)
             {
                 agent = agents[i] as IAgent;
-
+                agentPos = agent.pos;
                 //Agent body
-                if (axis == AxisPair.XY) { Draw.Circle2D(agent.pos, agent.radius, Color.green, 12); } else { Draw.Circle(agent.pos, agent.radius, Color.green, 12); }
+                if (axis == AxisPair.XY) {
+                    Draw.Circle2D(agentPos, agent.radius, Color.green, 12);
+                    Draw.Circle2D(agentPos, agent.radiusObst, Color.cyan.A(0.15f), 12);
+                }
+                else
+                {
+                    Draw.Circle(agentPos, agent.radius, Color.green, 12);
+                    Draw.Circle(agentPos, agent.radiusObst, Color.cyan.A(0.15f), 12);
+                }
                 //Agent simulated velocity (ORCA compliant)
-                Draw.Line(agent.pos, agent.pos + (normalize(float3(agent.velocity, 0f)) * agent.radius), Color.green);
+                Draw.Line(agentPos, agentPos + (normalize(float3(agent.velocity, 0f)) * agent.radius), Color.green);
                 //Agent goal vector
-                Draw.Line(agent.pos, agent.pos + (normalize(float3(agent.prefVelocity, 0f)) * agent.radius), Color.grey);
+                Draw.Line(agentPos, agentPos + (normalize(float3(agent.prefVelocity, 0f)) * agent.radius), Color.grey);
 
                 //Update agent preferred velocity so it always tries to reach the "target" object
                 agent.prefVelocity = normalize(tr - agent.Pair(axis)) * 10f;

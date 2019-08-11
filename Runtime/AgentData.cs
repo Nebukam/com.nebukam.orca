@@ -13,7 +13,7 @@ namespace Nebukam.ORCA
         public float2 velocity;
         
         public float radius;
-        public float thickness;
+        public float radiusObst;
         public float maxSpeed;
 
         public int maxNeighbors;

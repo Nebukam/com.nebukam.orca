@@ -23,10 +23,13 @@ namespace Nebukam.ORCA
         float2 velocity { get; set; }
 
         /// <summary>
-        /// Radius of the agent.
+        /// Radius of the agent when resolving agent-agent collisions.
         /// </summary>
         float radius { get; set; }
-        float thickness { get; set; }
+        /// <summary>
+        /// Radius of the agent when resolving agent-obstacle collisions.
+        /// </summary>
+        float radiusObst { get; set; }
         /// <summary>
         /// Maximum allowed speed of the agent.
         /// This is used to avoid deadlock situation where a slight
@@ -79,7 +82,7 @@ namespace Nebukam.ORCA
         internal float2 m_velocity { get; set; } = float2(false);
 
         internal float m_radius = 0.5f;
-        internal float m_thickness = 0.2f;
+        internal float m_radiusObst = 0.5f;
         internal float m_maxSpeed = 20.0f;
 
         internal int m_maxNeighbors = 15;
@@ -110,9 +113,10 @@ namespace Nebukam.ORCA
             get { return m_radius; }
             set { m_radius = value; }
         }
-        public float thickness {
-            get { return m_thickness; }
-            set { m_thickness = value; }
+        public float radiusObst
+        {
+            get { return m_radiusObst; }
+            set { m_radiusObst = value; }
         }
         public float maxSpeed {
             get { return m_maxSpeed; }

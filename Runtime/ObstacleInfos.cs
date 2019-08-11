@@ -7,5 +7,6 @@
         public int length;
         public ORCALayer layerOccupation;
         public bool collisionEnabled;
+        public float thickness;
     }
 }

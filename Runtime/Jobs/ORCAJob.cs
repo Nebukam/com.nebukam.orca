@@ -84,7 +84,7 @@ namespace Nebukam.ORCA
             float a_maxSpeed = agent.maxSpeed;
             float a_neighborDist = agent.neighborDist;
             float a_radius = agent.radius;
-            float a_thickness = agent.thickness;
+            float a_radiusObst = agent.radiusObst;
             float a_sqRadius = lengthsq(agent.radius);
             float a_timeHorizon = agent.timeHorizon;
             float a_timeHorizonObst = agent.timeHorizonObst;
@@ -122,9 +122,12 @@ namespace Nebukam.ORCA
 
                 ObstacleVertexData vertex = m_staticObstacles[staticObstacleNeighbors[i].index];
                 ObstacleVertexData nextVertex = m_staticRefObstacles[vertex.next];
+                ObstacleInfos infos = m_staticObstacleInfos[vertex.infos];
 
                 float2 relPos1 = vertex.pos - a_position;
                 float2 relPos2 = nextVertex.pos - a_position;
+
+                float oRadius = a_radiusObst + infos.thickness;
 
                 // Check if velocity obstacle of obstacle is already taken care
                 // of by previously constructed obstacle ORCA lines.
@@ -132,8 +135,8 @@ namespace Nebukam.ORCA
                 
                 for (int j = 0; j < m_orcaLines.Length; ++j)
                 {
-                    if (Det(invTimeHorizonObst * relPos1 - m_orcaLines[j].point, m_orcaLines[j].dir) - invTimeHorizonObst * a_radius
-                        >= -EPSILON && Det(invTimeHorizonObst * relPos2 - m_orcaLines[j].point, m_orcaLines[j].dir) - invTimeHorizonObst * a_radius >= -EPSILON)
+                    if (Det(invTimeHorizonObst * relPos1 - m_orcaLines[j].point, m_orcaLines[j].dir) - invTimeHorizonObst * oRadius
+                        >= -EPSILON && Det(invTimeHorizonObst * relPos2 - m_orcaLines[j].point, m_orcaLines[j].dir) - invTimeHorizonObst * oRadius >= -EPSILON)
                     {
                         alreadyCovered = true;
                         break;
@@ -149,7 +152,7 @@ namespace Nebukam.ORCA
                 float distSq1 = lengthsq(relPos1);
                 float distSq2 = lengthsq(relPos2);
 
-                float radiusSq = lengthsq(a_radius);
+                float radiusSq = lengthsq(oRadius);
 
                 float2 obstacleVector = nextVertex.pos - vertex.pos;
                 float s = lengthsq(obstacleVector / dot(-relPos1, obstacleVector));
@@ -212,8 +215,8 @@ namespace Nebukam.ORCA
                     nextVertex = vertex;
 
                     float leg1 = sqrt(distSq1 - radiusSq);
-                    lLegDir = float2(relPos1.x * leg1 - relPos1.y * a_radius, relPos1.x * a_radius + relPos1.y * leg1) / distSq1;
-                    rLegDir = float2(relPos1.x * leg1 + relPos1.y * a_radius, -relPos1.x * a_radius + relPos1.y * leg1) / distSq1;
+                    lLegDir = float2(relPos1.x * leg1 - relPos1.y * oRadius, relPos1.x * oRadius + relPos1.y * leg1) / distSq1;
+                    rLegDir = float2(relPos1.x * leg1 + relPos1.y * oRadius, -relPos1.x * oRadius + relPos1.y * leg1) / distSq1;
                 }
                 else if (s > 1.0f && distSqLine <= radiusSq)
                 {
@@ -229,8 +232,8 @@ namespace Nebukam.ORCA
                     vertex = nextVertex;
 
                     float leg2 = sqrt(distSq2 - radiusSq);
-                    lLegDir = float2(relPos2.x * leg2 - relPos2.y * a_radius, relPos2.x * a_radius + relPos2.y * leg2) / distSq2;
-                    rLegDir = float2(relPos2.x * leg2 + relPos2.y * a_radius, -relPos2.x * a_radius + relPos2.y * leg2) / distSq2;
+                    lLegDir = float2(relPos2.x * leg2 - relPos2.y * oRadius, relPos2.x * oRadius + relPos2.y * leg2) / distSq2;
+                    rLegDir = float2(relPos2.x * leg2 + relPos2.y * oRadius, -relPos2.x * oRadius + relPos2.y * leg2) / distSq2;
                 }
                 else
                 {
@@ -238,7 +241,7 @@ namespace Nebukam.ORCA
                     if (vertex.convex)
                     {
                         float leg1 = sqrt(distSq1 - radiusSq);
-                        lLegDir = float2(relPos1.x * leg1 - relPos1.y * a_radius, relPos1.x * a_radius + relPos1.y * leg1) / distSq1;
+                        lLegDir = float2(relPos1.x * leg1 - relPos1.y * oRadius, relPos1.x * oRadius + relPos1.y * leg1) / distSq1;
                     }
                     else
                     {
@@ -249,7 +252,7 @@ namespace Nebukam.ORCA
                     if (nextVertex.convex)
                     {
                         float leg2 = sqrt(distSq2 - radiusSq);
-                        rLegDir = float2(relPos2.x * leg2 + relPos2.y * a_radius, -relPos2.x * a_radius + relPos2.y * leg2) / distSq2;
+                        rLegDir = float2(relPos2.x * leg2 + relPos2.y * oRadius, -relPos2.x * oRadius + relPos2.y * leg2) / distSq2;
                     }
                     else
                     {
@@ -299,7 +302,7 @@ namespace Nebukam.ORCA
                     float2 unitW = normalize(a_velocity - leftCutOff);
 
                     line.dir = float2(unitW.y, -unitW.x);
-                    line.point = leftCutOff + a_radius * invTimeHorizonObst * unitW;
+                    line.point = leftCutOff + oRadius * invTimeHorizonObst * unitW;
                     m_orcaLines.Add(line);
 
                     continue;
@@ -310,7 +313,7 @@ namespace Nebukam.ORCA
                     float2 unitW = normalize(a_velocity - rightCutOff);
 
                     line.dir = float2(unitW.y, -unitW.x);
-                    line.point = rightCutOff + a_radius * invTimeHorizonObst * unitW;
+                    line.point = rightCutOff + oRadius * invTimeHorizonObst * unitW;
                     m_orcaLines.Add(line);
 
                     continue;
@@ -326,7 +329,7 @@ namespace Nebukam.ORCA
                 {
                     // Project on cut-off line.
                     line.dir = -vertex.dir;
-                    line.point = leftCutOff + a_radius * invTimeHorizonObst * float2(-line.dir.y, line.dir.x);
+                    line.point = leftCutOff + oRadius * invTimeHorizonObst * float2(-line.dir.y, line.dir.x);
                     m_orcaLines.Add(line);
 
                     continue;
@@ -341,7 +344,7 @@ namespace Nebukam.ORCA
                     }
 
                     line.dir = lLegDir;
-                    line.point = leftCutOff + a_radius * invTimeHorizonObst * float2(-line.dir.y, line.dir.x);
+                    line.point = leftCutOff + oRadius * invTimeHorizonObst * float2(-line.dir.y, line.dir.x);
                     m_orcaLines.Add(line);
 
                     continue;
@@ -354,7 +357,7 @@ namespace Nebukam.ORCA
                 }
 
                 line.dir = -rLegDir;
-                line.point = rightCutOff + a_radius * invTimeHorizonObst * float2(-line.dir.y, line.dir.x);
+                line.point = rightCutOff + oRadius * invTimeHorizonObst * float2(-line.dir.y, line.dir.x);
                 m_orcaLines.Add(line);
             }
 
@@ -367,9 +370,12 @@ namespace Nebukam.ORCA
 
                 ObstacleVertexData vertex = m_dynObstacles[dynObstacleNeighbors[i].index];
                 ObstacleVertexData nextVertex = m_dynRefObstacles[vertex.next];
+                ObstacleInfos infos = m_staticObstacleInfos[vertex.infos];
 
                 float2 relPos1 = vertex.pos - a_position;
                 float2 relPos2 = nextVertex.pos - a_position;
+
+                float oRadius = a_radiusObst + infos.thickness;
 
                 // Check if velocity obstacle of obstacle is already taken care
                 // of by previously constructed obstacle ORCA lines.
@@ -377,8 +383,8 @@ namespace Nebukam.ORCA
 
                 for (int j = 0; j < m_orcaLines.Length; ++j)
                 {
-                    if (Det(invTimeHorizonObst * relPos1 - m_orcaLines[j].point, m_orcaLines[j].dir) - invTimeHorizonObst * a_radius
-                        >= -EPSILON && Det(invTimeHorizonObst * relPos2 - m_orcaLines[j].point, m_orcaLines[j].dir) - invTimeHorizonObst * a_radius >= -EPSILON)
+                    if (Det(invTimeHorizonObst * relPos1 - m_orcaLines[j].point, m_orcaLines[j].dir) - invTimeHorizonObst * oRadius
+                        >= -EPSILON && Det(invTimeHorizonObst * relPos2 - m_orcaLines[j].point, m_orcaLines[j].dir) - invTimeHorizonObst * oRadius >= -EPSILON)
                     {
                         alreadyCovered = true;
                         break;
@@ -394,7 +400,7 @@ namespace Nebukam.ORCA
                 float distSq1 = lengthsq(relPos1);
                 float distSq2 = lengthsq(relPos2);
 
-                float radiusSq = lengthsq(a_radius);
+                float radiusSq = lengthsq(oRadius);
 
                 float2 obstacleVector = nextVertex.pos - vertex.pos;
                 float s = lengthsq(obstacleVector / dot(-relPos1, obstacleVector));
@@ -457,8 +463,8 @@ namespace Nebukam.ORCA
                     nextVertex = vertex;
 
                     float leg1 = sqrt(distSq1 - radiusSq);
-                    lLegDir = float2(relPos1.x * leg1 - relPos1.y * a_radius, relPos1.x * a_radius + relPos1.y * leg1) / distSq1;
-                    rLegDir = float2(relPos1.x * leg1 + relPos1.y * a_radius, -relPos1.x * a_radius + relPos1.y * leg1) / distSq1;
+                    lLegDir = float2(relPos1.x * leg1 - relPos1.y * oRadius, relPos1.x * oRadius + relPos1.y * leg1) / distSq1;
+                    rLegDir = float2(relPos1.x * leg1 + relPos1.y * oRadius, -relPos1.x * oRadius + relPos1.y * leg1) / distSq1;
                 }
                 else if (s > 1.0f && distSqLine <= radiusSq)
                 {
@@ -474,8 +480,8 @@ namespace Nebukam.ORCA
                     vertex = nextVertex;
 
                     float leg2 = sqrt(distSq2 - radiusSq);
-                    lLegDir = float2(relPos2.x * leg2 - relPos2.y * a_radius, relPos2.x * a_radius + relPos2.y * leg2) / distSq2;
-                    rLegDir = float2(relPos2.x * leg2 + relPos2.y * a_radius, -relPos2.x * a_radius + relPos2.y * leg2) / distSq2;
+                    lLegDir = float2(relPos2.x * leg2 - relPos2.y * oRadius, relPos2.x * oRadius + relPos2.y * leg2) / distSq2;
+                    rLegDir = float2(relPos2.x * leg2 + relPos2.y * oRadius, -relPos2.x * oRadius + relPos2.y * leg2) / distSq2;
                 }
                 else
                 {
@@ -483,7 +489,7 @@ namespace Nebukam.ORCA
                     if (vertex.convex)
                     {
                         float leg1 = sqrt(distSq1 - radiusSq);
-                        lLegDir = float2(relPos1.x * leg1 - relPos1.y * a_radius, relPos1.x * a_radius + relPos1.y * leg1) / distSq1;
+                        lLegDir = float2(relPos1.x * leg1 - relPos1.y * oRadius, relPos1.x * oRadius + relPos1.y * leg1) / distSq1;
                     }
                     else
                     {
@@ -494,7 +500,7 @@ namespace Nebukam.ORCA
                     if (nextVertex.convex)
                     {
                         float leg2 = sqrt(distSq2 - radiusSq);
-                        rLegDir = float2(relPos2.x * leg2 + relPos2.y * a_radius, -relPos2.x * a_radius + relPos2.y * leg2) / distSq2;
+                        rLegDir = float2(relPos2.x * leg2 + relPos2.y * oRadius, -relPos2.x * oRadius + relPos2.y * leg2) / distSq2;
                     }
                     else
                     {
@@ -544,7 +550,7 @@ namespace Nebukam.ORCA
                     float2 unitW = normalize(a_velocity - leftCutOff);
 
                     line.dir = float2(unitW.y, -unitW.x);
-                    line.point = leftCutOff + a_radius * invTimeHorizonObst * unitW;
+                    line.point = leftCutOff + oRadius * invTimeHorizonObst * unitW;
                     m_orcaLines.Add(line);
 
                     continue;
@@ -555,7 +561,7 @@ namespace Nebukam.ORCA
                     float2 unitW = normalize(a_velocity - rightCutOff);
 
                     line.dir = float2(unitW.y, -unitW.x);
-                    line.point = rightCutOff + a_radius * invTimeHorizonObst * unitW;
+                    line.point = rightCutOff + oRadius * invTimeHorizonObst * unitW;
                     m_orcaLines.Add(line);
 
                     continue;
@@ -571,7 +577,7 @@ namespace Nebukam.ORCA
                 {
                     // Project on cut-off line.
                     line.dir = -vertex.dir;
-                    line.point = leftCutOff + a_radius * invTimeHorizonObst * float2(-line.dir.y, line.dir.x);
+                    line.point = leftCutOff + oRadius * invTimeHorizonObst * float2(-line.dir.y, line.dir.x);
                     m_orcaLines.Add(line);
 
                     continue;
@@ -586,7 +592,7 @@ namespace Nebukam.ORCA
                     }
 
                     line.dir = lLegDir;
-                    line.point = leftCutOff + a_radius * invTimeHorizonObst * float2(-line.dir.y, line.dir.x);
+                    line.point = leftCutOff + oRadius * invTimeHorizonObst * float2(-line.dir.y, line.dir.x);
                     m_orcaLines.Add(line);
 
                     continue;
@@ -599,7 +605,7 @@ namespace Nebukam.ORCA
                 }
 
                 line.dir = -rLegDir;
-                line.point = rightCutOff + a_radius * invTimeHorizonObst * float2(-line.dir.y, line.dir.x);
+                line.point = rightCutOff + oRadius * invTimeHorizonObst * float2(-line.dir.y, line.dir.x);
                 m_orcaLines.Add(line);
             }
 

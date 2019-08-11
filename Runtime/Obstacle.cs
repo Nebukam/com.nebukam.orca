@@ -8,16 +8,21 @@ namespace Nebukam.ORCA
     public class Obstacle : VertexGroup<ObstacleVertex>
     {
         
-        protected ORCALayer m_layerOccupation = ORCALayer.ALL;
-        protected bool m_collisionEnabled = true;
-        protected bool m_convex;
-        
+        internal ORCALayer m_layerOccupation = ORCALayer.ALL;
+        internal bool m_collisionEnabled = true;
+        internal float m_thickness = 0.0f;
+
+        public ORCALayer layerOccupation { get { return m_layerOccupation; } set { m_layerOccupation = value; } }
+        public bool collisionEnabled { get { return m_collisionEnabled; } set { m_collisionEnabled = value; } }
+        public float thickness { get { return m_thickness; } set { m_thickness = value; } }
+
         public ObstacleInfos infos {
             get{
                 return new ObstacleInfos()
                 {
                     layerOccupation = m_layerOccupation,
                     collisionEnabled = m_collisionEnabled,
+                    thickness = m_thickness,
                     length = Count
                 };
             }
