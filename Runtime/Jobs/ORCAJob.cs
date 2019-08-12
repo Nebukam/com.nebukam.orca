@@ -733,13 +733,15 @@ namespace Nebukam.ORCA
             if (treeNode.end - treeNode.begin <= AgentTreeNode.MAX_LEAF_SIZE)
             {
                 AgentData a;
+                float aElev = agent.elevation, nElev = agent.neighborElev;
                 for (int i = treeNode.begin; i < treeNode.end; ++i)
                 {
                     a = m_inputAgents[i];
 
                     if (a.index == agent.index 
                         || !a.collisionEnabled 
-                        || (a.layerOccupation & ~agent.layerIgnore) == 0)
+                        || (a.layerOccupation & ~agent.layerIgnore) == 0
+                        || abs(a.elevation - aElev) > nElev)
                     {
                         continue;
                     }

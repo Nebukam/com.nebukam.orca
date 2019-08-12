@@ -61,17 +61,20 @@ namespace Nebukam.ORCA
             }
 
             Agent a;
+            float3 pos;
 
             if(plane == AxisPair.XY)
             {
                 for (int i = 0; i < agentCount; i++)
                 {
                     a = m_lockedAgents[i];
+                    pos = a.pos;
                     m_outputAgents[i] = new AgentData()
                     {
                         index = i,
                         kdIndex = i,
-                        position = a.XY, //
+                        position = float2(pos.x, pos.y), //
+                        elevation = pos.z,
                         prefVelocity = a.m_prefVelocity,
                         velocity = a.m_velocity,
                         radius = a.m_radius,
@@ -79,6 +82,7 @@ namespace Nebukam.ORCA
                         maxSpeed = a.m_maxSpeed,
                         maxNeighbors = a.m_maxNeighbors,
                         neighborDist = a.m_neighborDist,
+                        neighborElev = a.m_neighborElev,
                         timeHorizon = a.m_timeHorizon,
                         timeHorizonObst = a.m_timeHorizonObst,
                         navigationEnabled = a.m_navigationEnabled,
@@ -93,10 +97,12 @@ namespace Nebukam.ORCA
                 for (int i = 0; i < agentCount; i++)
                 {
                     a = m_lockedAgents[i];
+                    pos = a.pos;
                     m_outputAgents[i] = new AgentData()
                     {
                         index = i,
-                        position = a.XZ, //
+                        position = float2(pos.x, pos.z), //
+                        elevation = pos.y,
                         prefVelocity = a.m_prefVelocity,
                         velocity = a.m_velocity,
                         radius = a.m_radius,
@@ -104,6 +110,7 @@ namespace Nebukam.ORCA
                         maxSpeed = a.m_maxSpeed,
                         maxNeighbors = a.m_maxNeighbors,
                         neighborDist = a.m_neighborDist,
+                        neighborElev = a.m_neighborElev,
                         timeHorizon = a.m_timeHorizon,
                         timeHorizonObst = a.m_timeHorizonObst,
                         navigationEnabled = a.m_navigationEnabled,

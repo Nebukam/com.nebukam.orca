@@ -9,6 +9,7 @@ namespace Nebukam.ORCA
         public int kdIndex;
 
         public float2 position;
+        public float elevation;
         public float2 prefVelocity;
         public float2 velocity;
         
@@ -18,6 +19,7 @@ namespace Nebukam.ORCA
 
         public int maxNeighbors;
         public float neighborDist;
+        public float neighborElev;
 
         public float timeHorizon;
         public float timeHorizonObst;

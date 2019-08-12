@@ -44,7 +44,8 @@ namespace Nebukam.ORCA
         /// <summary>
         /// Maximum distance at which this agent consider avoiding other agents
         /// </summary>
-        float neighborDist { get; set; }        
+        float neighborDist { get; set; }
+        float neighborElevation { get; set; }
 
         float timeHorizon { get; set; }
         float timeHorizonObst { get; set; }
@@ -87,6 +88,7 @@ namespace Nebukam.ORCA
 
         internal int m_maxNeighbors = 15;
         internal float m_neighborDist = 20.0f;
+        internal float m_neighborElev = 0.5f;
 
         internal float m_timeHorizon = 15.0f;
         internal float m_timeHorizonObst = 1.2f;
@@ -130,6 +132,11 @@ namespace Nebukam.ORCA
         public float neighborDist {
             get { return m_neighborDist; }
             set { m_neighborDist = value; }
+        }
+        public float neighborElevation
+        {
+            get { return m_neighborElev; }
+            set { m_neighborElev = value; }
         }
 
         public float timeHorizon {
