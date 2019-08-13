@@ -5,14 +5,16 @@ namespace Nebukam.ORCA
 
     public struct AgentData
     {
+
         public int index;
         public int kdIndex;
 
         public float2 position;
-        public float elevation;
+        public float baseline;
         public float2 prefVelocity;
         public float2 velocity;
-        
+
+        public float height;
         public float radius;
         public float radiusObst;
         public float maxSpeed;
@@ -28,6 +30,7 @@ namespace Nebukam.ORCA
         public ORCALayer layerIgnore;
         public bool navigationEnabled;
         public bool collisionEnabled;
+
     }
 
     public struct AgentDataResult

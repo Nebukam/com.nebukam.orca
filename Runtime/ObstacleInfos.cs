@@ -8,5 +8,7 @@
         public ORCALayer layerOccupation;
         public bool collisionEnabled;
         public float thickness;
+        public float height;
+        public float baseline;
     }
 }

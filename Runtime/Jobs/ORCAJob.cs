@@ -80,9 +80,12 @@ namespace Nebukam.ORCA
             float2 a_prefVelocity = agent.prefVelocity;
             float2 a_velocity = agent.velocity;
             float2 a_newVelocity = a_prefVelocity;
-            
+
+            float a_bottom = agent.baseline;
+            float a_top = a_bottom + agent.height;
             float a_maxSpeed = agent.maxSpeed;
             float a_neighborDist = agent.neighborDist;
+            float a_neighborElev = agent.neighborElev;
             float a_radius = agent.radius;
             float a_radiusObst = agent.radiusObst;
             float a_sqRadius = lengthsq(agent.radius);
@@ -123,6 +126,8 @@ namespace Nebukam.ORCA
                 ObstacleVertexData vertex = m_staticObstacles[staticObstacleNeighbors[i].index];
                 ObstacleVertexData nextVertex = m_staticRefObstacles[vertex.next];
                 ObstacleInfos infos = m_staticObstacleInfos[vertex.infos];
+
+                if(a_top < infos.baseline || a_bottom > infos.baseline + infos.height) { continue; }
 
                 float2 relPos1 = vertex.pos - a_position;
                 float2 relPos2 = nextVertex.pos - a_position;
@@ -371,6 +376,8 @@ namespace Nebukam.ORCA
                 ObstacleVertexData vertex = m_dynObstacles[dynObstacleNeighbors[i].index];
                 ObstacleVertexData nextVertex = m_dynRefObstacles[vertex.next];
                 ObstacleInfos infos = m_staticObstacleInfos[vertex.infos];
+
+                if (a_top < infos.baseline || a_bottom > infos.baseline + infos.height) { continue; }
 
                 float2 relPos1 = vertex.pos - a_position;
                 float2 relPos2 = nextVertex.pos - a_position;
@@ -733,7 +740,7 @@ namespace Nebukam.ORCA
             if (treeNode.end - treeNode.begin <= AgentTreeNode.MAX_LEAF_SIZE)
             {
                 AgentData a;
-                float aElev = agent.elevation, nElev = agent.neighborElev;
+                float bottom = agent.baseline, top = bottom + agent.height;
                 for (int i = treeNode.begin; i < treeNode.end; ++i)
                 {
                     a = m_inputAgents[i];
@@ -741,7 +748,7 @@ namespace Nebukam.ORCA
                     if (a.index == agent.index 
                         || !a.collisionEnabled 
                         || (a.layerOccupation & ~agent.layerIgnore) == 0
-                        || abs(a.elevation - aElev) > nElev)
+                        || (top < a.baseline || bottom > a.baseline + a.height))
                     {
                         continue;
                     }

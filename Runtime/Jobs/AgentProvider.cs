@@ -74,9 +74,10 @@ namespace Nebukam.ORCA
                         index = i,
                         kdIndex = i,
                         position = float2(pos.x, pos.y), //
-                        elevation = pos.z,
+                        baseline = pos.z,
                         prefVelocity = a.m_prefVelocity,
                         velocity = a.m_velocity,
+                        height = a.m_height,
                         radius = a.m_radius,
                         radiusObst = a.m_radiusObst,
                         maxSpeed = a.m_maxSpeed,
@@ -102,9 +103,10 @@ namespace Nebukam.ORCA
                     {
                         index = i,
                         position = float2(pos.x, pos.z), //
-                        elevation = pos.y,
+                        baseline = pos.y,
                         prefVelocity = a.m_prefVelocity,
                         velocity = a.m_velocity,
+                        height = a.m_height,
                         radius = a.m_radius,
                         radiusObst = a.m_radiusObst,
                         maxSpeed = a.m_maxSpeed,

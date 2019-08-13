@@ -22,6 +22,7 @@ namespace Nebukam.ORCA
         /// </summary>
         float2 velocity { get; set; }
 
+        float height { get; set; }
         /// <summary>
         /// Radius of the agent when resolving agent-agent collisions.
         /// </summary>
@@ -82,6 +83,7 @@ namespace Nebukam.ORCA
         internal float2 m_prefVelocity = float2(false);
         internal float2 m_velocity { get; set; } = float2(false);
 
+        internal float m_height = 0.5f;
         internal float m_radius = 0.5f;
         internal float m_radiusObst = 0.5f;
         internal float m_maxSpeed = 20.0f;
@@ -111,6 +113,11 @@ namespace Nebukam.ORCA
             set { m_velocity = value; }
         }
 
+        public float height
+        {
+            get { return m_height; }
+            set { m_height = value; }
+        }
         public float radius {
             get { return m_radius; }
             set { m_radius = value; }
