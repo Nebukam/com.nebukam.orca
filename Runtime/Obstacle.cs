@@ -27,7 +27,8 @@ namespace Nebukam.ORCA
                     collisionEnabled = m_collisionEnabled,
                     thickness = m_thickness,
                     length = Count,
-                    baseline = m_baseline
+                    baseline = m_baseline,
+                    height = m_height
                 };
             }
         }
