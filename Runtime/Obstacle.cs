@@ -17,6 +17,7 @@ namespace Nebukam.ORCA
         public ORCALayer layerOccupation { get { return m_layerOccupation; } set { m_layerOccupation = value; } }
         public bool collisionEnabled { get { return m_collisionEnabled; } set { m_collisionEnabled = value; } }
         public float thickness { get { return m_thickness; } set { m_thickness = value; } }
+        public float height { get { return m_height; } set { m_height = value; } }
         public float baseline { get { return m_baseline; } set { m_baseline = value; } }
 
         public ObstacleInfos infos {
