@@ -376,7 +376,7 @@ namespace Nebukam.ORCA
 
                 ObstacleVertexData vertex = m_dynObstacles[dynObstacleNeighbors[i].index];
                 ObstacleVertexData nextVertex = m_dynRefObstacles[vertex.next];
-                ObstacleInfos infos = m_staticObstacleInfos[vertex.infos];
+                ObstacleInfos infos = m_dynObstacleInfos[vertex.infos];
 
                 if (a_top < infos.baseline || a_bottom > infos.baseline + infos.height) { continue; }
 
