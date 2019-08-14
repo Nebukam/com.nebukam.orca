@@ -44,14 +44,15 @@ namespace Nebukam.ORCA
         ///
 
         public bool recompute { get { return m_recompute; } set { m_recompute = true; } }
-        public IObstacleGroup obstacles {
+        public IObstacleGroup obstacles
+        {
             get { return m_obstacles; }
             set { m_obstacles = value; m_recompute = true; }
         }
         public NativeArray<ObstacleInfos> outputObstacleInfos { get { return m_outputObstacleInfos; } }
         public NativeArray<ObstacleVertexData> referenceObstacles { get { return m_referenceObstacles; } }
         public NativeArray<ObstacleVertexData> outputObstacles { get { return m_outputObstacles; } }
-        
+
         protected override void InternalLock() { }
         protected override void InternalUnlock() { }
 
@@ -59,7 +60,7 @@ namespace Nebukam.ORCA
         {
             int obsCount = m_obstacles == null ? 0 : m_obstacles.Count,
              refCount = m_referenceObstacles.Length, vCount = 0;
-            
+
             if (m_outputObstacleInfos.Length != obsCount)
             {
                 m_outputObstacleInfos.Dispose();
@@ -68,13 +69,15 @@ namespace Nebukam.ORCA
                 m_recompute = true;
             }
 
+            Obstacle o;
             ObstacleInfos infos;
 
             for (int i = 0; i < obsCount; i++)
             {
+                o = m_obstacles[i];
                 //Keep collision infos & ORCALayer up-to-date
                 //there is no need to recompute anything else.
-                infos = m_obstacles[i].infos;
+                infos = o.infos;
                 infos.index = i;
                 infos.start = vCount;
                 m_outputObstacleInfos[i] = infos;
@@ -103,34 +106,52 @@ namespace Nebukam.ORCA
                 m_outputObstacles = new NativeArray<ObstacleVertexData>(vCount, Allocator.Persistent);
             }
 
-            Obstacle o;
             ObstacleVertexData oData;
             int gIndex = 0, index = 0, vCountMinusOne, firstIndex, lastIndex;
 
-            if(plane == AxisPair.XY)
+            if (plane == AxisPair.XY)
             {
                 for (int i = 0; i < obsCount; i++)
                 {
                     o = m_obstacles[i];
+
                     vCount = o.Count;
                     vCountMinusOne = vCount - 1;
                     firstIndex = gIndex;
                     lastIndex = gIndex + vCountMinusOne;
 
-                    for (int v = 0; v < vCount; v++)
+                    if (!o.edge)
                     {
-                        oData = new ObstacleVertexData()
+                        //Obstacle is a closed polygon
+                        for (int v = 0; v < vCount; v++)
                         {
-                            infos = i,
-                            index = index,
-                            localIndex = v,
-                            prev = v == 0 ? lastIndex : index - 1,
-                            next = v == vCountMinusOne ? firstIndex : index + 1,
-                            pos = o[v].XY //
-                        };
+                            oData = new ObstacleVertexData()
+                            {
+                                infos = i,
+                                index = index,
+                                pos = o[v].XY,
+                                prev = v == 0 ? lastIndex : index - 1,
+                                next = v == vCountMinusOne ? firstIndex : index + 1
+                            };
+                            m_referenceObstacles[index++] = oData;
+                        }
+                    }
+                    else
+                    {
+                        //Obstacle is an open path
+                        for (int v = 0; v < vCount; v++)
+                        {
+                            oData = new ObstacleVertexData()
+                            {
+                                infos = i,
+                                index = index,
+                                pos = o[v].XY,
+                                prev = v == 0 ? index : index - 1,
+                                next = v == vCountMinusOne ? index : index + 1
+                            };
+                            m_referenceObstacles[index++] = oData;
+                        }
 
-                        m_referenceObstacles[index] = oData;
-                        index++;
                     }
 
                     gIndex += vCount;
@@ -146,20 +167,38 @@ namespace Nebukam.ORCA
                     firstIndex = gIndex;
                     lastIndex = gIndex + vCountMinusOne;
 
-                    for (int v = 0; v < vCount; v++)
+                    if (!o.edge)
                     {
-                        oData = new ObstacleVertexData()
+                        //Obstacle is a closed polygon
+                        for (int v = 0; v < vCount; v++)
                         {
-                            infos = i,
-                            index = index,
-                            localIndex = v,
-                            prev = v == 0 ? lastIndex : index - 1,
-                            next = v == vCountMinusOne ? firstIndex : index + 1,
-                            pos = o[v].XZ //
-                        };
+                            oData = new ObstacleVertexData()
+                            {
+                                infos = i,
+                                index = index,
+                                pos = o[v].XZ,
+                                prev = v == 0 ? lastIndex : index - 1,
+                                next = v == vCountMinusOne ? firstIndex : index + 1
+                            };
+                            m_referenceObstacles[index++] = oData;
+                        }
+                    }
+                    else
+                    {
+                        //Obstacle is an open path
+                        for (int v = 0; v < vCount; v++)
+                        {
+                            oData = new ObstacleVertexData()
+                            {
+                                infos = i,
+                                index = index,
+                                pos = o[v].XZ,
+                                prev = v == 0 ? index : index - 1,
+                                next = v == vCountMinusOne ? index : index + 1
+                            };
+                            m_referenceObstacles[index++] = oData;
+                        }
 
-                        m_referenceObstacles[index] = oData;
-                        index++;
                     }
 
                     gIndex += vCount;
@@ -175,7 +214,7 @@ namespace Nebukam.ORCA
         {
             m_recompute = false;
         }
-        
+
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
@@ -198,6 +237,6 @@ namespace Nebukam.ORCA
             base.Prepare(ref job, delta);
         }
     }
-    
+
 
 }

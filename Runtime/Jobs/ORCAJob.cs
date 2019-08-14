@@ -137,7 +137,7 @@ namespace Nebukam.ORCA
                 // Check if velocity obstacle of obstacle is already taken care
                 // of by previously constructed obstacle ORCA lines.
                 bool alreadyCovered = false;
-                
+
                 for (int j = 0; j < m_orcaLines.Length; ++j)
                 {
                     if (Det(invTimeHorizonObst * relPos1 - m_orcaLines[j].point, m_orcaLines[j].dir) - invTimeHorizonObst * oRadius
@@ -147,6 +147,7 @@ namespace Nebukam.ORCA
                         break;
                     }
                 }
+                
                 
                 if (alreadyCovered)
                 {

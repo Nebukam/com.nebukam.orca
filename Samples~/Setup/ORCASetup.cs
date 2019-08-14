@@ -65,6 +65,7 @@ namespace Nebukam.ORCA
 
             float dirRange = 2f;
             List<float3> vList = new List<float3>();
+            Obstacle o;
             for (int i = 0; i < obstacleCount; i++)
             {
                 int vCount = Random.Range(minObstacleEdgeCount, maxObstacleEdgeCount);
@@ -97,7 +98,7 @@ namespace Nebukam.ORCA
 
                 //if (vCount != 2) { vList.Add(start); }
 
-                obstacles.Add(vList, axis == AxisPair.XZ);
+                o = obstacles.Add(vList, axis == AxisPair.XZ);
             }
 
             #endregion
@@ -149,7 +150,14 @@ namespace Nebukam.ORCA
 
             for (int i = 0; i < agentCount; i++)
             {
-                a = agents.Add((float3)transform.position + float3(Random.value, Random.value, Random.value)) as IAgent;
+                if(axis == AxisPair.XY)
+                {
+                    a = agents.Add((float3)transform.position + float3(Random.value, Random.value, 0f)) as IAgent;
+                }
+                else
+                {
+                    a = agents.Add((float3)transform.position + float3(Random.value, 0f, Random.value)) as IAgent;
+                }
                 a.radius = 0.5f + Random.value * maxAgentRadius;
                 a.radiusObst = a.radius + Random.value * maxAgentRadius;
                 a.prefVelocity = float2(false);
@@ -211,7 +219,8 @@ namespace Nebukam.ORCA
                     Draw.Line(o[j - 1].pos, o[j].pos, staticObstacleColor);
                 }
                 //Draw closing segment (simulation consider 2+ segments to be closed.)
-                Draw.Line(o[subCount - 1].pos, o[0].pos, staticObstacleColor);
+                if(!o.edge)
+                    Draw.Line(o[subCount - 1].pos, o[0].pos, staticObstacleColor);
             }
 
             float delta = Time.deltaTime * 50f;
@@ -229,7 +238,8 @@ namespace Nebukam.ORCA
                     Draw.Line(o[j - 1].pos, o[j].pos, dynObstacleColor);
                 }
                 //Draw closing segment (simulation consider 2+ segments to be closed.)
-                Draw.Line(o[subCount - 1].pos, o[0].pos, dynObstacleColor);
+                if (!o.edge)
+                    Draw.Line(o[subCount - 1].pos, o[0].pos, dynObstacleColor);
 
             }
 
@@ -245,8 +255,7 @@ namespace Nebukam.ORCA
             {
 
                 //Move dynamic obstacles randomly
-                Obstacle o;
-                int oCount = dynObstacles.Count, subCount;
+                int oCount = dynObstacles.Count;
                 float delta = Time.deltaTime * 50f;
                 for (int i = 0; i < oCount; i++)
                     dynObstacles[i].Offset(float3(Random.Range(-delta, delta), Random.Range(-delta, delta), 0f));
