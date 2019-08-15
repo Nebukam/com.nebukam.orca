@@ -3,7 +3,6 @@ using Unity.Jobs;
 using Unity.Collections;
 using Unity.Mathematics;
 using static Unity.Mathematics.math;
-using Nebukam.Common;
 
 namespace Nebukam.ORCA
 {

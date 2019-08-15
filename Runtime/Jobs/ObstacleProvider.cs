@@ -4,7 +4,6 @@ using Unity.Jobs;
 using Unity.Collections;
 using Unity.Mathematics;
 using static Unity.Mathematics.math;
-using Nebukam.Common;
 using Nebukam.JobAssist;
 
 namespace Nebukam.ORCA
