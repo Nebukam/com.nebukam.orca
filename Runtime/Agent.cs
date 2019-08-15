@@ -95,7 +95,7 @@ namespace Nebukam.ORCA
         internal float m_timeHorizon = 15.0f;
         internal float m_timeHorizonObst = 1.2f;
 
-        internal ORCALayer m_layerOccupation = ORCALayer.ALL;
+        internal ORCALayer m_layerOccupation = ORCALayer.ANY;
         internal ORCALayer m_layerIgnore = ORCALayer.NONE;
         internal bool m_navigationEnabled = true;
         internal bool m_collisionEnabled = true;

@@ -8,7 +8,7 @@ namespace Nebukam.ORCA
     public class Obstacle : VertexGroup<ObstacleVertex>
     {
         
-        internal ORCALayer m_layerOccupation = ORCALayer.ALL;
+        internal ORCALayer m_layerOccupation = ORCALayer.ANY;
         internal bool m_collisionEnabled = true;
         internal float m_thickness = 0.0f;
         internal float m_height = 1.0f;
