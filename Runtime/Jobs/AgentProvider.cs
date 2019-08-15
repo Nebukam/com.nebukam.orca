@@ -61,7 +61,7 @@ namespace Nebukam.ORCA
             }
 
             Agent a;
-            float3 pos;
+            float3 pos, prefVel, vel;
 
             if(plane == AxisPair.XY)
             {
@@ -69,14 +69,16 @@ namespace Nebukam.ORCA
                 {
                     a = m_lockedAgents[i];
                     pos = a.pos;
+                    prefVel = a.m_prefVelocity;
+                    vel = a.m_velocity;
                     m_outputAgents[i] = new AgentData()
                     {
                         index = i,
                         kdIndex = i,
                         position = float2(pos.x, pos.y), //
                         baseline = pos.z,
-                        prefVelocity = a.m_prefVelocity,
-                        velocity = a.m_velocity,
+                        prefVelocity = float2(prefVel.x, prefVel.y),
+                        velocity = float2(vel.x, vel.y),
                         height = a.m_height,
                         radius = a.m_radius,
                         radiusObst = a.m_radiusObst,
@@ -99,13 +101,15 @@ namespace Nebukam.ORCA
                 {
                     a = m_lockedAgents[i];
                     pos = a.pos;
+                    prefVel = a.m_prefVelocity;
+                    vel = a.m_velocity;
                     m_outputAgents[i] = new AgentData()
                     {
                         index = i,
                         position = float2(pos.x, pos.z), //
                         baseline = pos.y,
-                        prefVelocity = a.m_prefVelocity,
-                        velocity = a.m_velocity,
+                        prefVelocity = float2(prefVel.x, prefVel.z),
+                        velocity = float2(vel.x, vel.z),
                         height = a.m_height,
                         radius = a.m_radius,
                         radiusObst = a.m_radiusObst,

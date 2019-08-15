@@ -106,27 +106,27 @@ namespace Nebukam.ORCA
 
             AgentDataResult result;
 
-            if(plane == AxisPair.XY)
+            if (plane == AxisPair.XY)
             {
-                for (int i = 0, count = m_results.Length; i < count; i++)
+                for (int i = 0, count = results.Length; i < count; i++)
                 {
-                    result = m_results[i];
+                    result = results[i];
                     agent = agentList[data[i].index];
                     agent.pos = float3(result.position, agent.pos.z);
-                    agent.velocity = result.velocity;
+                    agent.velocity = float3(result.velocity, agent.velocity.z);
                 }
             }
             else
             {
-                for (int i = 0, count = m_results.Length; i < count; i++)
+                for (int i = 0, count = results.Length; i < count; i++)
                 {
-                    result = m_results[i];
+                    result = results[i];
                     agent = agentList[data[i].index];
                     agent.pos = float3(result.position.x, agent.pos.y, result.position.y);
-                    agent.velocity = result.velocity;
+                    agent.velocity = float3(result.velocity.x, agent.velocity.y, result.velocity.y);
                 }
             }
-            
+
         }
 
         protected override void Dispose(bool disposing)

@@ -16,11 +16,11 @@ namespace Nebukam.ORCA
         /// This is the 'ideal', desired velocity.
         /// Note : The agent velocity is multiplied by the simulation's timestep.
         /// </summary>
-        float2 prefVelocity { get; set; }
+        float3 prefVelocity { get; set; }
         /// <summary>
         /// Simulated, collision-free velocity.
         /// </summary>
-        float2 velocity { get; set; }
+        float3 velocity { get; set; }
 
         float height { get; set; }
         /// <summary>
@@ -80,8 +80,8 @@ namespace Nebukam.ORCA
         /// Fields
         /// 
 
-        internal float2 m_prefVelocity = float2(false);
-        internal float2 m_velocity { get; set; } = float2(false);
+        internal float3 m_prefVelocity = float3(false);
+        internal float3 m_velocity { get; set; } = float3(false);
 
         internal float m_height = 0.5f;
         internal float m_radius = 0.5f;
@@ -104,11 +104,11 @@ namespace Nebukam.ORCA
         /// Properties
         /// 
 
-        public float2 prefVelocity {
+        public float3 prefVelocity {
             get { return m_prefVelocity; }
             set { m_prefVelocity = value; }
         }
-        public float2 velocity {
+        public float3 velocity {
             get { return m_velocity; }
             set { m_velocity = value; }
         }

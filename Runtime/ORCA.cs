@@ -52,7 +52,7 @@ namespace Nebukam.ORCA
         protected override void Apply()
         {
             base.Apply();
-
+            /*
             IAgentProvider agentProvider;
             if(!TryGetFirst(-1, out agentProvider, true))
             {
@@ -74,7 +74,7 @@ namespace Nebukam.ORCA
                     result = results[i];
                     agent = agentList[data[i].index];
                     agent.pos = float3(result.position, agent.pos.z);
-                    agent.velocity = result.velocity;
+                    agent.velocity = float3(result.velocity, agent.velocity.z);
                 }
             }
             else
@@ -84,10 +84,10 @@ namespace Nebukam.ORCA
                     result = results[i];
                     agent = agentList[data[i].index];
                     agent.pos = float3(result.position.x, agent.pos.y, result.position.y);
-                    agent.velocity = result.velocity;
+                    agent.velocity = float3(result.velocity.x, agent.velocity.y, result.velocity.y);
                 }
             }
-
+            */
         }
         
     }
