@@ -160,7 +160,7 @@ namespace Nebukam.ORCA
                 }
                 a.radius = 0.5f + Random.value * maxAgentRadius;
                 a.radiusObst = a.radius + Random.value * maxAgentRadius;
-                a.prefVelocity = float2(false);
+                a.prefVelocity = float3(false);
             }
 
             #endregion
@@ -174,7 +174,7 @@ namespace Nebukam.ORCA
             simulation.Schedule(Time.deltaTime);
 
             //Store "target" position
-            float2 tr = axis == AxisPair.XY ? float2(target.position.x, target.position.y) : float2(target.position.x, target.position.z);
+            float3 tr = target.position;
 
             //Draw agents debug
             IAgent agent;
@@ -194,12 +194,12 @@ namespace Nebukam.ORCA
                     Draw.Circle(agentPos, agent.radiusObst, Color.cyan.A(0.15f), 12);
                 }
                 //Agent simulated velocity (ORCA compliant)
-                Draw.Line(agentPos, agentPos + (normalize(float3(agent.velocity, 0f)) * agent.radius), Color.green);
+                Draw.Line(agentPos, agentPos + (normalize(agent.velocity) * agent.radius), Color.green);
                 //Agent goal vector
-                Draw.Line(agentPos, agentPos + (normalize(float3(agent.prefVelocity, 0f)) * agent.radius), Color.grey);
+                Draw.Line(agentPos, agentPos + (normalize(agent.prefVelocity) * agent.radius), Color.grey);
 
                 //Update agent preferred velocity so it always tries to reach the "target" object
-                agent.prefVelocity = normalize(tr - agent.Pair(axis)) * 10f;
+                agent.prefVelocity = normalize(tr - agent.pos) * 10f;
 
             }
 
