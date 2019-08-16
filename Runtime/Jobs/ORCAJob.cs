@@ -732,7 +732,7 @@ namespace Nebukam.ORCA
 
             #endregion
 
-            //m_orcaLines.Dispose(); //Burst doesn't like this.
+            m_orcaLines.Dispose();
 
             #endregion
             
