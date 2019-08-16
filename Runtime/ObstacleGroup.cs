@@ -31,7 +31,6 @@ namespace Nebukam.ORCA
         Obstacle this[int i] { get; }
     }
 
-
     public class ObstacleGroup : IObstacleGroup
     {
 
@@ -78,6 +77,21 @@ namespace Nebukam.ORCA
         protected void OnObstacleReleased(IPoolItem obstacle)
         {
             m_obstacles.Remove(obstacle as Obstacle);
+        }
+
+        public void Clear(bool release = false)
+        {
+            if (release)
+            {
+                int count = m_obstacles.Count;
+                while (count != 0)
+                {
+                    m_obstacles[count - 1].Release();
+                    count = m_obstacles.Count;
+                }
+            }
+
+            m_obstacles.Clear();
         }
 
     }
