@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using Nebukam.Pooling;
 using System.Collections.Generic;
 using Unity.Mathematics;
 
@@ -33,6 +34,14 @@ namespace Nebukam.ORCA
 
     public class ObstacleGroup : IObstacleGroup
     {
+
+        protected Pooling.Pool.OnItemReleased m_onObstacleReleased;
+
+        public ObstacleGroup()
+        {
+            m_onObstacleReleased = OnObstacleReleased;
+        }
+
         //Store obsctacles
         protected List<Obstacle> m_obstacles = new List<Obstacle>();
 
@@ -43,12 +52,13 @@ namespace Nebukam.ORCA
         {
             if (m_obstacles.Contains(obstacle)) { return obstacle; }
             m_obstacles.Add(obstacle);
+            obstacle.OnRelease(m_onObstacleReleased);
             return obstacle;
         }
 
         public Obstacle Add(IList<float3> m_vertices, bool inverseOrder = false)
         {
-            Obstacle obstacle = new Obstacle();
+            Obstacle obstacle = Pool.Rent<Obstacle>();
 
             int count = m_vertices.Count;
             if (!inverseOrder)
@@ -63,6 +73,11 @@ namespace Nebukam.ORCA
             }
             
             return Add(obstacle);
+        }
+
+        protected void OnObstacleReleased(IPoolItem obstacle)
+        {
+            m_obstacles.Remove(obstacle as Obstacle);
         }
 
     }

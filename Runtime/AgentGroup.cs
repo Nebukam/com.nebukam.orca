@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using Nebukam.Pooling;
 
 namespace Nebukam.ORCA
 {
@@ -30,6 +31,17 @@ namespace Nebukam.ORCA
     public class AgentGroup<V> : VertexGroup<V>, IAgentGroup
         where V : Agent, IAgent, new()
     {
-        
+
+        protected override void OnVertexAdded(V v)
+        {
+            base.OnVertexAdded(v);
+            v.OnRelease(m_onVertexReleasedCached);
+        }
+
+        protected override void OnVertexRemoved(V v)
+        {
+            base.OnVertexRemoved(v);
+            v.OffRelease(m_onVertexReleasedCached);
+        }
     }
 }
