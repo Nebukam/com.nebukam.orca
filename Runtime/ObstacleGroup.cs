@@ -51,7 +51,7 @@ namespace Nebukam.ORCA
         {
             if (m_obstacles.Contains(obstacle)) { return obstacle; }
             m_obstacles.Add(obstacle);
-            obstacle.OnRelease(m_onObstacleReleased);
+            obstacle.onRelease(m_onObstacleReleased);
             return obstacle;
         }
 
@@ -74,9 +74,14 @@ namespace Nebukam.ORCA
             return Add(obstacle);
         }
 
+        public void Remove(Obstacle obstacle)
+        {
+            m_obstacles.Remove(obstacle);
+        }
+
         protected void OnObstacleReleased(IPoolItem obstacle)
         {
-            m_obstacles.Remove(obstacle as Obstacle);
+            Remove(obstacle as Obstacle);
         }
 
         public void Clear(bool release = false)

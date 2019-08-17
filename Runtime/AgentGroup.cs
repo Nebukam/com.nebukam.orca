@@ -35,13 +35,13 @@ namespace Nebukam.ORCA
         protected override void OnVertexAdded(V v)
         {
             base.OnVertexAdded(v);
-            v.OnRelease(m_onVertexReleasedCached);
+            v.onRelease(m_onVertexReleasedCached);
         }
 
         protected override void OnVertexRemoved(V v)
         {
             base.OnVertexRemoved(v);
-            v.OffRelease(m_onVertexReleasedCached);
+            v.offRelease(m_onVertexReleasedCached);
         }
     }
 }
