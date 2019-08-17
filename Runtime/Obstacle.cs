@@ -57,6 +57,19 @@ namespace Nebukam.ORCA
                 };
             }
         }
+
+        public override void Init()
+        {
+            base.Init();
+
+            m_layerOccupation = ORCALayer.ANY;
+            m_collisionEnabled = true;
+            m_thickness = 0.0f;
+            m_height = 1.0f;
+            m_baseline = 0.0f;
+            m_edge = false;
+        }
+
     }
 
 }
