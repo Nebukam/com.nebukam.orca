@@ -2,11 +2,10 @@
     "name": "Nebukam.ORCA",
     "references": [
         "Unity.Burst",
-        "Unity.Mathematics",
         "Unity.Collections",
         "Unity.Jobs",
+        "Unity.Mathematics",
         "Nebukam.Common",
-        "Nebukam.Utils",
         "Nebukam.JobAssist"
     ],
     "includePlatforms": [],
