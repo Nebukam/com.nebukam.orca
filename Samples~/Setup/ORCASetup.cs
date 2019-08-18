@@ -1,13 +1,9 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using Nebukam.Utils;
+using System.Collections.Generic;
 using Unity.Mathematics;
+using UnityEngine;
 using static Unity.Mathematics.math;
 using Random = UnityEngine.Random;
-using Nebukam.Common;
-using Nebukam.Utils;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace Nebukam.ORCA
 {
@@ -17,6 +13,7 @@ namespace Nebukam.ORCA
         private AgentGroup<Agent> agents;
         private ObstacleGroup obstacles;
         private ObstacleGroup dynObstacles;
+        private RaycastGroup raycasts;
         private ORCA simulation;
 
         [Header("Settings")]
@@ -40,6 +37,10 @@ namespace Nebukam.ORCA
         Color staticObstacleColor = Color.red;
         Color dynObstacleColor = Color.yellow;
 
+        [Header("Raycasts")]
+        public int raycastCount = 50;
+        public float raycastDistance = 10f;
+
         private void Awake()
         {
 
@@ -47,12 +48,14 @@ namespace Nebukam.ORCA
 
             obstacles = new ObstacleGroup();
             dynObstacles = new ObstacleGroup();
+            raycasts = new RaycastGroup();
 
             simulation = new ORCA();
             simulation.plane = axis;
             simulation.agents = agents;
             simulation.staticObstacles = obstacles;
             simulation.dynamicObstacles = dynObstacles;
+            simulation.raycasts = raycasts;
 
         }
 
@@ -165,6 +168,30 @@ namespace Nebukam.ORCA
 
             #endregion
 
+            #region create agents
+
+            Raycast r;
+
+            for (int i = 0; i < raycastCount; i++)
+            {
+                if (axis == AxisPair.XY)
+                {
+                    r = raycasts.Add(float3(Random.Range(min.x, max.x), Random.Range(min.y, max.y), 0f)) as Raycast;
+                    r.dir = normalize(float3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), 0f));
+                }
+                else
+                {
+                    r = raycasts.Add(float3(Random.Range(min.x, max.x), 0f, Random.Range(min.y, max.y))) as Raycast;
+                    r.dir = normalize(float3(Random.Range(-1f, 1f),0f, Random.Range(-1f, 1f)));
+                }
+
+                r.distance = raycastDistance;
+            }
+
+            #endregion
+
+
+
         }
 
         private void Update()
@@ -175,6 +202,8 @@ namespace Nebukam.ORCA
 
             //Store "target" position
             float3 tr = target.position;
+
+            #region update & draw agents
 
             //Draw agents debug
             IAgent agent;
@@ -202,6 +231,8 @@ namespace Nebukam.ORCA
                 agent.prefVelocity = normalize(tr - agent.pos) * 10f;
 
             }
+
+            #endregion
 
             #region draw obstacles
 
@@ -245,6 +276,38 @@ namespace Nebukam.ORCA
 
             #endregion
 
+            #region update & draw raycasts
+
+            Raycast r;
+            float rad = 0.2f;
+            for(int i = 0, count = raycasts.Count; i < count; i++)
+            {
+                r = raycasts[i] as Raycast;
+                Draw.Circle2D(r.pos, rad, Color.white, 3);
+                if (r.anyHit)
+                {
+                    Draw.Line(r.pos, r.pos + r.dir * r.distance, Color.white.A(0.5f));
+
+                    if (axis == AxisPair.XY)
+                    {
+                        if (r.obstacleHit != null) { Draw.Circle2D(r.obstacleHitLocation, rad, Color.cyan, 3); }
+                        if (r.agentHit != null) { Draw.Circle2D(r.agentHitLocation, rad, Color.cyan, 3); }
+                    }
+                    else
+                    {
+                        if (r.obstacleHit != null) { Draw.Circle(r.obstacleHitLocation, rad, Color.cyan, 3); }
+                        if (r.agentHit != null) { Draw.Circle(r.agentHitLocation, rad, Color.cyan, 3); }
+                    }
+
+                }
+                else
+                {
+                    Draw.Line(r.pos, r.pos + r.dir * r.distance, Color.blue.A(0.5f));
+                }
+            }
+
+            #endregion
+
         }
 
         private void LateUpdate()
@@ -257,6 +320,7 @@ namespace Nebukam.ORCA
                 //Move dynamic obstacles randomly
                 int oCount = dynObstacles.Count;
                 float delta = Time.deltaTime * 50f;
+
                 for (int i = 0; i < oCount; i++)
                     dynObstacles[i].Offset(float3(Random.Range(-delta, delta), Random.Range(-delta, delta), 0f));
 
