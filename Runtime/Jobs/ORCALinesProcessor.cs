@@ -25,7 +25,14 @@ using static Unity.Mathematics.math;
 
 namespace Nebukam.ORCA
 {
-    public class ORCAProcessor : ParallelProcessor<ORCAJob>
+
+    public interface IORCALinesProvider : IProcessor
+    {
+        IAgentProvider agentProvider { get; }
+        NativeArray<AgentDataResult> results { get; }
+    }
+
+    public class ORCALinesProcessor : ParallelProcessor<ORCALinesJob>, IORCALinesProvider
     {
 
         public AxisPair plane { get; set; } = AxisPair.XY;
@@ -49,7 +56,7 @@ namespace Nebukam.ORCA
         /// 
 
         public IAgentProvider agentProvider { get { return m_agentProvider; } }
-        public IAgentKDTreeProvider distributionProvider { get { return m_agentKDTreeProvider; } }
+        public IAgentKDTreeProvider agentKDTreeProvider { get { return m_agentKDTreeProvider; } }
         public IStaticObstacleProvider staticObstaclesProvider { get { return m_staticObstaclesProvider; } }
         public IStaticObstacleKDTreeProvider staticObstacleKDTreeProvider { get { return m_staticObstacleKDTreeProvider; } }
         public IDynObstacleProvider dynObstaclesProvider { get { return m_dynObstaclesProvider; } }
@@ -60,7 +67,7 @@ namespace Nebukam.ORCA
         protected override void InternalLock() { }
         protected override void InternalUnlock() { }
 
-        protected override int Prepare(ref ORCAJob job, float delta)
+        protected override int Prepare(ref ORCALinesJob job, float delta)
         {
 
             if (!TryGetFirstInGroup(out m_agentProvider, true)
@@ -112,9 +119,9 @@ namespace Nebukam.ORCA
 
         }
 
-        protected override void Apply(ref ORCAJob job)
+        protected override void Apply(ref ORCALinesJob job)
         {
-            
+            /*
             NativeArray<AgentData> data = m_agentProvider.outputAgents;
 
             Agent agent;
@@ -142,7 +149,7 @@ namespace Nebukam.ORCA
                     agent.velocity = float3(result.velocity.x, agent.velocity.y, result.velocity.y);
                 }
             }
-
+            */
         }
 
         protected override void Dispose(bool disposing)

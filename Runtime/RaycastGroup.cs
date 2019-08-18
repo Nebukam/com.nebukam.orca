@@ -18,50 +18,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using Nebukam.Pooling;
 using Unity.Mathematics;
 
 namespace Nebukam.ORCA
 {
 
-    public struct AgentData
+    public interface IRaycastGroup : IVertexGroup
     {
-
-        public int index;
-        public int kdIndex;
-
-        public float2 position;
-        public float baseline;
-        public float2 prefVelocity;
-        public float2 velocity;
-
-        public float height;
-        public float radius;
-        public float radiusObst;
-        public float maxSpeed;
-
-        public int maxNeighbors;
-        public float neighborDist;
-        public float neighborElev;
-
-        public float timeHorizon;
-        public float timeHorizonObst;
-
-        public ORCALayer layerOccupation;
-        public ORCALayer layerIgnore;
-        public bool navigationEnabled;
-        public bool collisionEnabled;
-
-        public float3 worldPosition;
-        public float3 worldVelocity;
 
     }
 
-    public struct AgentDataResult
+    public class RaycastGroup : VertexGroup<Raycast>, IRaycastGroup
     {
 
-        public float2 position;
-        public float2 velocity;
+        public Raycast Add(float3 origin, float3 dir, float distance)
+        {
+            Raycast v = Add(origin) as Raycast;
+            v.m_dir = dir;
+            v.m_distance = distance;
+            return v;
+        }
 
+        protected override void OnVertexAdded(Raycast v)
+        {
+            base.OnVertexAdded(v);
+            v.onRelease(m_onVertexReleasedCached);
+        }
+
+        protected override void OnVertexRemoved(Raycast v)
+        {
+            base.OnVertexRemoved(v);
+            v.offRelease(m_onVertexReleasedCached);
+        }
     }
-
 }

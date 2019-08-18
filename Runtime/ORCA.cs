@@ -32,7 +32,7 @@ namespace Nebukam.ORCA
         public AxisPair plane
         {
             get { return m_plane; }
-            set { m_plane = m_preparation.plane = m_orca.plane = value; }
+            set { m_plane = m_orcaPreparation.plane = m_orcaLines.plane = m_orcaApply.plane = m_raycasts.plane = value; }
         }
 
         #endregion
@@ -41,23 +41,33 @@ namespace Nebukam.ORCA
         /// Fields
         /// 
 
-        protected ORCAPreparation m_preparation;
-        protected ORCAProcessor m_orca;
+        protected ORCAPreparation m_orcaPreparation;
+        protected ORCALinesProcessor m_orcaLines;
+        protected ORCAApplyProcessor m_orcaApply;
+        protected RaycastsProcessor m_raycasts;
 
         /// 
         /// Properties
         /// 
 
-        public IObstacleGroup staticObstacles { get { return m_preparation.staticObstacles; } set { m_preparation.staticObstacles = value; } }
-        public IObstacleGroup dynamicObstacles { get { return m_preparation.dynamicObstacles; } set { m_preparation.dynamicObstacles = value; } }
-        public IAgentGroup agents { get { return m_preparation.agents; } set { m_preparation.agents = value; } }
+        public IObstacleGroup staticObstacles { get { return m_orcaPreparation.staticObstacles; } set { m_orcaPreparation.staticObstacles = value; } }
+        public IObstacleGroup dynamicObstacles { get { return m_orcaPreparation.dynamicObstacles; } set { m_orcaPreparation.dynamicObstacles = value; } }
+        public IAgentGroup agents { get { return m_orcaPreparation.agents; } set { m_orcaPreparation.agents = value; } }
+        public IRaycastGroup raycasts { get { return m_orcaPreparation.raycasts; } set { m_orcaPreparation.raycasts = value; } }
 
         public ORCA()
         {
 
-            Add(ref m_preparation);
-            Add(ref m_orca);
-            m_orca.chunkSize = 5; //Linear programs are hefty >.<
+            Add(ref m_orcaPreparation);
+            Add(ref m_orcaLines);
+            m_orcaLines.chunkSize = 5; //Linear programs are hefty >.<
+
+            Add(ref m_orcaApply);
+            m_orcaApply.chunkSize = 64;
+
+            Add(ref m_raycasts);
+            m_raycasts.chunkSize = 5;
+
 
         }
 

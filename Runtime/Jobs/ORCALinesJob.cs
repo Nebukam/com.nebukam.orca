@@ -45,7 +45,7 @@ namespace Nebukam.ORCA
     }
 
     [BurstCompile]
-    public struct ORCAJob : IJobParallelFor
+    public struct ORCALinesJob : IJobParallelFor
     {
 
         const float EPSILON = 0.00001f;
@@ -104,11 +104,8 @@ namespace Nebukam.ORCA
             float a_bottom = agent.baseline;
             float a_top = a_bottom + agent.height;
             float a_maxSpeed = agent.maxSpeed;
-            float a_neighborDist = agent.neighborDist;
-            float a_neighborElev = agent.neighborElev;
             float a_radius = agent.radius;
             float a_radiusObst = agent.radiusObst;
-            float a_sqRadius = lengthsq(agent.radius);
             float a_timeHorizon = agent.timeHorizon;
             float a_timeHorizonObst = agent.timeHorizonObst;
 
@@ -147,7 +144,7 @@ namespace Nebukam.ORCA
                 ObstacleVertexData nextVertex = m_staticRefObstacles[vertex.next];
                 ObstacleInfos infos = m_staticObstacleInfos[vertex.infos];
 
-                if(a_top < infos.baseline || a_bottom > infos.baseline + infos.height) { continue; }
+                //if(a_top < infos.baseline || a_bottom > infos.baseline + infos.height) { continue; }
 
                 float2 relPos1 = vertex.pos - a_position;
                 float2 relPos2 = nextVertex.pos - a_position;
@@ -398,7 +395,7 @@ namespace Nebukam.ORCA
                 ObstacleVertexData nextVertex = m_dynRefObstacles[vertex.next];
                 ObstacleInfos infos = m_dynObstacleInfos[vertex.infos];
 
-                if (a_top < infos.baseline || a_bottom > infos.baseline + infos.height) { continue; }
+                //if (a_top < infos.baseline || a_bottom > infos.baseline + infos.height) { continue; }
 
                 float2 relPos1 = vertex.pos - a_position;
                 float2 relPos2 = nextVertex.pos - a_position;
@@ -733,9 +730,12 @@ namespace Nebukam.ORCA
             #endregion
 
             m_orcaLines.Dispose();
+            agentNeighbors.Dispose();
+            staticObstacleNeighbors.Dispose();
+            dynObstacleNeighbors.Dispose();
 
             #endregion
-            
+
             result.velocity = a_newVelocity;
             result.position = a_position + a_newVelocity * m_timestep;
 
@@ -861,10 +861,11 @@ namespace Nebukam.ORCA
         {
             ObstacleTreeNode treeNode = kdTree[node];
 
-            if (treeNode.end - treeNode.begin <= AgentTreeNode.MAX_LEAF_SIZE)
+            if (treeNode.end - treeNode.begin <= ObstacleTreeNode.MAX_LEAF_SIZE)
             {
                 ObstacleVertexData o;
                 ObstacleInfos infos;
+                float top = agent.baseline + agent.height, bottom = agent.baseline;
                 for (int i = treeNode.begin; i < treeNode.end; ++i)
                 {
                     o = obstacles[i];
@@ -874,7 +875,12 @@ namespace Nebukam.ORCA
                     {
                         continue;
                     }
-                
+
+                    if (top < infos.baseline || bottom > infos.baseline + infos.height)
+                    {
+                        continue;
+                    }
+
                     ObstacleVertexData next = refObstacles[o.next];
                     float distSq = DistSqPointLineSegment(o.pos, next.pos, center);
 

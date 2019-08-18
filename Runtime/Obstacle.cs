@@ -22,7 +22,7 @@
 namespace Nebukam.ORCA
 {
 
-    public class Obstacle : VertexGroup<ObstacleVertex>
+    public class Obstacle : VertexGroup<ObstacleVertex>, Pooling.IRequireInit
     {
         
         internal ORCALayer m_layerOccupation = ORCALayer.ANY;
@@ -58,10 +58,8 @@ namespace Nebukam.ORCA
             }
         }
 
-        public override void Init()
+        public virtual void Init()
         {
-            base.Init();
-
             m_layerOccupation = ORCALayer.ANY;
             m_collisionEnabled = true;
             m_thickness = 0.0f;

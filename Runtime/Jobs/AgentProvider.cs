@@ -57,7 +57,7 @@ namespace Nebukam.ORCA
         protected override void InternalLock()
         {
 
-            int count = m_agents.Count;
+            int count = m_agents == null ? 0 : m_agents.Count;
 
             m_lockedAgents.Clear();
             m_lockedAgents.Capacity = count;
@@ -93,9 +93,11 @@ namespace Nebukam.ORCA
                         index = i,
                         kdIndex = i,
                         position = float2(pos.x, pos.y), //
+                        worldPosition = pos,
                         baseline = pos.z,
                         prefVelocity = float2(prefVel.x, prefVel.y),
                         velocity = float2(vel.x, vel.y),
+                        worldVelocity = vel,
                         height = a.m_height,
                         radius = a.m_radius,
                         radiusObst = a.m_radiusObst,
@@ -124,9 +126,11 @@ namespace Nebukam.ORCA
                     {
                         index = i,
                         position = float2(pos.x, pos.z), //
+                        worldPosition = pos,
                         baseline = pos.y,
                         prefVelocity = float2(prefVel.x, prefVel.z),
                         velocity = float2(vel.x, vel.z),
+                        worldVelocity = vel,
                         height = a.m_height,
                         radius = a.m_radius,
                         radiusObst = a.m_radiusObst,
