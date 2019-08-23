@@ -863,7 +863,7 @@ namespace Nebukam.ORCA
 
             if (treeNode.end - treeNode.begin <= ObstacleTreeNode.MAX_LEAF_SIZE)
             {
-                ObstacleVertexData o;
+                ObstacleVertexData o, next;
                 ObstacleInfos infos;
                 float top = agent.baseline + agent.height, bottom = agent.baseline;
                 for (int i = treeNode.begin; i < treeNode.end; ++i)
@@ -872,21 +872,16 @@ namespace Nebukam.ORCA
                     infos = obstaclesInfos[o.infos];
                     
                     if (!infos.collisionEnabled || (infos.layerOccupation & ~agent.layerIgnore) == 0)
-                    {
                         continue;
-                    }
 
                     if (top < infos.baseline || bottom > infos.baseline + infos.height)
-                    {
                         continue;
-                    }
 
-                    ObstacleVertexData next = refObstacles[o.next];
+                    next = refObstacles[o.next];
                     float distSq = DistSqPointLineSegment(o.pos, next.pos, center);
 
                     if (distSq < rangeSq)
                     {
-                        //obstacleNeighbors.Add(new DVP(distSq, i));
                         
                         float agentLeftOfLine = LeftOf(o.pos, next.pos, center);
                         float distSqLine = lengthsq(agentLeftOfLine) / lengthsq(next.pos - o.pos);
@@ -894,8 +889,7 @@ namespace Nebukam.ORCA
                         if (distSqLine < rangeSq)
                         {
 
-                            //obstacleNeighbors.Add(new DVP(distSq, i));
-                            
+                                                 
                             if (agentLeftOfLine < 0.0f)
                             {
                                 // Try obstacle at this node only if agent is on right side of
