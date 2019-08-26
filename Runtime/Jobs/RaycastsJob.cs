@@ -27,6 +27,7 @@ using static Unity.Mathematics.math;
 namespace Nebukam.ORCA
 {
 
+    [BurstCompile(FloatPrecision.Low, FloatMode.Fast)]
     public struct Segment2D
     {
 
@@ -95,7 +96,7 @@ namespace Nebukam.ORCA
 
     }
     
-    [BurstCompile]
+    [BurstCompile(FloatPrecision.Low, FloatMode.Fast)]
     public struct RaycastsJob : IJobParallelFor
     {
 
