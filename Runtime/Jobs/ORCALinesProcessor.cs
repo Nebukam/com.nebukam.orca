@@ -19,9 +19,7 @@
 // SOFTWARE.
 
 using Nebukam.JobAssist;
-using System.Collections.Generic;
 using Unity.Collections;
-using static Unity.Mathematics.math;
 
 namespace Nebukam.ORCA
 {
@@ -80,9 +78,9 @@ namespace Nebukam.ORCA
                 string msg = string.Format("Missing provider : Agents = {0}, Static obs = {1}, Agent KD = {2}, Static obs KD= {3}, " +
                     "Dyn obs = {5}, Dyn obs KD= {6}, group = {4}",
                     m_agentProvider,
-                    m_staticObstaclesProvider, 
-                    m_agentKDTreeProvider, 
-                    m_staticObstacleKDTreeProvider, 
+                    m_staticObstaclesProvider,
+                    m_agentKDTreeProvider,
+                    m_staticObstacleKDTreeProvider,
                     m_dynObstaclesProvider,
                     m_dynObstacleKDTreeProvider, m_group);
 
@@ -156,7 +154,7 @@ namespace Nebukam.ORCA
         {
             base.Dispose(disposing);
             if (!disposing) { return; }
-            
+
             m_results.Dispose();
         }
 

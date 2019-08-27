@@ -40,7 +40,7 @@ namespace Nebukam.ORCA
         public NativeArray<ObstacleVertexData> m_referenceObstacles;
         [ReadOnly]
         public NativeArray<ObstacleVertexData> m_inputObstacles;
-        
+
         public void Execute(int index)
         {
 
@@ -54,7 +54,7 @@ namespace Nebukam.ORCA
                 prevPos = m_inputObstacles[v.prev].pos;
 
             ObstacleInfos infos = m_inputObstacleInfos[v.infos];
-            
+
             if (infos.length == 2)//infos.edge || 
             {
                 v.convex = true;

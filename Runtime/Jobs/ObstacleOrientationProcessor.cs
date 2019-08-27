@@ -35,7 +35,7 @@ namespace Nebukam.ORCA
 
         protected override int Prepare(ref ObstacleOrientationJob job, float delta)
         {
-            
+
             if (!TryGetFirstInGroup(out m_obstaclesProvider, true))
             {
                 throw new System.Exception("No IObstacleProvider or IObstacleSplitProvider in chain !");
@@ -45,7 +45,7 @@ namespace Nebukam.ORCA
             job.m_inputObstacleInfos = m_obstaclesProvider.outputObstacleInfos;
             job.m_referenceObstacles = m_obstaclesProvider.referenceObstacles;
             job.m_inputObstacles = m_obstaclesProvider.outputObstacles;
-            
+
             return m_obstaclesProvider.outputObstacles.Length;
 
         }

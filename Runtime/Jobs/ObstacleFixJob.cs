@@ -36,7 +36,7 @@ namespace Nebukam.ORCA
         [ReadOnly]
         public NativeArray<ObstacleVertexData> m_referenceObstacles;
         public NativeArray<ObstacleVertexData> m_inputObstacles;
-        
+
         public void Execute()
         {
             if (!m_recompute) { return; }

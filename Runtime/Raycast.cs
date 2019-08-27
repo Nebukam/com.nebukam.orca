@@ -18,12 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using Unity.Burst;
 using Unity.Mathematics;
 using static Unity.Mathematics.math;
 
 namespace Nebukam.ORCA
 {
 
+    [BurstCompile]
     public struct RaycastData
     {
         public float2 position;
@@ -36,6 +38,7 @@ namespace Nebukam.ORCA
         public bool twoSided;
     }
 
+    [BurstCompile]
     public struct RaycastResult
     {
         public int hitAgent;
@@ -50,7 +53,7 @@ namespace Nebukam.ORCA
         public int ObstacleVertexB;
 
     }
-    
+
     public class Raycast : Vertex, Pooling.IRequireCleanUp
     {
 

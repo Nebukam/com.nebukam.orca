@@ -31,6 +31,6 @@ namespace Nebukam.ORCA
 
         public float2 dirXY { get { return float2(m_dir.x, m_dir.y); } }
         public float2 dirXZ { get { return float2(m_dir.x, m_dir.z); } }
-        
+
     }
 }

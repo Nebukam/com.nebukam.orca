@@ -23,7 +23,6 @@ namespace Nebukam.ORCA
 {
     public struct AgentTreeNode
     {
-
         public const int MAX_LEAF_SIZE = 10;
 
         public int begin;

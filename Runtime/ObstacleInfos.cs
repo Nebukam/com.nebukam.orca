@@ -18,8 +18,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using Unity.Burst;
+
 namespace Nebukam.ORCA
 {
+    [BurstCompile]
     public struct ObstacleInfos
     {
         public int index;

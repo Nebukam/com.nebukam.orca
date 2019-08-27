@@ -30,14 +30,14 @@ namespace Nebukam.ORCA
     [BurstCompile]
     public struct AgentKDTreeJob : IJob
     {
-        
+
         public NativeArray<AgentData> m_inputAgents; //Not Read-only : we may need to re-order it.
         public NativeArray<AgentTreeNode> m_outputTree;
 
         public void Execute()
         {
             int agentCount = m_inputAgents.Length;
-            if(agentCount == 0) { return; }
+            if (agentCount == 0) { return; }
 
             //for (int i = 0, count = m_outputTree.Length; i < count; i++)
             //    m_outputTree[i] = new AgentTreeNode();
@@ -62,7 +62,7 @@ namespace Nebukam.ORCA
             treeNode.end = end;
             treeNode.minX = treeNode.maxX = agent.position.x;
             treeNode.minY = treeNode.maxY = agent.position.y;
-            
+
             for (int i = begin + 1; i < end; ++i)
             {
                 pos = m_inputAgents[i].position;

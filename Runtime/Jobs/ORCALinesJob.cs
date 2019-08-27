@@ -49,7 +49,7 @@ namespace Nebukam.ORCA
     {
 
         const float EPSILON = 0.00001f;
-        
+
         [ReadOnly]
         public NativeArray<AgentData> m_inputAgents;
         [ReadOnly]
@@ -82,7 +82,7 @@ namespace Nebukam.ORCA
             AgentData agent = m_inputAgents[index];
             AgentDataResult result = new AgentDataResult();
 
-            if(agent.maxNeighbors == 0 || !agent.navigationEnabled)
+            if (agent.maxNeighbors == 0 || !agent.navigationEnabled)
             {
                 result.position = agent.position;
                 result.velocity = agent.velocity;
@@ -117,17 +117,17 @@ namespace Nebukam.ORCA
                 QueryObstacleTreeRecursive(ref a_position, ref agent, ref obsRangeSq, 0, ref staticObstacleNeighbors,
                 ref m_staticObstacles, ref m_staticRefObstacles, ref m_staticObstacleInfos, ref m_staticObstacleTree);
 
-            if(m_dynObstacleTree.Length > 0)
+            if (m_dynObstacleTree.Length > 0)
                 QueryObstacleTreeRecursive(ref a_position, ref agent, ref obsRangeSq, 0, ref dynObstacleNeighbors,
                     ref m_dynObstacles, ref m_dynRefObstacles, ref m_dynObstacleInfos, ref m_dynObstacleTree);
 
             float rangeSq = lengthsq(agent.radius + agent.neighborDist);
             QueryAgentTreeRecursive(ref a_position, ref agent, ref rangeSq, 0, ref agentNeighbors);
-            
+
             #endregion
-            
+
             #region ORCA
-            
+
             NativeList<ORCALine> m_orcaLines = new NativeList<ORCALine>(agentNeighbors.Length, Allocator.Temp);
             int numObstLines = 0;
 
@@ -164,8 +164,8 @@ namespace Nebukam.ORCA
                         break;
                     }
                 }
-                
-                
+
+
                 if (alreadyCovered)
                 {
                     continue;
@@ -649,7 +649,7 @@ namespace Nebukam.ORCA
             {
 
                 otherAgent = m_inputAgents[agentNeighbors[i].index];
-                
+
                 float2 relPos = otherAgent.position - a_position;
                 float2 relVel = a_velocity - otherAgent.velocity;
                 float distSq = lengthsq(relPos);
@@ -740,7 +740,7 @@ namespace Nebukam.ORCA
             result.position = a_position + a_newVelocity * m_timestep;
 
             m_results[index] = result;
-            
+
         }
 
         #region Agent KDTree Query
@@ -766,14 +766,14 @@ namespace Nebukam.ORCA
                 {
                     a = m_inputAgents[i];
 
-                    if (a.index == agent.index 
-                        || !a.collisionEnabled 
+                    if (a.index == agent.index
+                        || !a.collisionEnabled
                         || (a.layerOccupation & ~agent.layerIgnore) == 0
                         || (top < a.baseline || bottom > a.baseline + a.height))
                     {
                         continue;
                     }
-                    
+
                     float distSq = lengthsq(center - a.position);
 
                     if (distSq < rangeSq)
@@ -847,12 +847,12 @@ namespace Nebukam.ORCA
         #endregion
 
         #region Obstacle KDTree Query
-        
+
         private void QueryObstacleTreeRecursive(
-            ref float2 center, 
-            ref AgentData agent, 
-            ref float rangeSq, 
-            int node, 
+            ref float2 center,
+            ref AgentData agent,
+            ref float rangeSq,
+            int node,
             ref NativeList<DVP> obstacleNeighbors,
             ref NativeArray<ObstacleVertexData> obstacles,
             ref NativeArray<ObstacleVertexData> refObstacles,
@@ -870,7 +870,7 @@ namespace Nebukam.ORCA
                 {
                     o = obstacles[i];
                     infos = obstaclesInfos[o.infos];
-                    
+
                     if (!infos.collisionEnabled || (infos.layerOccupation & ~agent.layerIgnore) == 0)
                         continue;
 
@@ -882,21 +882,21 @@ namespace Nebukam.ORCA
 
                     if (distSq < rangeSq)
                     {
-                        
+
                         float agentLeftOfLine = LeftOf(o.pos, next.pos, center);
                         float distSqLine = lengthsq(agentLeftOfLine) / lengthsq(next.pos - o.pos);
 
                         if (distSqLine < rangeSq)
                         {
 
-                                                 
+
                             if (agentLeftOfLine < 0.0f)
                             {
                                 // Try obstacle at this node only if agent is on right side of
                                 // obstacle (and can see obstacle).
                                 obstacleNeighbors.Add(new DVP(distSq, i));
 
-                                
+
                                 int index = obstacleNeighbors.Length - 1;
 
                                 //re-order to keep the closest vertex first
@@ -906,11 +906,11 @@ namespace Nebukam.ORCA
                                     --index;
                                 }
 
-                                obstacleNeighbors[index] = new DVP(distSq, i);                        
-                                
+                                obstacleNeighbors[index] = new DVP(distSq, i);
+
 
                             }
-                            
+
                         }
                     }
                 }
@@ -919,7 +919,7 @@ namespace Nebukam.ORCA
             else
             {
 
-                ObstacleTreeNode leftNode = kdTree[treeNode.left], 
+                ObstacleTreeNode leftNode = kdTree[treeNode.left],
                     rightNode = kdTree[treeNode.right];
 
                 float distSqLeft = lengthsq(max(0.0f, leftNode.minX - center.x))
@@ -965,7 +965,7 @@ namespace Nebukam.ORCA
         }
 
         #endregion
-        
+
         #region Linear programs
 
         /// <summary>

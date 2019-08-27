@@ -21,7 +21,6 @@
 using Nebukam.JobAssist;
 using System.Collections.Generic;
 using Unity.Collections;
-using static Unity.Mathematics.math;
 
 namespace Nebukam.ORCA
 {
@@ -35,7 +34,7 @@ namespace Nebukam.ORCA
         /// 
 
         protected IORCALinesProvider m_orcaResultProvider;
-        
+
         /// 
         /// Properties
         /// 

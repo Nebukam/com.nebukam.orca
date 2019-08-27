@@ -43,10 +43,10 @@ namespace Nebukam.ORCA
 
         public void Execute(int index)
         {
-            
+
             AgentDataResult result = m_inputAgentResults[index];
             AgentData agent = m_inputAgents[index];
-            float3 worldPosition = agent.worldPosition, worldVelocity = agent.worldVelocity ;
+            float3 worldPosition = agent.worldPosition, worldVelocity = agent.worldVelocity;
 
             if (m_plane == AxisPair.XY)
             {

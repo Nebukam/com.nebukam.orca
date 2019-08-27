@@ -24,7 +24,7 @@ namespace Nebukam.ORCA
 
     public class Obstacle : VertexGroup<ObstacleVertex>, Pooling.IRequireInit
     {
-        
+
         internal ORCALayer m_layerOccupation = ORCALayer.ANY;
         internal bool m_collisionEnabled = true;
         internal float m_thickness = 0.0f;
@@ -43,8 +43,10 @@ namespace Nebukam.ORCA
         public bool edge { get { return m_edge; } set { m_edge = value; } }
 
 
-        public ObstacleInfos infos {
-            get{
+        public ObstacleInfos infos
+        {
+            get
+            {
                 return new ObstacleInfos()
                 {
                     length = Count,

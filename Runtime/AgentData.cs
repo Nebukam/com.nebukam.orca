@@ -18,14 +18,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using Unity.Burst;
 using Unity.Mathematics;
 
 namespace Nebukam.ORCA
 {
 
+    [BurstCompile]
     public struct AgentData
     {
-
         public int index;
         public int kdIndex;
 
@@ -53,9 +54,9 @@ namespace Nebukam.ORCA
 
         public float3 worldPosition;
         public float3 worldVelocity;
-
     }
 
+    [BurstCompile]
     public struct AgentDataResult
     {
 

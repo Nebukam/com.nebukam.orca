@@ -95,7 +95,7 @@ namespace Nebukam.ORCA
         }
 
     }
-    
+
     [BurstCompile(FloatPrecision.Low, FloatMode.Fast)]
     public struct RaycastsJob : IJobParallelFor
     {
@@ -137,7 +137,8 @@ namespace Nebukam.ORCA
         {
 
             RaycastData raycast = m_inputRaycasts[index];
-            RaycastResult result = new RaycastResult() {
+            RaycastResult result = new RaycastResult()
+            {
                 hitAgent = -1,
                 hitObstacle = -1,
                 dynamicObstacle = false
@@ -155,7 +156,7 @@ namespace Nebukam.ORCA
             float a_sqRange = lengthsq(raycast.distance);
 
             #region Find neighbors
-            
+
             if (m_staticObstacleTree.Length > 0)
                 QueryObstacleTreeRecursive(ref raycast, ref a_sqRange, 0, ref staticObstacleNeighbors,
                 ref m_staticObstacles, ref m_staticRefObstacles, ref m_staticObstacleInfos, ref m_staticObstacleTree);
@@ -168,14 +169,14 @@ namespace Nebukam.ORCA
                 QueryAgentTreeRecursive(ref raycast, ref a_sqRange, 0, ref agentNeighbors);
 
             NativeHashMap<IntPair, bool> coveredStaticEdges = new NativeHashMap<IntPair, bool>(m_staticObstacleTree.Length * 2, Allocator.Temp);
-            NativeHashMap<IntPair, bool> coveredDynEdges = new NativeHashMap<IntPair, bool>(m_dynObstacleTree.Length*2, Allocator.Temp);
+            NativeHashMap<IntPair, bool> coveredDynEdges = new NativeHashMap<IntPair, bool>(m_dynObstacleTree.Length * 2, Allocator.Temp);
 
             #endregion
 
             Segment2D raySegment = new Segment2D(raycast.position, raycast.position + raycast.direction * raycast.distance),
                 segment;
 
-            IntPair pair = new IntPair(0,0);
+            IntPair pair = new IntPair(0, 0);
             ObstacleVertexData otherVertex;
             bool twoSidedCast = raycast.twoSided, alreadyCovered = false, hit;
             float2 hitLocation;
@@ -190,17 +191,17 @@ namespace Nebukam.ORCA
 
                 pair = new IntPair(vertex.index, vertex.next);
                 alreadyCovered = coveredStaticEdges.TryGetValue(pair, out hit);
-                
+
                 if (!alreadyCovered)
                 {
-                    
+
                     otherVertex = m_staticRefObstacles[vertex.next];
                     segment = new Segment2D(vertex.pos, otherVertex.pos);
                     alreadyCovered = (!twoSidedCast && dot(a_dir, segment.normal) < 0f);
 
                     if (!alreadyCovered)
                     {
-                        if(raySegment.IsIntersecting(segment, out hitLocation))
+                        if (raySegment.IsIntersecting(segment, out hitLocation))
                         {
                             //Rays intersecting !
                             if (result.hitObstacle == -1
@@ -227,7 +228,7 @@ namespace Nebukam.ORCA
 
                     if (!alreadyCovered)
                     {
-                        if(raySegment.IsIntersecting(segment, out hitLocation))
+                        if (raySegment.IsIntersecting(segment, out hitLocation))
                         {
                             //Rays intersecting !
                             if (result.hitObstacle == -1
@@ -236,10 +237,10 @@ namespace Nebukam.ORCA
                                 result.hitObstacleLocation2D = hitLocation;
                                 result.hitObstacle = infos.index;
                             }
-                        }                        
+                        }
                     }
-                    
-                  coveredStaticEdges.TryAdd(pair, true);
+
+                    coveredStaticEdges.TryAdd(pair, true);
 
                 }
 
@@ -340,7 +341,7 @@ namespace Nebukam.ORCA
                 if (result.hitAgent != -1)
                     result.hitAgentLocation = float3(result.hitAgentLocation2D, baseline);
 
-                if(result.hitObstacle != -1)
+                if (result.hitObstacle != -1)
                     result.hitObstacleLocation = float3(result.hitObstacleLocation2D, baseline);
             }
             else
@@ -455,7 +456,7 @@ namespace Nebukam.ORCA
 
             float2 center = raycast.position;
             ObstacleTreeNode treeNode = kdTree[node];
-            
+
             if (treeNode.end - treeNode.begin <= ObstacleTreeNode.MAX_LEAF_SIZE)
             {
                 ObstacleVertexData o;
@@ -479,9 +480,9 @@ namespace Nebukam.ORCA
                     {
                         float raycastLeftOfLine = LeftOf(oPos, nPos, center);
                         if ((lengthsq(raycastLeftOfLine) / lengthsq(nPos - oPos)) < rangeSq && raycastLeftOfLine < 0.0f)
-                            obstacleNeighbors.Add(i);                          
+                            obstacleNeighbors.Add(i);
                     }
-                    
+
                 }
 
             }

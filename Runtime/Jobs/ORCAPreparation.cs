@@ -56,26 +56,29 @@ namespace Nebukam.ORCA
             set { m_dynamicObstacles.obstacles = value; }
         }
 
-        public IObstacleGroup staticObstacles {
+        public IObstacleGroup staticObstacles
+        {
             get { return m_staticObstacles.obstacles; }
             set { m_staticObstacles.obstacles = value; }
         }
-        
-        public IAgentGroup agents {
+
+        public IAgentGroup agents
+        {
             get { return m_agents.agents; }
             set { m_agents.agents = value; }
         }
 
-        public IRaycastGroup raycasts {
+        public IRaycastGroup raycasts
+        {
             get { return m_raycasts.raycasts; }
             set { m_raycasts.raycasts = value; }
         }
 
         public ORCAPreparation()
         {
-            Add( ref m_dynamicObstacles );
-            Add( ref m_staticObstacles );
-            Add( ref m_agents );
+            Add(ref m_dynamicObstacles);
+            Add(ref m_staticObstacles);
+            Add(ref m_agents);
             Add(ref m_raycasts);
         }
 

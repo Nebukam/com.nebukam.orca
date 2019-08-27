@@ -51,7 +51,7 @@ namespace Nebukam.ORCA
             }
 
             int agentCount = 2 * m_agentProvider.outputAgents.Length;
-            if(m_outputTree.Length != agentCount)
+            if (m_outputTree.Length != agentCount)
             {
                 m_outputTree.Dispose();
                 m_outputTree = new NativeArray<AgentTreeNode>(agentCount, Allocator.Persistent);
@@ -64,10 +64,10 @@ namespace Nebukam.ORCA
 
         protected override void Apply(ref AgentKDTreeJob job)
         {
-            
+
         }
 
-        
+
 
         protected override void Dispose(bool disposing)
         {

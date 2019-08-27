@@ -68,7 +68,7 @@ namespace Nebukam.ORCA
 
         protected override void Prepare(ref Unemployed job, float delta)
         {
-            
+
             int agentCount = m_lockedAgents.Count;
 
             if (m_outputAgents.Length != agentCount)
@@ -80,7 +80,7 @@ namespace Nebukam.ORCA
             Agent a;
             float3 pos, prefVel, vel;
 
-            if(plane == AxisPair.XY)
+            if (plane == AxisPair.XY)
             {
                 for (int i = 0; i < agentCount; i++)
                 {
@@ -147,7 +147,7 @@ namespace Nebukam.ORCA
                     };
                 }
             }
-            
+
         }
 
         protected override void Apply(ref Unemployed job)

@@ -18,17 +18,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using UnityEngine;
 using Unity.Burst;
-using Unity.Jobs;
 using Unity.Collections;
+using Unity.Jobs;
 using Unity.Mathematics;
 using static Unity.Mathematics.math;
-using Nebukam.JobAssist;
 
 namespace Nebukam.ORCA
 {
-    
+
     [BurstCompile]
     public struct ObstacleKDTreeJob : IJob
     {
@@ -50,7 +48,7 @@ namespace Nebukam.ORCA
             if (!m_recompute) { return; }
 
             //BuildObstacleTreeRecursive((NativeArray<ObstacleVertexData>)m_inputSplitObstacles);
-            
+
             int obsCount = m_inputObstacles.Length;
             if (obsCount == 0) { return; }
 
@@ -58,7 +56,7 @@ namespace Nebukam.ORCA
             //    m_outputTree[i] = new ObstacleTreeNode());
 
             BuildAgentTreeRecursive(0, obsCount, 0);
-            
+
         }
 
         /// <summary>
@@ -74,7 +72,7 @@ namespace Nebukam.ORCA
             ObstacleVertexData obstacle = m_inputObstacles[begin];
             float2 pos;
             float minX, minY, maxX, maxY;
-            
+
             treeNode.begin = begin;
             treeNode.end = end;
             minX = maxX = obstacle.pos.x;
@@ -144,7 +142,7 @@ namespace Nebukam.ORCA
                 BuildAgentTreeRecursive(left, end, treeNode.right);
             }
         }
-        
+
         private float LeftOf(float2 a, float2 b, float2 c)
         {
             float x1 = a.x = c.x, y1 = a.y - c.y, x2 = b.x - a.x, y2 = b.y - a.y;

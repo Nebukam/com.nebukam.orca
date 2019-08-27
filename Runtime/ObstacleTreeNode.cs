@@ -18,12 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using Unity.Burst;
 
 namespace Nebukam.ORCA
 {
+    [BurstCompile]
     public struct ObstacleTreeNode
     {
-
         public const int MAX_LEAF_SIZE = 10;
 
         public int index;
@@ -33,6 +34,7 @@ namespace Nebukam.ORCA
 
         public int begin;
         public int end;
+
         public float maxX;
         public float maxY;
         public float minX;

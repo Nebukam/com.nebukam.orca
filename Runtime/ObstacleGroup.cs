@@ -47,7 +47,7 @@ namespace Nebukam.ORCA
         public int Count { get { return m_obstacles.Count; } }
         public Obstacle this[int i] { get { return m_obstacles[i]; } }
 
-        public Obstacle Add( Obstacle obstacle )
+        public Obstacle Add(Obstacle obstacle)
         {
             if (m_obstacles.Contains(obstacle)) { return obstacle; }
             m_obstacles.Add(obstacle);
@@ -67,10 +67,10 @@ namespace Nebukam.ORCA
             }
             else
             {
-                for (int i = count-1; i >= 0; i--)
+                for (int i = count - 1; i >= 0; i--)
                     obstacle.Add(m_vertices[i]);
             }
-            
+
             return Add(obstacle);
         }
 

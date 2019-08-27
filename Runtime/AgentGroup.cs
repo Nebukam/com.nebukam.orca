@@ -25,7 +25,7 @@ namespace Nebukam.ORCA
 
     public interface IAgentGroup : IVertexGroup
     {
-        
+
     }
 
     public class AgentGroup<V> : VertexGroup<V>, IAgentGroup
