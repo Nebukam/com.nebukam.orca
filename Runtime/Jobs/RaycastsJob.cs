@@ -74,7 +74,7 @@ namespace Nebukam.ORCA
         public bool IsIntersecting(Segment2D segment, out float2 intersection)
         {
 
-            intersection = float2(false);
+            intersection = float2(0f);
             float2 A2 = segment.A, B2 = segment.B;
 
             var d = (B.x - A.x) * (B2.y - A2.y) - (B.y - A.y) * (B2.x - A2.x);

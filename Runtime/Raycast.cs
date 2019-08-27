@@ -57,7 +57,7 @@ namespace Nebukam.ORCA
     public class Raycast : Vertex, Pooling.IRequireCleanUp
     {
 
-        internal float3 m_dir = float3(false);
+        internal float3 m_dir = float3(0f);
         internal ORCALayer m_layerIgnore = ORCALayer.NONE;
         internal float m_distance = 0f;
         internal bool m_anyHit = false;
@@ -77,7 +77,7 @@ namespace Nebukam.ORCA
 
         public virtual void CleanUp()
         {
-            m_dir = float3(false);
+            m_dir = float3(0f);
             m_distance = 0f;
             m_layerIgnore = ORCALayer.NONE;
             m_anyHit = false;

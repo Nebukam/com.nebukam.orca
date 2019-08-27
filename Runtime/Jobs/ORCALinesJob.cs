@@ -188,7 +188,7 @@ namespace Nebukam.ORCA
                     // Collision with left vertex. Ignore if non-convex.
                     if (vertex.convex)
                     {
-                        line.point = float2(false);
+                        line.point = float2(0f);
                         line.dir = normalize(float2(-relPos1.y, relPos1.x));
                         m_orcaLines.Add(line);
                     }
@@ -201,7 +201,7 @@ namespace Nebukam.ORCA
                     // it will be taken care of by neighboring obstacle.
                     if (nextVertex.convex && Det(relPos2, nextVertex.dir) >= 0.0f)
                     {
-                        line.point = float2(false);
+                        line.point = float2(0f);
                         line.dir = normalize(float2(-relPos2.y, relPos2.x));
                         m_orcaLines.Add(line);
                     }
@@ -211,7 +211,7 @@ namespace Nebukam.ORCA
                 else if (s >= 0.0f && s < 1.0f && distSqLine <= radiusSq)
                 {
                     // Collision with obstacle segment.
-                    line.point = float2(false);
+                    line.point = float2(0f);
                     line.dir = -vertex.dir;
                     m_orcaLines.Add(line);
 
@@ -438,7 +438,7 @@ namespace Nebukam.ORCA
                     // Collision with left vertex. Ignore if non-convex.
                     if (vertex.convex)
                     {
-                        line.point = float2(false);
+                        line.point = float2(0f);
                         line.dir = normalize(float2(-relPos1.y, relPos1.x));
                         m_orcaLines.Add(line);
                     }
@@ -451,7 +451,7 @@ namespace Nebukam.ORCA
                     // it will be taken care of by neighboring obstacle.
                     if (nextVertex.convex && Det(relPos2, nextVertex.dir) >= 0.0f)
                     {
-                        line.point = float2(false);
+                        line.point = float2(0f);
                         line.dir = normalize(float2(-relPos2.y, relPos2.x));
                         m_orcaLines.Add(line);
                     }
@@ -461,7 +461,7 @@ namespace Nebukam.ORCA
                 else if (s >= 0.0f && s < 1.0f && distSqLine <= radiusSq)
                 {
                     // Collision with obstacle segment.
-                    line.point = float2(false);
+                    line.point = float2(0f);
                     line.dir = -vertex.dir;
                     m_orcaLines.Add(line);
 

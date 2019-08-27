@@ -35,6 +35,49 @@ To be used with Unity's Package Manager.
 
 See [Unity's Package Manager : Getting Started](https://docs.unity3d.com/Manual/upm-parts.html)
 
+### Quick Start
+
+The most straightforward way to setup and use ORCA is by using a ```ORCABundle<T>``` object :
+
+```CSharp
+
+    using Nebukam.ORCA;
+    using Unity.Mathematics;
+
+    ...
+
+    // Create the "bundle" object, containing all 
+    // necessary components for the simulation to run.
+    ORCABundle<Agent> bundle = new ORCABundle<Agent>();
+    bundle.plane = AxisPair.XY;
+
+    // Add an agent
+    Agent myFirstAgent = bundle.agents.Add(float3(0f));
+    // Set its preferred velocity
+    myFirstAgent.prefVelocity = float3(1f,1f,0f);
+
+    ...
+
+    void Update(){
+
+        // Complete the simulation job only if the handle is flagged as completed.
+        if(bundle.TryComplete())
+        {
+            // Simulation step completed.
+            myFirstAgent.velocity // -> simulated agent velocity
+            myFirstAgent.position // -> simulated agent position
+        }
+
+        // Keep the job updated with current delta time, 
+        // ensuring we are framerate-agnostic
+        bundle.Schedule(Time.deltaTime);
+
+    }
+    
+
+```
+
+
 ### Scene setup
 #### Sample: Setup
 The package include a Setup sample showing how to use the library. Note that it does not use models, and instead draw debug visualization in the Editor window.

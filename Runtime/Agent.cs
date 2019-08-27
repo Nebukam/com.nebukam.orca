@@ -96,8 +96,8 @@ namespace Nebukam.ORCA
         /// Fields
         /// 
 
-        internal float3 m_prefVelocity = float3(false);
-        internal float3 m_velocity { get; set; } = float3(false);
+        internal float3 m_prefVelocity = float3(0f);
+        internal float3 m_velocity { get; set; } = float3(0f);
 
         internal float m_height = 0.5f;
         internal float m_radius = 0.5f;
