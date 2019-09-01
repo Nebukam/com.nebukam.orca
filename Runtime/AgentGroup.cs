@@ -23,12 +23,13 @@ using Nebukam.Pooling;
 namespace Nebukam.ORCA
 {
 
-    public interface IAgentGroup : IVertexGroup
+    public interface IAgentGroup<out V> : IVertexGroup<V>
+        where V : IAgent
     {
 
     }
 
-    public class AgentGroup<V> : VertexGroup<V>, IAgentGroup
+    public class AgentGroup<V> : VertexGroup<V>, IAgentGroup<V>
         where V : Agent, IAgent, new()
     {
 

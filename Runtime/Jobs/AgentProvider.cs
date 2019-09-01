@@ -42,7 +42,7 @@ namespace Nebukam.ORCA
         /// Fields
         ///
 
-        protected IAgentGroup m_agents = null;
+        protected IAgentGroup<IAgent> m_agents = null;
         protected List<Agent> m_lockedAgents = new List<Agent>();
         protected NativeArray<AgentData> m_outputAgents = new NativeArray<AgentData>(0, Allocator.Persistent);
 
@@ -50,7 +50,7 @@ namespace Nebukam.ORCA
         /// Properties
         ///
 
-        public IAgentGroup agents { get { return m_agents; } set { m_agents = value; } }
+        public IAgentGroup<IAgent> agents { get { return m_agents; } set { m_agents = value; } }
         public List<Agent> lockedAgents { get { return m_lockedAgents; } }
         public NativeArray<AgentData> outputAgents { get { return m_outputAgents; } }
 

@@ -52,7 +52,7 @@ namespace Nebukam.ORCA
 
         public IObstacleGroup staticObstacles { get { return m_orcaPreparation.staticObstacles; } set { m_orcaPreparation.staticObstacles = value; } }
         public IObstacleGroup dynamicObstacles { get { return m_orcaPreparation.dynamicObstacles; } set { m_orcaPreparation.dynamicObstacles = value; } }
-        public IAgentGroup agents { get { return m_orcaPreparation.agents; } set { m_orcaPreparation.agents = value; } }
+        public IAgentGroup<IAgent> agents { get { return m_orcaPreparation.agents; } set { m_orcaPreparation.agents = value; } }
         public IRaycastGroup raycasts { get { return m_orcaPreparation.raycasts; } set { m_orcaPreparation.raycasts = value; } }
 
         public ORCA()

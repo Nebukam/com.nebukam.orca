@@ -24,7 +24,7 @@ using Unity.Mathematics;
 namespace Nebukam.ORCA
 {
 
-    public interface IRaycastGroup : IVertexGroup
+    public interface IRaycastGroup : IVertexGroup<Raycast>
     {
 
     }

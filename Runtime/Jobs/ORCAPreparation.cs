@@ -62,7 +62,7 @@ namespace Nebukam.ORCA
             set { m_staticObstacles.obstacles = value; }
         }
 
-        public IAgentGroup agents
+        public IAgentGroup<IAgent> agents
         {
             get { return m_agents.agents; }
             set { m_agents.agents = value; }

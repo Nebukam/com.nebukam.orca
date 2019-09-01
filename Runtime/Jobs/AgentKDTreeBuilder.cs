@@ -49,7 +49,7 @@ namespace Nebukam.ORCA
         /// Properties
         ///
 
-        public IAgentGroup agents { get { return m_agentProvider.agents; } set { m_agentProvider.agents = value; } }
+        public IAgentGroup<IAgent> agents { get { return m_agentProvider.agents; } set { m_agentProvider.agents = value; } }
 
         public AgentKDTreeBuilder()
         {
