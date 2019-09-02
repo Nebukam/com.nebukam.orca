@@ -96,6 +96,7 @@ namespace Nebukam.ORCA
                         direction = float2(dir.x, dir.y),
                         worldDir = dir,
                         layerIgnore = r.m_layerIgnore,
+                        filter = r.m_filter,
                         twoSided = r.twoSided
                     };
                 }
@@ -116,6 +117,7 @@ namespace Nebukam.ORCA
                         direction = float2(dir.x, dir.z),
                         worldDir = dir,
                         layerIgnore = r.m_layerIgnore,
+                        filter = r.m_filter,
                         twoSided = r.twoSided
                     };
                 }

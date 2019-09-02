@@ -31,6 +31,7 @@ namespace Nebukam.ORCA
     {
         NativeArray<AgentData> outputAgents { get; }
         List<Agent> lockedAgents { get; }
+        float maxRadius { get; }
     }
 
     public class AgentProvider : Processor<Unemployed>, IAgentProvider, IPlanar
@@ -45,7 +46,7 @@ namespace Nebukam.ORCA
         protected IAgentGroup<IAgent> m_agents = null;
         protected List<Agent> m_lockedAgents = new List<Agent>();
         protected NativeArray<AgentData> m_outputAgents = new NativeArray<AgentData>(0, Allocator.Persistent);
-
+        protected float m_maxRadius = 0f;
         /// 
         /// Properties
         ///
@@ -53,6 +54,7 @@ namespace Nebukam.ORCA
         public IAgentGroup<IAgent> agents { get { return m_agents; } set { m_agents = value; } }
         public List<Agent> lockedAgents { get { return m_lockedAgents; } }
         public NativeArray<AgentData> outputAgents { get { return m_outputAgents; } }
+        public float maxRadius { get { return m_maxRadius; } }
 
         protected override void InternalLock()
         {
@@ -77,6 +79,8 @@ namespace Nebukam.ORCA
                 m_outputAgents = new NativeArray<AgentData>(agentCount, Allocator.Persistent);
             }
 
+            m_maxRadius = 0f;
+
             Agent a;
             float3 pos, prefVel, vel;
 
@@ -85,6 +89,7 @@ namespace Nebukam.ORCA
                 for (int i = 0; i < agentCount; i++)
                 {
                     a = m_lockedAgents[i];
+                    m_maxRadius = max(m_maxRadius , a.radius);
                     pos = a.pos;
                     prefVel = a.m_prefVelocity;
                     vel = a.m_velocity;
@@ -119,6 +124,7 @@ namespace Nebukam.ORCA
                 for (int i = 0; i < agentCount; i++)
                 {
                     a = m_lockedAgents[i];
+                    m_maxRadius = max(m_maxRadius, a.radius);
                     pos = a.pos;
                     prefVel = a.m_prefVelocity;
                     vel = a.m_velocity;

@@ -32,11 +32,12 @@ namespace Nebukam.ORCA
     public class RaycastGroup : VertexGroup<Raycast>, IRaycastGroup
     {
 
-        public Raycast Add(float3 origin, float3 dir, float distance)
+        public Raycast Add(float3 origin, float3 dir, float distance, RaycastFilter filter = RaycastFilter.ANY)
         {
-            Raycast v = Add(origin) as Raycast;
+            Raycast v = Add(origin);
             v.m_dir = dir;
             v.m_distance = distance;
+            v.m_filter = filter;
             return v;
         }
 

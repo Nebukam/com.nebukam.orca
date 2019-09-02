@@ -59,6 +59,7 @@ namespace Nebukam.ORCA
                 worldVelocity = float3(result.velocity.x, worldVelocity.y, result.velocity.y);
             }
 
+            agent.position = result.position;
             agent.worldPosition = worldPosition;
             agent.worldVelocity = worldVelocity;
             m_inputAgents[index] = agent;

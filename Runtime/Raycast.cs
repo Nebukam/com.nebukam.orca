@@ -25,6 +25,18 @@ using static Unity.Mathematics.math;
 namespace Nebukam.ORCA
 {
 
+    [System.Flags]
+    public enum RaycastFilter
+    {
+        NONE = 0,
+        AGENTS = 1,
+        OBSTACLE_STATIC = 2,
+        OBSTACLE_DYNAMIC = 4,
+        OBSTACLES = OBSTACLE_STATIC | OBSTACLE_DYNAMIC,
+        ANY = AGENTS | OBSTACLES
+    }
+
+
     [BurstCompile]
     public struct RaycastData
     {
@@ -35,6 +47,7 @@ namespace Nebukam.ORCA
         public float3 worldDir;
         public float distance;
         public ORCALayer layerIgnore;
+        public RaycastFilter filter;
         public bool twoSided;
     }
 
@@ -59,12 +72,14 @@ namespace Nebukam.ORCA
 
         internal float3 m_dir = float3(0f);
         internal ORCALayer m_layerIgnore = ORCALayer.NONE;
+        internal RaycastFilter m_filter = RaycastFilter.ANY;
         internal float m_distance = 0f;
         internal bool m_anyHit = false;
         internal bool m_twoSided = false;
 
         public float3 dir { get { return m_dir; } set { m_dir = value; } }
         public ORCALayer layerIgnore { get { return m_layerIgnore; } set { m_layerIgnore = value; } }
+        public RaycastFilter filter { get { return m_filter; } set { m_filter = value; } }
         public float distance { get { return m_distance; } set { m_distance = value; } }
         public bool anyHit { get { return m_anyHit; } }
         public bool twoSided { get { return m_twoSided; } }
@@ -80,6 +95,7 @@ namespace Nebukam.ORCA
             m_dir = float3(0f);
             m_distance = 0f;
             m_layerIgnore = ORCALayer.NONE;
+            m_filter = RaycastFilter.ANY;
             m_anyHit = false;
             m_twoSided = false;
 

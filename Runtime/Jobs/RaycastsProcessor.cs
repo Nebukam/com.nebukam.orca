@@ -96,6 +96,7 @@ namespace Nebukam.ORCA
 
             //Agent data
             job.m_inputAgents = m_agentProvider.outputAgents;
+            job.m_maxAgentRadius = m_agentProvider.maxRadius;
             job.m_inputAgentTree = m_agentKDTreeProvider.outputTree;
 
             //Static obstacles data

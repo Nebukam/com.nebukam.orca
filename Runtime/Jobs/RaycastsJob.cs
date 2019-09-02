@@ -27,7 +27,7 @@ using static Unity.Mathematics.math;
 namespace Nebukam.ORCA
 {
 
-    [BurstCompile(FloatPrecision.Low, FloatMode.Fast)]
+    [BurstCompile]
     public struct Segment2D
     {
 
@@ -96,7 +96,7 @@ namespace Nebukam.ORCA
 
     }
 
-    [BurstCompile(FloatPrecision.Low, FloatMode.Fast)]
+    [BurstCompile]
     public struct RaycastsJob : IJobParallelFor
     {
 
@@ -104,6 +104,9 @@ namespace Nebukam.ORCA
 
         [ReadOnly]
         public AxisPair m_plane;
+
+        [ReadOnly]
+        public float m_maxAgentRadius;
 
         [ReadOnly]
         public NativeArray<RaycastData> m_inputRaycasts;
@@ -144,105 +147,112 @@ namespace Nebukam.ORCA
                 dynamicObstacle = false
             };
 
-            NativeList<int> agentNeighbors = new NativeList<int>(10, Allocator.Temp);
-            NativeList<int> staticObstacleNeighbors = new NativeList<int>(10, Allocator.Temp);
-            NativeList<int> dynObstacleNeighbors = new NativeList<int>(10, Allocator.Temp);
+            RaycastFilter filter = raycast.filter;
 
-            float2 a_position = raycast.position;
-            float2 a_dir = raycast.direction;
+            if (filter == 0)
+            {
+                m_results[index] = result;
+                return;
+            }
 
-            float a_bottom = raycast.baseline;
-            float a_top = a_bottom;
-            float a_sqRange = lengthsq(raycast.distance);
+            float2
+                r_position = raycast.position,
+                r_dir = raycast.direction,
+                hitLocation;
 
-            #region Find neighbors
-
-            if (m_staticObstacleTree.Length > 0)
-                QueryObstacleTreeRecursive(ref raycast, ref a_sqRange, 0, ref staticObstacleNeighbors,
-                ref m_staticObstacles, ref m_staticRefObstacles, ref m_staticObstacleInfos, ref m_staticObstacleTree);
-
-            if (m_dynObstacleTree.Length > 0)
-                QueryObstacleTreeRecursive(ref raycast, ref a_sqRange, 0, ref dynObstacleNeighbors,
-                    ref m_dynObstacles, ref m_dynRefObstacles, ref m_dynObstacleInfos, ref m_dynObstacleTree);
-
-            if (m_inputAgents.Length > 0)
-                QueryAgentTreeRecursive(ref raycast, ref a_sqRange, 0, ref agentNeighbors);
-
-            NativeHashMap<IntPair, bool> coveredStaticEdges = new NativeHashMap<IntPair, bool>(m_staticObstacleTree.Length * 2, Allocator.Temp);
-            NativeHashMap<IntPair, bool> coveredDynEdges = new NativeHashMap<IntPair, bool>(m_dynObstacleTree.Length * 2, Allocator.Temp);
-
-            #endregion
+            float
+                a_bottom = raycast.baseline,
+                a_top = a_bottom,
+                a_sqRange = lengthsq(raycast.distance);
 
             Segment2D raySegment = new Segment2D(raycast.position, raycast.position + raycast.direction * raycast.distance),
                 segment;
 
             IntPair pair = new IntPair(0, 0);
             ObstacleVertexData otherVertex;
-            bool twoSidedCast = raycast.twoSided, alreadyCovered = false, hit;
-            float2 hitLocation;
+            bool
+                twoSidedCast = raycast.twoSided,
+                alreadyCovered = false,
+                hit;
 
             #region static obstacles
 
-            for (int i = 0; i < staticObstacleNeighbors.Length; ++i)
+            if ((filter & RaycastFilter.OBSTACLE_STATIC) != 0)
             {
 
-                ObstacleVertexData vertex = m_staticObstacles[staticObstacleNeighbors[i]];
-                ObstacleInfos infos = m_staticObstacleInfos[vertex.infos];
+                NativeList<int> staticObstacleNeighbors = new NativeList<int>(10, Allocator.Temp);
 
-                pair = new IntPair(vertex.index, vertex.next);
-                alreadyCovered = coveredStaticEdges.TryGetValue(pair, out hit);
+                if (m_staticObstacleTree.Length > 0)
+                    QueryObstacleTreeRecursive(ref raycast, ref a_sqRange, 0, ref staticObstacleNeighbors,
+                    ref m_staticObstacles, ref m_staticRefObstacles, ref m_staticObstacleInfos, ref m_staticObstacleTree);
 
-                if (!alreadyCovered)
+                NativeHashMap<IntPair, bool> coveredStaticEdges = new NativeHashMap<IntPair, bool>(m_staticObstacleTree.Length * 2, Allocator.Temp);
+
+                for (int i = 0; i < staticObstacleNeighbors.Length; ++i)
                 {
 
-                    otherVertex = m_staticRefObstacles[vertex.next];
-                    segment = new Segment2D(vertex.pos, otherVertex.pos);
-                    alreadyCovered = (!twoSidedCast && dot(a_dir, segment.normal) < 0f);
+                    ObstacleVertexData vertex = m_staticObstacles[staticObstacleNeighbors[i]];
+                    ObstacleInfos infos = m_staticObstacleInfos[vertex.infos];
+
+                    pair = new IntPair(vertex.index, vertex.next);
+                    alreadyCovered = coveredStaticEdges.TryGetValue(pair, out hit);
 
                     if (!alreadyCovered)
                     {
-                        if (raySegment.IsIntersecting(segment, out hitLocation))
+
+                        otherVertex = m_staticRefObstacles[vertex.next];
+                        segment = new Segment2D(vertex.pos, otherVertex.pos);
+                        alreadyCovered = (!twoSidedCast && dot(r_dir, segment.normal) < 0f);
+
+                        if (!alreadyCovered)
                         {
-                            //Rays intersecting !
-                            if (result.hitObstacle == -1
-                                || distancesq(a_position, hitLocation) < distancesq(a_position, result.hitObstacleLocation2D))
+                            if (raySegment.IsIntersecting(segment, out hitLocation))
                             {
-                                result.hitObstacleLocation2D = hitLocation;
-                                result.hitObstacle = infos.index;
+                                //Rays intersecting !
+                                if (result.hitObstacle == -1
+                                    || distancesq(r_position, hitLocation) < distancesq(r_position, result.hitObstacleLocation2D))
+                                {
+                                    result.hitObstacleLocation2D = hitLocation;
+                                    result.hitObstacle = infos.index;
+                                }
                             }
                         }
+
+                        coveredStaticEdges.TryAdd(pair, true);
+
                     }
 
-                    coveredStaticEdges.TryAdd(pair, true);
-
-                }
-
-                pair = new IntPair(vertex.index, vertex.prev);
-                alreadyCovered = coveredStaticEdges.ContainsKey(pair);
-
-                if (!alreadyCovered)
-                {
-                    otherVertex = m_staticRefObstacles[vertex.prev];
-                    segment = new Segment2D(vertex.pos, otherVertex.pos);
-                    alreadyCovered = (!twoSidedCast && dot(a_dir, segment.normal) < 0f);
+                    pair = new IntPair(vertex.index, vertex.prev);
+                    alreadyCovered = coveredStaticEdges.ContainsKey(pair);
 
                     if (!alreadyCovered)
                     {
-                        if (raySegment.IsIntersecting(segment, out hitLocation))
+                        otherVertex = m_staticRefObstacles[vertex.prev];
+                        segment = new Segment2D(vertex.pos, otherVertex.pos);
+                        alreadyCovered = (!twoSidedCast && dot(r_dir, segment.normal) < 0f);
+
+                        if (!alreadyCovered)
                         {
-                            //Rays intersecting !
-                            if (result.hitObstacle == -1
-                                || distancesq(a_position, hitLocation) < distancesq(a_position, result.hitObstacleLocation2D))
+                            if (raySegment.IsIntersecting(segment, out hitLocation))
                             {
-                                result.hitObstacleLocation2D = hitLocation;
-                                result.hitObstacle = infos.index;
+                                //Rays intersecting !
+                                if (result.hitObstacle == -1
+                                    || distancesq(r_position, hitLocation) < distancesq(r_position, result.hitObstacleLocation2D))
+                                {
+                                    result.hitObstacleLocation2D = hitLocation;
+                                    result.hitObstacle = infos.index;
+                                }
                             }
                         }
+
+                        coveredStaticEdges.TryAdd(pair, true);
+
                     }
 
-                    coveredStaticEdges.TryAdd(pair, true);
-
                 }
+
+                staticObstacleNeighbors.Dispose();
+                coveredStaticEdges.Dispose();
 
             }
 
@@ -250,89 +260,209 @@ namespace Nebukam.ORCA
 
             #region dynamic obstacles
 
-            for (int i = 0; i < dynObstacleNeighbors.Length; ++i)
+            if ((filter & RaycastFilter.OBSTACLE_DYNAMIC) != 0)
             {
 
-                ObstacleVertexData vertex = m_dynObstacles[dynObstacleNeighbors[i]];
-                ObstacleInfos infos = m_dynObstacleInfos[vertex.infos];
+                NativeList<int> dynObstacleNeighbors = new NativeList<int>(10, Allocator.Temp);
 
-                pair = new IntPair(vertex.index, vertex.next);
-                alreadyCovered = coveredDynEdges.TryGetValue(pair, out hit);
+                if (m_dynObstacleTree.Length > 0)
+                    QueryObstacleTreeRecursive(ref raycast, ref a_sqRange, 0, ref dynObstacleNeighbors,
+                        ref m_dynObstacles, ref m_dynRefObstacles, ref m_dynObstacleInfos, ref m_dynObstacleTree);
 
-                if (!alreadyCovered)
+                NativeHashMap<IntPair, bool> coveredDynEdges = new NativeHashMap<IntPair, bool>(m_dynObstacleTree.Length * 2, Allocator.Temp);
+
+                for (int i = 0; i < dynObstacleNeighbors.Length; ++i)
                 {
 
-                    otherVertex = m_dynRefObstacles[vertex.next];
-                    segment = new Segment2D(vertex.pos, otherVertex.pos);
-                    alreadyCovered = (!twoSidedCast && dot(a_dir, segment.normal) < 0f);
+                    ObstacleVertexData vertex = m_dynObstacles[dynObstacleNeighbors[i]];
+                    ObstacleInfos infos = m_dynObstacleInfos[vertex.infos];
+
+                    pair = new IntPair(vertex.index, vertex.next);
+                    alreadyCovered = coveredDynEdges.TryGetValue(pair, out hit);
 
                     if (!alreadyCovered)
                     {
-                        if (raySegment.IsIntersecting(segment, out hitLocation))
+
+                        otherVertex = m_dynRefObstacles[vertex.next];
+                        segment = new Segment2D(vertex.pos, otherVertex.pos);
+                        alreadyCovered = (!twoSidedCast && dot(r_dir, segment.normal) < 0f);
+
+                        if (!alreadyCovered)
                         {
-                            //Rays intersecting !
-                            if (result.hitObstacle == -1
-                                || distancesq(a_position, hitLocation) < distancesq(a_position, result.hitObstacleLocation2D))
+                            if (raySegment.IsIntersecting(segment, out hitLocation))
                             {
-                                result.hitObstacleLocation2D = hitLocation;
-                                result.hitObstacle = infos.index;
-                                result.dynamicObstacle = true;
+                                //Rays intersecting !
+                                if (result.hitObstacle == -1
+                                    || distancesq(r_position, hitLocation) < distancesq(r_position, result.hitObstacleLocation2D))
+                                {
+                                    result.hitObstacleLocation2D = hitLocation;
+                                    result.hitObstacle = infos.index;
+                                    result.dynamicObstacle = true;
+                                }
                             }
                         }
+
+                        coveredDynEdges.TryAdd(pair, true);
+
                     }
 
-                    coveredDynEdges.TryAdd(pair, true);
-
-                }
-
-                pair = new IntPair(vertex.index, vertex.prev);
-                alreadyCovered = coveredDynEdges.ContainsKey(pair);
-
-                if (!alreadyCovered)
-                {
-                    otherVertex = m_dynRefObstacles[vertex.prev];
-                    segment = new Segment2D(vertex.pos, otherVertex.pos);
-                    alreadyCovered = (!twoSidedCast && dot(a_dir, segment.normal) < 0f);
+                    pair = new IntPair(vertex.index, vertex.prev);
+                    alreadyCovered = coveredDynEdges.ContainsKey(pair);
 
                     if (!alreadyCovered)
                     {
-                        if (raySegment.IsIntersecting(segment, out hitLocation))
+                        otherVertex = m_dynRefObstacles[vertex.prev];
+                        segment = new Segment2D(vertex.pos, otherVertex.pos);
+                        alreadyCovered = (!twoSidedCast && dot(r_dir, segment.normal) < 0f);
+
+                        if (!alreadyCovered)
                         {
-                            //Rays intersecting !
-                            if (result.hitObstacle == -1
-                                || distancesq(a_position, hitLocation) < distancesq(a_position, result.hitObstacleLocation2D))
+                            if (raySegment.IsIntersecting(segment, out hitLocation))
                             {
-                                result.hitObstacleLocation2D = hitLocation;
-                                result.hitObstacle = infos.index;
-                                result.dynamicObstacle = true;
+                                //Rays intersecting !
+                                if (result.hitObstacle == -1
+                                    || distancesq(r_position, hitLocation) < distancesq(r_position, result.hitObstacleLocation2D))
+                                {
+                                    result.hitObstacleLocation2D = hitLocation;
+                                    result.hitObstacle = infos.index;
+                                    result.dynamicObstacle = true;
+                                }
                             }
                         }
+
+                        coveredDynEdges.TryAdd(pair, true);
+
                     }
 
-                    coveredDynEdges.TryAdd(pair, true);
-
                 }
+
+                dynObstacleNeighbors.Dispose();
+                coveredDynEdges.Dispose();
 
             }
-
 
             #endregion
 
             #region Agents
 
-            for (int i = 0; i < agentNeighbors.Length; ++i)
+            if ((filter & RaycastFilter.AGENTS) != 0)
             {
-                //TBD
+
+                NativeList<int> agentNeighbors = new NativeList<int>(10, Allocator.Temp);
+
+                float radSq = a_sqRange + lengthsq(m_maxAgentRadius);
+
+                if (m_inputAgents.Length > 0)
+                    QueryAgentTreeRecursive(ref raycast, ref radSq, 0, ref agentNeighbors);
+
+                AgentData agent;
+                int iResult, agentIndex;
+                float2 center, i1, i2, rayEnd = r_position + normalize(r_dir) * raycast.distance;
+                float
+                    a_radius, a_sqRadius, cx, cy,
+                    Ax = r_position.x,
+                    Ay = r_position.y,
+                    Bx = rayEnd.x,
+                    By = rayEnd.y,
+                    dx = Bx - Ax,
+                    dy = By - Ay,
+                    magA = dx * dx + dy * dy,
+                    distSq;
+
+                int TryGetIntersection(out float2 intersection1, out float2 intersection2)
+                {
+
+                    float
+                        magB = 2f * (dx * (Ax - cx) + dy * (Ay - cy)),
+                        magC = (Ax - cx) * (Ax - cx) + (Ay - cy) * (Ay - cy) - a_sqRadius,
+                        det = magB * magB - 4f * magA * magC,
+                        sqDet, t;
+
+                    if ((magA <= float.Epsilon) || (det < 0f))
+                    {
+                        // No real solutions.
+                        intersection1 = float2(float.NaN, float.NaN);
+                        intersection2 = float2(float.NaN, float.NaN);
+
+                        return 0;
+                    }
+
+                    if (det == 0)
+                    {
+                        // One solution.
+                        t = -magB / (2f * magA);
+
+                        intersection1 = float2(Ax + t * dx, Ay + t * dy);
+                        intersection2 = float2(float.NaN, float.NaN);
+
+                        return 1;
+                    }
+                    else
+                    {
+                        // Two solutions.
+                        sqDet = sqrt(det);
+
+                        t = ((-magB + sqDet) / (2f * magA));
+                        intersection1 = float2(Ax + t * dx, Ay + t * dy);
+
+                        t = ((-magB - sqDet) / (2f * magA));
+                        intersection2 = float2(Ax + t * dx, Ay + t * dy);
+
+                        return 2;
+                    }
+                }
+
+                for (int i = 0; i < agentNeighbors.Length; ++i)
+                {
+                    agentIndex = agentNeighbors[i];
+                    agent = m_inputAgents[agentIndex];
+
+                    center = agent.position;
+                    cx = center.x;
+                    cy = center.y;
+
+                    a_radius = agent.radius;
+                    a_sqRadius = a_radius * a_radius;
+
+                    if (dot(center - r_position, r_dir) < 0f)
+                        continue;
+
+                    iResult = TryGetIntersection(out i1, out i2);
+
+                    if (iResult == 0)
+                        continue;
+
+                    distSq = distancesq(r_position, i1);
+
+                    if (distSq < a_sqRange
+                        && (result.hitAgent == -1 || distSq < distancesq(r_position, result.hitAgentLocation2D))
+                        && IsBetween(r_position, center, i1))
+                    {
+                        result.hitAgentLocation2D = i1;
+                        result.hitAgent = agentIndex;
+                    }
+
+                    if (iResult == 2)
+                    {
+
+                        distSq = distancesq(r_position, i2);
+
+                        if (distSq < a_sqRange
+                            && (result.hitAgent == -1 || distSq < distancesq(r_position, result.hitAgentLocation2D))
+                            && IsBetween(r_position, center, i2))
+                        {
+                            result.hitAgentLocation2D = i2;
+                            result.hitAgent = agentIndex;
+                        }
+                    }
+
+                }
+
+                agentNeighbors.Dispose();
+
             }
 
             #endregion
-
-            agentNeighbors.Dispose();
-            staticObstacleNeighbors.Dispose();
-            dynObstacleNeighbors.Dispose();
-
-            coveredStaticEdges.Dispose();
-            coveredDynEdges.Dispose();
 
             if (m_plane == AxisPair.XY)
             {
@@ -391,8 +521,8 @@ namespace Nebukam.ORCA
                         continue;
                     }
 
-                    if (lengthsq(center - a.position) < rangeSq)
-                        agentNeighbors.Add(i);
+                    //if ((distancesq(center, a.position) - lengthsq(a.radius)) < rangeSq)
+                    agentNeighbors.Add(i);
 
                 }
             }
@@ -400,7 +530,6 @@ namespace Nebukam.ORCA
             {
 
                 AgentTreeNode leftNode = m_inputAgentTree[treeNode.left], rightNode = m_inputAgentTree[treeNode.right];
-
                 float distSqLeft = lengthsq(max(0.0f, leftNode.minX - center.x))
                     + lengthsq(max(0.0f, center.x - leftNode.maxX))
                     + lengthsq(max(0.0f, leftNode.minY - center.y))
@@ -557,6 +686,31 @@ namespace Nebukam.ORCA
         }
 
         /// <summary>
+        /// Is a point c between a and b?
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        private bool IsBetween(float2 a, float2 b, float2 c)
+        {
+
+            float2 ab = float2(b.x - a.x, b.y - a.y);//Entire line segment
+            float2 ac = float2(c.x - a.x, c.y - a.y);//The intersection and the first point
+
+            float dot = ab.x * ac.x + ab.y * ac.y;
+
+            //If the vectors are pointing in the same direction = dot product is positive
+            if (dot <= 0f) { return false; }
+
+            float abm = ab.x * ab.x + ab.y * ab.y;
+            float acm = ac.x * ac.x + ac.y * ac.y;
+
+            //If the length of the vector between the intersection and the first point is smaller than the entire line
+            return (abm >= acm);
+        }
+
+        /// <summary>
         /// Computes the squared distance from a line segment with the specified endpoints to a specified point.
         /// </summary>
         /// <param name="a">The first endpoint of the line segment.</param>
@@ -566,7 +720,6 @@ namespace Nebukam.ORCA
         private float DistSqPointLineSegment(float2 a, float2 b, float2 c)
         {
 
-            //TODO : inline operations instead of calling shorthands
             float2 ca = float2(c.x - a.x, c.y - a.y);
             float2 ba = float2(b.x - a.x, b.y - a.y);
             float dot = ca.x * ba.x + ca.y * ba.y;
