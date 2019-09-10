@@ -25,12 +25,12 @@ namespace Nebukam.ORCA
     public class Obstacle : VertexGroup<ObstacleVertex>, Pooling.IRequireInit
     {
 
-        internal ORCALayer m_layerOccupation = ORCALayer.ANY;
-        internal bool m_collisionEnabled = true;
-        internal float m_thickness = 0.0f;
-        internal float m_height = 1.0f;
-        internal float m_baseline = 0.0f;
-        internal bool m_edge = false;
+        protected internal ORCALayer m_layerOccupation = ORCALayer.ANY;
+        protected internal bool m_collisionEnabled = true;
+        protected internal float m_thickness = 0.0f;
+        protected internal float m_height = 1.0f;
+        protected internal float m_baseline = 0.0f;
+        protected internal bool m_edge = false;
 
         public ORCALayer layerOccupation { get { return m_layerOccupation; } set { m_layerOccupation = value; } }
         public bool collisionEnabled { get { return m_collisionEnabled; } set { m_collisionEnabled = value; } }

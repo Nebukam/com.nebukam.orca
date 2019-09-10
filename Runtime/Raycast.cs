@@ -70,12 +70,12 @@ namespace Nebukam.ORCA
     public class Raycast : Vertex, Pooling.IRequireCleanUp
     {
 
-        internal float3 m_dir = float3(0f);
-        internal ORCALayer m_layerIgnore = ORCALayer.NONE;
-        internal RaycastFilter m_filter = RaycastFilter.ANY;
-        internal float m_distance = 0f;
-        internal bool m_anyHit = false;
-        internal bool m_twoSided = false;
+        protected internal float3 m_dir = float3(0f);
+        protected internal ORCALayer m_layerIgnore = ORCALayer.NONE;
+        protected internal RaycastFilter m_filter = RaycastFilter.ANY;
+        protected internal float m_distance = 0f;
+        protected internal bool m_anyHit = false;
+        protected internal bool m_twoSided = false;
 
         public float3 dir { get { return m_dir; } set { m_dir = value; } }
         public ORCALayer layerIgnore { get { return m_layerIgnore; } set { m_layerIgnore = value; } }

@@ -168,7 +168,7 @@ namespace Nebukam.ORCA
             Segment2D raySegment = new Segment2D(raycast.position, raycast.position + raycast.direction * raycast.distance),
                 segment;
 
-            IntPair pair = new IntPair(0, 0);
+            UIntPair pair = new UIntPair(0, 0);
             ObstacleVertexData otherVertex;
             bool
                 twoSidedCast = raycast.twoSided,
@@ -186,7 +186,7 @@ namespace Nebukam.ORCA
                     QueryObstacleTreeRecursive(ref raycast, ref a_sqRange, 0, ref staticObstacleNeighbors,
                     ref m_staticObstacles, ref m_staticRefObstacles, ref m_staticObstacleInfos, ref m_staticObstacleTree);
 
-                NativeHashMap<IntPair, bool> coveredStaticEdges = new NativeHashMap<IntPair, bool>(m_staticObstacleTree.Length * 2, Allocator.Temp);
+                NativeHashMap<UIntPair, bool> coveredStaticEdges = new NativeHashMap<UIntPair, bool>(m_staticObstacleTree.Length * 2, Allocator.Temp);
 
                 for (int i = 0; i < staticObstacleNeighbors.Length; ++i)
                 {
@@ -194,7 +194,7 @@ namespace Nebukam.ORCA
                     ObstacleVertexData vertex = m_staticObstacles[staticObstacleNeighbors[i]];
                     ObstacleInfos infos = m_staticObstacleInfos[vertex.infos];
 
-                    pair = new IntPair(vertex.index, vertex.next);
+                    pair = new UIntPair(vertex.index, vertex.next);
                     alreadyCovered = coveredStaticEdges.TryGetValue(pair, out hit);
 
                     if (!alreadyCovered)
@@ -222,7 +222,7 @@ namespace Nebukam.ORCA
 
                     }
 
-                    pair = new IntPair(vertex.index, vertex.prev);
+                    pair = new UIntPair(vertex.index, vertex.prev);
                     alreadyCovered = coveredStaticEdges.ContainsKey(pair);
 
                     if (!alreadyCovered)
@@ -269,7 +269,7 @@ namespace Nebukam.ORCA
                     QueryObstacleTreeRecursive(ref raycast, ref a_sqRange, 0, ref dynObstacleNeighbors,
                         ref m_dynObstacles, ref m_dynRefObstacles, ref m_dynObstacleInfos, ref m_dynObstacleTree);
 
-                NativeHashMap<IntPair, bool> coveredDynEdges = new NativeHashMap<IntPair, bool>(m_dynObstacleTree.Length * 2, Allocator.Temp);
+                NativeHashMap<UIntPair, bool> coveredDynEdges = new NativeHashMap<UIntPair, bool>(m_dynObstacleTree.Length * 2, Allocator.Temp);
 
                 for (int i = 0; i < dynObstacleNeighbors.Length; ++i)
                 {
@@ -277,7 +277,7 @@ namespace Nebukam.ORCA
                     ObstacleVertexData vertex = m_dynObstacles[dynObstacleNeighbors[i]];
                     ObstacleInfos infos = m_dynObstacleInfos[vertex.infos];
 
-                    pair = new IntPair(vertex.index, vertex.next);
+                    pair = new UIntPair(vertex.index, vertex.next);
                     alreadyCovered = coveredDynEdges.TryGetValue(pair, out hit);
 
                     if (!alreadyCovered)
@@ -306,7 +306,7 @@ namespace Nebukam.ORCA
 
                     }
 
-                    pair = new IntPair(vertex.index, vertex.prev);
+                    pair = new UIntPair(vertex.index, vertex.prev);
                     alreadyCovered = coveredDynEdges.ContainsKey(pair);
 
                     if (!alreadyCovered)

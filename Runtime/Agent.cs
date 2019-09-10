@@ -96,25 +96,25 @@ namespace Nebukam.ORCA
         /// Fields
         /// 
 
-        internal float3 m_prefVelocity = float3(0f);
-        internal float3 m_velocity { get; set; } = float3(0f);
+        protected internal float3 m_prefVelocity = float3(0f);
+        protected internal float3 m_velocity { get; set; } = float3(0f);
 
-        internal float m_height = 0.5f;
-        internal float m_radius = 0.5f;
-        internal float m_radiusObst = 0.5f;
-        internal float m_maxSpeed = 20.0f;
+        protected internal float m_height = 0.5f;
+        protected internal float m_radius = 0.5f;
+        protected internal float m_radiusObst = 0.5f;
+        protected internal float m_maxSpeed = 20.0f;
 
-        internal int m_maxNeighbors = 15;
-        internal float m_neighborDist = 20.0f;
-        internal float m_neighborElev = 0.5f;
+        protected internal int m_maxNeighbors = 15;
+        protected internal float m_neighborDist = 20.0f;
+        protected internal float m_neighborElev = 0.5f;
 
-        internal float m_timeHorizon = 15.0f;
-        internal float m_timeHorizonObst = 1.2f;
+        protected internal float m_timeHorizon = 15.0f;
+        protected internal float m_timeHorizonObst = 1.2f;
 
-        internal ORCALayer m_layerOccupation = ORCALayer.ANY;
-        internal ORCALayer m_layerIgnore = ORCALayer.NONE;
-        internal bool m_navigationEnabled = true;
-        internal bool m_collisionEnabled = true;
+        protected internal ORCALayer m_layerOccupation = ORCALayer.ANY;
+        protected internal ORCALayer m_layerIgnore = ORCALayer.NONE;
+        protected internal bool m_navigationEnabled = true;
+        protected internal bool m_collisionEnabled = true;
 
         /// 
         /// Properties
