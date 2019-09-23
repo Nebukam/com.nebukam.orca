@@ -142,6 +142,10 @@ namespace Nebukam.ORCA
             if (!disposing) { return; }
 
             m_raycasts = null;
+
+            m_lockedRaycasts.Clear();
+            m_lockedRaycasts = null;
+
             m_outputRaycast.Dispose();
         }
 

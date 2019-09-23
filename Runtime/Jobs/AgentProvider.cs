@@ -173,6 +173,10 @@ namespace Nebukam.ORCA
             if (!disposing) { return; }
 
             m_agents = null;
+
+            m_lockedAgents.Clear();
+            m_lockedAgents = null;
+
             m_outputAgents.Dispose();
         }
 
