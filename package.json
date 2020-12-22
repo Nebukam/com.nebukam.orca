@@ -1,10 +1,10 @@
 {
   "name": "com.nebukam.orca",
-  "version": "1.0.2",
+  "version": "1.0.3a",
   "displayName": "N:ORCA",
   "description": "Optimal Reciprocal Collision Avoidance",
-  "unity": "2019.1",
-  "unityRelease": "10f1",
+  "unity": "2019.4",
+  "unityRelease": "17f1",
   "keywords": [
     "ORCA",
     "RVO",
@@ -20,10 +20,10 @@
     "url": "https://github.com/Nebukam/com.nebukam.orca.git"
   },
   "dependencies": {
-    "com.unity.burst": "1.1.2",
-    "com.unity.collections": "0.0.9-preview.20",
-    "com.unity.jobs": "0.0.7",
-	"com.unity.mathematics": "1.1.0",
+    "com.unity.burst": "1.4.3",
+    "com.unity.collections": "0.9.0-preview.6",
+    "com.unity.jobs": "0.2.10-preview.13",
+	"com.unity.mathematics": "1.2.1",
 	"com.nebukam.common": "https://github.com/Nebukam/com.nebukam.common.git",
     "com.nebukam.job-assist": "https://github.com/Nebukam/com.nebukam.job-assist.git"
   },
