@@ -31,7 +31,10 @@ Be aware this is not a pathfinding solution on its own, and will yield best resu
 ## Hows
 
 ### Installation
-To be used with Unity's Package Manager.
+To be used with [Unity's Package Manager](https://docs.unity3d.com/Manual/upm-ui-giturl.html) + [Git Dependency Resolver For Unity](https://github.com/mob-sakai/GitDependencyResolverForUnity) (or any git dependencies resolving package, really).
+
+⚠ [Git Dependency Resolver For Unity](https://github.com/mob-sakai/GitDependencyResolverForUnity) must be installed *before* in order to fetch nested git dependencies.
+{: .alert .alert-danger}
 
 See [Unity's Package Manager : Getting Started](https://docs.unity3d.com/Manual/upm-parts.html)
 

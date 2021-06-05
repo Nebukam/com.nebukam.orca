@@ -24,8 +24,8 @@
     "com.unity.collections": "0.9.0-preview.6",
     "com.unity.jobs": "0.2.10-preview.13",
 	"com.unity.mathematics": "1.2.1",
-	"com.nebukam.common": "https://github.com/Nebukam/com.nebukam.common.git",
-    "com.nebukam.job-assist": "https://github.com/Nebukam/com.nebukam.job-assist.git"
+	"com.nebukam.common": "https://github.com/Nebukam/com.nebukam.common.git#0.0.1",
+    "com.nebukam.job-assist": "https://github.com/Nebukam/com.nebukam.job-assist.git#1.0.1"
   },
   "samples": [
     {
