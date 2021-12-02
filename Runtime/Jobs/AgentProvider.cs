@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 using Nebukam.JobAssist;
+using static Nebukam.JobAssist.CollectionsUtils;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Mathematics;
@@ -73,11 +74,7 @@ namespace Nebukam.ORCA
 
             int agentCount = m_lockedAgents.Count;
 
-            if (m_outputAgents.Length != agentCount)
-            {
-                m_outputAgents.Dispose();
-                m_outputAgents = new NativeArray<AgentData>(agentCount, Allocator.Persistent);
-            }
+            MakeLength(ref m_outputAgents, agentCount);
 
             m_maxRadius = 0f;
 

@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 using Nebukam.JobAssist;
+using static Nebukam.JobAssist.CollectionsUtils;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Mathematics;
@@ -71,11 +72,7 @@ namespace Nebukam.ORCA
 
             int raycastCount = m_lockedRaycasts.Count;
 
-            if (m_outputRaycast.Length != raycastCount)
-            {
-                m_outputRaycast.Dispose();
-                m_outputRaycast = new NativeArray<RaycastData>(raycastCount, Allocator.Persistent);
-            }
+            MakeLength(ref m_outputRaycast, raycastCount);
 
             Raycast r;
             float3 pos, dir;

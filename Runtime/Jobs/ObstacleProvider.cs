@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 using Nebukam.JobAssist;
+using static Nebukam.JobAssist.CollectionsUtils;
 using Unity.Collections;
 
 namespace Nebukam.ORCA
@@ -75,13 +76,7 @@ namespace Nebukam.ORCA
             int obsCount = m_obstacles == null ? 0 : m_obstacles.Count,
              refCount = m_referenceObstacles.Length, vCount = 0;
 
-            if (m_outputObstacleInfos.Length != obsCount)
-            {
-                m_outputObstacleInfos.Dispose();
-                m_outputObstacleInfos = new NativeArray<ObstacleInfos>(obsCount, Allocator.Persistent);
-
-                m_recompute = true;
-            }
+            m_recompute = !MakeLength(ref m_outputObstacleInfos, obsCount);
 
             Obstacle o;
             ObstacleInfos infos;
@@ -111,14 +106,8 @@ namespace Nebukam.ORCA
                 }
             }
 
-            if (refCount != vCount)
-            {
-                m_referenceObstacles.Dispose();
-                m_referenceObstacles = new NativeArray<ObstacleVertexData>(vCount, Allocator.Persistent);
-
-                m_outputObstacles.Dispose();
-                m_outputObstacles = new NativeArray<ObstacleVertexData>(vCount, Allocator.Persistent);
-            }
+            MakeLength(ref m_referenceObstacles, vCount);
+            MakeLength(ref m_outputObstacles, vCount);
 
             ObstacleVertexData oData;
             int gIndex = 0, index = 0, vCountMinusOne, firstIndex, lastIndex;

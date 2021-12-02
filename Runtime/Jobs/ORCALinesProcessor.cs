@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 using Nebukam.JobAssist;
+using static Nebukam.JobAssist.CollectionsUtils;
 using Unity.Collections;
 
 namespace Nebukam.ORCA
@@ -88,11 +89,8 @@ namespace Nebukam.ORCA
             }
 
             int agentCount = m_agentProvider.outputAgents.Length;
-            if (m_results.Length != agentCount)
-            {
-                m_results.Dispose();
-                m_results = new NativeArray<AgentDataResult>(agentCount, Allocator.Persistent);
-            }
+
+            MakeLength(ref m_results, agentCount);
 
             //Agent data
             job.m_inputAgents = m_agentProvider.outputAgents;

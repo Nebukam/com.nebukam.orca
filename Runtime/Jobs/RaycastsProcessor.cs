@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 using Nebukam.JobAssist;
+using static Nebukam.JobAssist.CollectionsUtils;
 using System.Collections.Generic;
 using Unity.Collections;
 using static Unity.Mathematics.math;
@@ -86,11 +87,8 @@ namespace Nebukam.ORCA
             }
 
             int rayCount = m_raycastProvider.outputRaycasts.Length;
-            if (m_results.Length != rayCount)
-            {
-                m_results.Dispose();
-                m_results = new NativeArray<RaycastResult>(rayCount, Allocator.Persistent);
-            }
+
+            MakeLength(ref m_results, rayCount);
 
             job.m_plane = plane;
 
