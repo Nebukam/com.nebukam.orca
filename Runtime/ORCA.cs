@@ -68,12 +68,14 @@ namespace Nebukam.ORCA
             Add(ref m_raycasts);
             m_raycasts.chunkSize = 5;
 
-
         }
+
+        protected override void InternalLock() { }
+
+        protected override void Prepare(float delta) { }
 
         protected override void Apply()
         {
-            base.Apply();
             /*
             IAgentProvider agentProvider;
             if(!TryGetFirst(-1, out agentProvider, true))
@@ -111,6 +113,10 @@ namespace Nebukam.ORCA
             }
             */
         }
+
+        protected override void InternalUnlock() { }
+
+        protected override void InternalDispose() { }
 
     }
 

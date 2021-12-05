@@ -69,8 +69,7 @@ namespace Nebukam.ORCA
         public NativeArray<ObstacleVertexData> outputObstacles { get { return m_outputObstacles; } }
 
         protected override void InternalLock() { }
-        protected override void InternalUnlock() { }
-
+        
         protected override void Prepare(ref Unemployed job, float delta)
         {
             int obsCount = m_obstacles == null ? 0 : m_obstacles.Count,
@@ -218,11 +217,10 @@ namespace Nebukam.ORCA
             m_recompute = false;
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            if (!disposing) { return; }
+        protected override void InternalUnlock() { }
 
+        protected override void InternalDispose()
+        {
             m_obstacles = null;
             m_outputObstacleInfos.Dispose();
             m_referenceObstacles.Dispose();

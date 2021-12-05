@@ -65,13 +65,13 @@ namespace Nebukam.ORCA
         protected override int Prepare(ref RaycastsJob job, float delta)
         {
 
-            if (!TryGetFirstInGroup(out m_raycastProvider, true)
-                || !TryGetFirstInGroup(out m_agentProvider, true)
-                || !TryGetFirstInGroup(out m_agentKDTreeProvider, true)
-                || !TryGetFirstInGroup(out m_staticObstaclesProvider, true)
-                || !TryGetFirstInGroup(out m_staticObstacleKDTreeProvider, true)
-                || !TryGetFirstInGroup(out m_dynObstaclesProvider, true)
-                || !TryGetFirstInGroup(out m_dynObstacleKDTreeProvider, true))
+            if (!TryGetFirstInCompound(out m_raycastProvider, true)
+                || !TryGetFirstInCompound(out m_agentProvider, true)
+                || !TryGetFirstInCompound(out m_agentKDTreeProvider, true)
+                || !TryGetFirstInCompound(out m_staticObstaclesProvider, true)
+                || !TryGetFirstInCompound(out m_staticObstacleKDTreeProvider, true)
+                || !TryGetFirstInCompound(out m_dynObstaclesProvider, true)
+                || !TryGetFirstInCompound(out m_dynObstacleKDTreeProvider, true))
             {
                 string msg = string.Format("Missing provider : Raycasts = {7}, Agents = {0}, Static obs = {1}, Agent KD = {2}, Static obs KD= {3}, " +
                     "Dyn obs = {5}, Dyn obs KD= {6}, group = {4}",
@@ -80,7 +80,7 @@ namespace Nebukam.ORCA
                     m_agentKDTreeProvider,
                     m_staticObstacleKDTreeProvider,
                     m_dynObstaclesProvider,
-                    m_dynObstacleKDTreeProvider, m_group,
+                    m_dynObstacleKDTreeProvider, m_compound,
                     m_raycastProvider);
 
                 throw new System.Exception(msg);
@@ -169,13 +169,9 @@ namespace Nebukam.ORCA
             }
         }
 
-        protected override void Dispose(bool disposing)
+        protected override void InternalDispose()
         {
-            base.Dispose(disposing);
-            if (!disposing) { return; }
-
             m_results.Dispose();
-
         }
 
     }

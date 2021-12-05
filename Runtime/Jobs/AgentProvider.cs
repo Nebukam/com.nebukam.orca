@@ -163,12 +163,8 @@ namespace Nebukam.ORCA
 
         }
 
-
-        protected override void Dispose(bool disposing)
+        protected override void InternalDispose()
         {
-            base.Dispose(disposing);
-            if (!disposing) { return; }
-
             m_agents = null;
 
             m_lockedAgents.Clear();

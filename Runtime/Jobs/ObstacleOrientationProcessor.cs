@@ -36,7 +36,7 @@ namespace Nebukam.ORCA
         protected override int Prepare(ref ObstacleOrientationJob job, float delta)
         {
 
-            if (!TryGetFirstInGroup(out m_obstaclesProvider, true))
+            if (!TryGetFirstInCompound(out m_obstaclesProvider, true))
             {
                 throw new System.Exception("No IObstacleProvider or IObstacleSplitProvider in chain !");
             }
@@ -54,6 +54,8 @@ namespace Nebukam.ORCA
         {
 
         }
+
+        protected override void InternalDispose() { }
 
     }
 }

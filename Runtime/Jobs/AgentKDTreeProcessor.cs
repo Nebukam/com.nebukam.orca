@@ -46,7 +46,7 @@ namespace Nebukam.ORCA
 
         protected override void Prepare(ref AgentKDTreeJob job, float delta)
         {
-            if (!TryGetFirstInGroup(out m_agentProvider))
+            if (!TryGetFirstInCompound(out m_agentProvider))
             {
                 throw new System.Exception("No IAgentProvider in chain !");
             }
@@ -65,13 +65,8 @@ namespace Nebukam.ORCA
 
         }
 
-
-
-        protected override void Dispose(bool disposing)
+        protected override void InternalDispose()
         {
-            base.Dispose(disposing);
-            if (!disposing) { return; }
-
             m_outputTree.Dispose();
         }
 

@@ -57,7 +57,7 @@ namespace Nebukam.ORCA
         protected override void Prepare(ref ObstacleKDTreeJob job, float delta)
         {
 
-            if (!TryGetFirstInGroup(out m_obstaclesProvider))
+            if (!TryGetFirstInCompound(out m_obstaclesProvider))
             {
                 throw new System.Exception("No IObstacleSplitProvider or IObstacleProvider in chain !");
             }
@@ -88,11 +88,8 @@ namespace Nebukam.ORCA
 
         }
 
-        protected override void Dispose(bool disposing)
+        protected override void InternalDispose()
         {
-            base.Dispose(disposing);
-            if (!disposing) { return; }
-
             m_outputTree.Dispose();
         }
 

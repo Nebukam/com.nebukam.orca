@@ -56,10 +56,15 @@ namespace Nebukam.ORCA
             Add(ref m_kdTree); //Compute & split actual KDTree
         }
 
-        protected override void Apply()
-        {
-            base.Apply();
-        }
+        protected override void InternalLock() { }
+
+        protected override void Prepare(float delta) { }
+
+        protected override void Apply() { }
+
+        protected override void InternalUnlock() { }
+
+        protected override void InternalDispose() { }
 
     }
 

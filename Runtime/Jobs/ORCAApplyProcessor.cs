@@ -47,7 +47,7 @@ namespace Nebukam.ORCA
         protected override int Prepare(ref ORCAApplyJob job, float delta)
         {
 
-            if (!TryGetFirstInGroup(out m_orcaResultProvider, true))
+            if (!TryGetFirstInCompound(out m_orcaResultProvider, true))
             {
                 string msg = string.Format("Missing provider : OrcaResultProvider = {0}", m_orcaResultProvider);
                 throw new System.Exception(msg);
@@ -82,11 +82,7 @@ namespace Nebukam.ORCA
 
         }
 
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            if (!disposing) { return; }
-        }
+        protected override void InternalDispose() { }
 
     }
 }
