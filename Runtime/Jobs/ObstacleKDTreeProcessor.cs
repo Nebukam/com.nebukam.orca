@@ -51,9 +51,6 @@ namespace Nebukam.ORCA
 
         public T obstaclesProvider { get { return m_obstaclesProvider; } }
 
-        protected override void InternalLock() { }
-        protected override void InternalUnlock() { }
-
         protected override void Prepare(ref ObstacleKDTreeJob job, float delta)
         {
 
@@ -80,11 +77,6 @@ namespace Nebukam.ORCA
             job.m_inputObstacles = m_obstaclesProvider.outputObstacles;
             job.m_outputTree = m_outputTree;
 
-
-        }
-
-        protected override void Apply(ref ObstacleKDTreeJob job)
-        {
 
         }
 

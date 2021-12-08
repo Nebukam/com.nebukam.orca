@@ -41,9 +41,6 @@ namespace Nebukam.ORCA
 
         public IORCALinesProvider orcaResultProvider { get { return m_orcaResultProvider; } }
 
-        protected override void InternalLock() { }
-        protected override void InternalUnlock() { }
-
         protected override int Prepare(ref ORCAApplyJob job, float delta)
         {
 
@@ -81,8 +78,6 @@ namespace Nebukam.ORCA
             }
 
         }
-
-        protected override void InternalDispose() { }
 
     }
 }

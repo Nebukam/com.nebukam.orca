@@ -30,9 +30,6 @@ namespace Nebukam.ORCA
         protected T m_obstaclesProvider;
         public T obstaclesProvider { get { return m_obstaclesProvider; } }
 
-        protected override void InternalLock() { }
-        protected override void InternalUnlock() { }
-
         protected override int Prepare(ref ObstacleOrientationJob job, float delta)
         {
 
@@ -49,13 +46,6 @@ namespace Nebukam.ORCA
             return m_obstaclesProvider.outputObstacles.Length;
 
         }
-
-        protected override void Apply(ref ObstacleOrientationJob job)
-        {
-
-        }
-
-        protected override void InternalDispose() { }
 
     }
 }

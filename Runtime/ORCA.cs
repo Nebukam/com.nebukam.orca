@@ -70,10 +70,6 @@ namespace Nebukam.ORCA
 
         }
 
-        protected override void InternalLock() { }
-
-        protected override void Prepare(float delta) { }
-
         protected override void Apply()
         {
             /*
@@ -113,10 +109,6 @@ namespace Nebukam.ORCA
             }
             */
         }
-
-        protected override void InternalUnlock() { }
-
-        protected override void InternalDispose() { }
 
     }
 

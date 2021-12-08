@@ -52,19 +52,10 @@ namespace Nebukam.ORCA
             Add(ref m_obstacleProvider); //Create base obstacle structure
             Add(ref m_orientation); //Compute obstacle direction & type (convex/concave)
             m_orientation.chunkSize = 64;
+
             Add(ref m_fix);
             Add(ref m_kdTree); //Compute & split actual KDTree
         }
-
-        protected override void InternalLock() { }
-
-        protected override void Prepare(float delta) { }
-
-        protected override void Apply() { }
-
-        protected override void InternalUnlock() { }
-
-        protected override void InternalDispose() { }
 
     }
 

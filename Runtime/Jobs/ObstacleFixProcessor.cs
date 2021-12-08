@@ -47,12 +47,5 @@ namespace Nebukam.ORCA
 
         }
 
-        protected override void Apply(ref ObstacleFixJob job)
-        {
-
-        }
-
-        protected override void InternalDispose() { }
-
     }
 }

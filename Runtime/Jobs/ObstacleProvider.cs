@@ -217,8 +217,6 @@ namespace Nebukam.ORCA
             m_recompute = false;
         }
 
-        protected override void InternalUnlock() { }
-
         protected override void InternalDispose()
         {
             m_obstacles = null;

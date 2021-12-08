@@ -57,16 +57,6 @@ namespace Nebukam.ORCA
             Add(ref m_agentKDTreeProvider);
         }
 
-        protected override void InternalLock() { }
-
-        protected override void Prepare(float delta) { }
-
-        protected override void Apply() { }
-
-        protected override void InternalUnlock() { }
-
-        protected override void InternalDispose() { }
-
     }
 
 }

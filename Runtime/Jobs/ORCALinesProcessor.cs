@@ -63,9 +63,6 @@ namespace Nebukam.ORCA
 
         public NativeArray<AgentDataResult> results { get { return m_results; } }
 
-        protected override void InternalLock() { }
-        protected override void InternalUnlock() { }
-
         protected override int Prepare(ref ORCALinesJob job, float delta)
         {
 

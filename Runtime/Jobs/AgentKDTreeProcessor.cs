@@ -41,9 +41,6 @@ namespace Nebukam.ORCA
         public IAgentProvider agentProvider { get { return m_agentProvider; } }
         public NativeArray<AgentTreeNode> outputTree { get { return m_outputTree; } }
 
-        protected override void InternalLock() { }
-        protected override void InternalUnlock() { }
-
         protected override void Prepare(ref AgentKDTreeJob job, float delta)
         {
             if (!TryGetFirstInCompound(out m_agentProvider))
@@ -57,11 +54,6 @@ namespace Nebukam.ORCA
 
             job.m_inputAgents = m_agentProvider.outputAgents;
             job.m_outputTree = m_outputTree;
-
-        }
-
-        protected override void Apply(ref AgentKDTreeJob job)
-        {
 
         }
 

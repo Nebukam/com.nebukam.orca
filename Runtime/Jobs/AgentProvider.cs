@@ -153,16 +153,6 @@ namespace Nebukam.ORCA
 
         }
 
-        protected override void Apply(ref Unemployed job)
-        {
-
-        }
-
-        protected override void InternalUnlock()
-        {
-
-        }
-
         protected override void InternalDispose()
         {
             m_agents = null;
