@@ -32,59 +32,67 @@ namespace Nebukam.ORCA
         NativeArray<AgentDataResult> results { get; }
     }
 
-    public class ORCALinesProcessor : ParallelProcessor<ORCALinesJob>, IORCALinesProvider
+    public class ORCALines : ParallelProcessor<ORCALinesJob>, IORCALinesProvider
     {
 
         public AxisPair plane { get; set; } = AxisPair.XY;
 
-        /// 
-        /// Fields
-        /// 
+        protected NativeArray<AgentDataResult> m_results = new NativeArray<AgentDataResult>(0, Allocator.Persistent);
+        public NativeArray<AgentDataResult> results { get { return m_results; } }
+        
+
+        #region Inputs
+
+        protected bool m_inputsDirty = true;
 
         protected IAgentProvider m_agentProvider;
-        protected IAgentKDTreeProvider m_agentKDTreeProvider;
-        protected IStaticObstacleProvider m_staticObstaclesProvider;
-        protected IStaticObstacleKDTreeProvider m_staticObstacleKDTreeProvider;
-        protected IDynObstacleProvider m_dynObstaclesProvider;
-        protected IDynObstacleKDTreeProvider m_dynObstacleKDTreeProvider;
-
-        protected NativeArray<AgentDataResult> m_results = new NativeArray<AgentDataResult>(0, Allocator.Persistent);
-
-
-        /// 
-        /// Properties
-        /// 
-
         public IAgentProvider agentProvider { get { return m_agentProvider; } }
+
+        protected IAgentKDTreeProvider m_agentKDTreeProvider;
         public IAgentKDTreeProvider agentKDTreeProvider { get { return m_agentKDTreeProvider; } }
+
+        protected IStaticObstacleProvider m_staticObstaclesProvider;
         public IStaticObstacleProvider staticObstaclesProvider { get { return m_staticObstaclesProvider; } }
+
+        protected IStaticObstacleKDTreeProvider m_staticObstacleKDTreeProvider;
         public IStaticObstacleKDTreeProvider staticObstacleKDTreeProvider { get { return m_staticObstacleKDTreeProvider; } }
+
+        protected IDynObstacleProvider m_dynObstaclesProvider;
         public IDynObstacleProvider dynObstaclesProvider { get { return m_dynObstaclesProvider; } }
+
+        protected IDynObstacleKDTreeProvider m_dynObstacleKDTreeProvider;
         public IDynObstacleKDTreeProvider dynObstacleKDTreeProvider { get { return m_dynObstacleKDTreeProvider; } }
 
-        public NativeArray<AgentDataResult> results { get { return m_results; } }
+        #endregion
 
         protected override int Prepare(ref ORCALinesJob job, float delta)
         {
 
-            if (!TryGetFirstInCompound(out m_agentProvider, true)
-                || !TryGetFirstInCompound(out m_agentKDTreeProvider, true)
-                || !TryGetFirstInCompound(out m_staticObstaclesProvider, true)
-                || !TryGetFirstInCompound(out m_staticObstacleKDTreeProvider, true)
-                || !TryGetFirstInCompound(out m_dynObstaclesProvider, true)
-                || !TryGetFirstInCompound(out m_dynObstacleKDTreeProvider, true))
+            if (m_inputsDirty)
             {
-                string msg = string.Format("Missing provider : Agents = {0}, Static obs = {1}, Agent KD = {2}, Static obs KD= {3}, " +
-                    "Dyn obs = {5}, Dyn obs KD= {6}, group = {4}",
-                    m_agentProvider,
-                    m_staticObstaclesProvider,
-                    m_agentKDTreeProvider,
-                    m_staticObstacleKDTreeProvider,
-                    m_dynObstaclesProvider,
-                    m_dynObstacleKDTreeProvider, 
-                    m_compound);
 
-                throw new System.Exception(msg);
+                if (!TryGetFirstInCompound(out m_agentProvider, true)
+                    || !TryGetFirstInCompound(out m_agentKDTreeProvider, true)
+                    || !TryGetFirstInCompound(out m_staticObstaclesProvider, true)
+                    || !TryGetFirstInCompound(out m_staticObstacleKDTreeProvider, true)
+                    || !TryGetFirstInCompound(out m_dynObstaclesProvider, true)
+                    || !TryGetFirstInCompound(out m_dynObstacleKDTreeProvider, true))
+                {
+                    string msg = string.Format("Missing provider : Agents = {0}, Static obs = {1}, Agent KD = {2}, Static obs KD= {3}, " +
+                        "Dyn obs = {5}, Dyn obs KD= {6}, group = {4}",
+                        m_agentProvider,
+                        m_staticObstaclesProvider,
+                        m_agentKDTreeProvider,
+                        m_staticObstacleKDTreeProvider,
+                        m_dynObstaclesProvider,
+                        m_dynObstacleKDTreeProvider,
+                        m_compound);
+
+                    throw new System.Exception(msg);
+                }
+
+                m_inputsDirty = false;
+
             }
 
             int agentCount = m_agentProvider.outputAgents.Length;
@@ -108,7 +116,7 @@ namespace Nebukam.ORCA
             job.m_dynObstacleTree = m_dynObstacleKDTreeProvider.outputTree;
 
             job.m_results = m_results;
-            job.m_timestep = delta / 0.25f;
+            job.m_timestep = delta;
 
             return agentCount;
 

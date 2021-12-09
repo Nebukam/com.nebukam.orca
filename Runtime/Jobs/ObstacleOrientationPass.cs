@@ -19,12 +19,45 @@
 // SOFTWARE.
 
 using Nebukam.JobAssist;
-using Unity.Collections;
 
 namespace Nebukam.ORCA
 {
-    public interface IAgentKDTreeProvider : IProcessor
+
+    public class ObstacleOrientationPass<T> : ParallelProcessor<ObstacleOrientationJob>
+        where T : class, IProcessor, IObstacleProvider
     {
-        NativeArray<AgentTreeNode> outputTree { get; }
+
+        #region Inputs
+
+        protected bool m_inputsDirty = true;
+
+        protected T m_obstaclesProvider;
+
+        #endregion
+
+        protected override int Prepare(ref ObstacleOrientationJob job, float delta)
+        {
+
+            if (m_inputsDirty)
+            {
+
+                if (!TryGetFirstInCompound(out m_obstaclesProvider, true))
+                {
+                    throw new System.Exception("IObstacleProvider missing.");
+                }
+
+                m_inputsDirty = false;
+
+            }
+
+            job.m_recompute = m_obstaclesProvider.recompute;
+            job.m_inputObstacleInfos = m_obstaclesProvider.outputObstacleInfos;
+            job.m_referenceObstacles = m_obstaclesProvider.referenceObstacles;
+            job.m_inputObstacles = m_obstaclesProvider.outputObstacles;
+
+            return m_obstaclesProvider.outputObstacles.Length;
+
+        }
+
     }
 }

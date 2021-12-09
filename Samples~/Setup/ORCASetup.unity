@@ -155,8 +155,8 @@ MonoBehaviour:
   axis: 0
   agentCount: 100
   maxAgentRadius: 2
-  obstacleCount: 50
-  dynObstacleCount: 50
+  obstacleCount: 25
+  dynObstacleCount: 0
   maxObstacleRadius: 5
   minObstacleEdgeCount: 3
   maxObstacleEdgeCount: 12
@@ -166,8 +166,8 @@ MonoBehaviour:
   max:
     x: 100
     y: 100
-  raycastCount: 10
-  raycastDistance: 100
+  raycastCount: 5
+  raycastDistance: 20
 --- !u!4 &311397815
 Transform:
   m_ObjectHideFlags: 0

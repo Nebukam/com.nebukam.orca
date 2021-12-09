@@ -1,6 +1,6 @@
 {
   "name": "com.nebukam.orca",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "displayName": "N:ORCA",
   "description": "Optimal Reciprocal Collision Avoidance",
   "unity": "2019.4",
@@ -27,8 +27,8 @@
     "com.unity.mathematics": "1.2.1"
   },
   "gitDependencies": {
-    "com.nebukam.common": "https://github.com/Nebukam/com.nebukam.common.git#0.0.1",
-    "com.nebukam.job-assist": "https://github.com/Nebukam/com.nebukam.job-assist.git#1.0.5"
+    "com.nebukam.common": "https://github.com/Nebukam/com.nebukam.common.git#0.1.0",
+    "com.nebukam.job-assist": "https://github.com/Nebukam/com.nebukam.job-assist.git#1.1.0"
   },
   "samples": [
     {

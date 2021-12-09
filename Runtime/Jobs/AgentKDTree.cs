@@ -24,28 +24,41 @@ using Unity.Collections;
 
 namespace Nebukam.ORCA
 {
-    public class AgentKDTreeProcessor : Processor<AgentKDTreeJob>, IAgentKDTreeProvider
+
+    public interface IAgentKDTreeProvider : IProcessor
+    {
+        NativeArray<AgentTreeNode> outputTree { get; }
+    }
+
+    public class AgentKDTree : Processor<AgentKDTreeJob>, IAgentKDTreeProvider
     {
 
-        /// 
-        /// Fields
-        ///
+        
+        protected NativeArray<AgentTreeNode> m_outputTree = new NativeArray<AgentTreeNode>(0, Allocator.Persistent);
+        public NativeArray<AgentTreeNode> outputTree { get { return m_outputTree; } }
+
+        #region Inputs
+
+        protected bool m_inputsDirty = true;
 
         protected IAgentProvider m_agentProvider;
-        protected NativeArray<AgentTreeNode> m_outputTree = new NativeArray<AgentTreeNode>(0, Allocator.Persistent);
-
-        /// 
-        /// Properties
-        ///
-
         public IAgentProvider agentProvider { get { return m_agentProvider; } }
-        public NativeArray<AgentTreeNode> outputTree { get { return m_outputTree; } }
+
+        #endregion
 
         protected override void Prepare(ref AgentKDTreeJob job, float delta)
         {
-            if (!TryGetFirstInCompound(out m_agentProvider))
+
+            if (m_inputsDirty)
             {
-                throw new System.Exception("No IAgentProvider in chain !");
+                
+                if (!TryGetFirstInCompound(out m_agentProvider))
+                {
+                    throw new System.Exception("No IAgentProvider in chain !");
+                }
+                
+                m_inputsDirty = false;
+
             }
 
             int agentCount = 2 * m_agentProvider.outputAgents.Length;

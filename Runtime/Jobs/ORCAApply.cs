@@ -25,37 +25,43 @@ using Nebukam.Common;
 
 namespace Nebukam.ORCA
 {
-    public class ORCAApplyProcessor : ParallelProcessor<ORCAApplyJob>
+
+    /// <summary>
+    /// Applies computed simulation result
+    /// and update Agent's position and velocity
+    /// </summary>
+    public class ORCAApply : ParallelProcessor<ORCAApplyJob>
     {
 
         public AxisPair plane { get; set; } = AxisPair.XY;
 
-        /// 
-        /// Fields
-        /// 
+        #region Inputs
+
+        protected bool m_inputsDirty = true;
 
         protected IORCALinesProvider m_orcaResultProvider;
 
-        /// 
-        /// Properties
-        /// 
-
-        public IORCALinesProvider orcaResultProvider { get { return m_orcaResultProvider; } }
+        #endregion
 
         protected override int Prepare(ref ORCAApplyJob job, float delta)
         {
 
-            if (!TryGetFirstInCompound(out m_orcaResultProvider, true))
+            if (m_inputsDirty)
             {
-                string msg = string.Format("Missing provider : OrcaResultProvider = {0}", m_orcaResultProvider);
-                throw new System.Exception(msg);
+
+                if (!TryGetFirstInCompound(out m_orcaResultProvider, true))
+                {
+                    throw new System.Exception("IORCALinesProvider missing.");
+                }
+
+                m_inputsDirty = false;
+
             }
 
-            //Agent data
             job.m_plane = plane;
             job.m_inputAgents = m_orcaResultProvider.agentProvider.outputAgents;
             job.m_inputAgentResults = m_orcaResultProvider.results;
-            job.m_timestep = delta / 0.25f;
+            job.m_timestep = delta;
 
             return m_orcaResultProvider.results.Length;
 

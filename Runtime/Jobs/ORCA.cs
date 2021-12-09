@@ -43,9 +43,9 @@ namespace Nebukam.ORCA
         /// 
 
         protected ORCAPreparation m_orcaPreparation;
-        protected ORCALinesProcessor m_orcaLines;
-        protected ORCAApplyProcessor m_orcaApply;
-        protected RaycastsProcessor m_raycasts;
+        protected ORCALines m_orcaLines;
+        protected ORCAApply m_orcaApply;
+        protected RaycastsPass m_raycasts;
 
         /// 
         /// Properties

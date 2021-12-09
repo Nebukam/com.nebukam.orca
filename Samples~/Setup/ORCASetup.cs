@@ -1,9 +1,12 @@
-﻿using Nebukam.Utils;
+﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using static Unity.Mathematics.math;
 using Random = UnityEngine.Random;
+
+using Nebukam.Common;
+using Nebukam.Common.Editor;
 
 namespace Nebukam.ORCA
 {
@@ -24,6 +27,7 @@ namespace Nebukam.ORCA
         [Header("Agents")]
         public int agentCount = 50;
         public float maxAgentRadius = 2f;
+        public float maxSpeed = 1f;
 
         [Header("Obstacles")]
         public int obstacleCount = 100;
@@ -92,7 +96,7 @@ namespace Nebukam.ORCA
 
                 for (int j = 0; j < vCount; j++)
                 {
-                    dir = normalize(Maths.RotateAroundPivot(dir, float3(false),
+                    dir = normalize(Maths.RotateAroundPivot(dir, float3(0f),
                         axis == AxisPair.XY ? float3(0f, 0f, (math.PI) / vCount) : float3(0f, (math.PI) / vCount, 0f)));
 
                     pt = pt + dir * Random.Range(1f, maxObstacleRadius);
@@ -133,7 +137,7 @@ namespace Nebukam.ORCA
 
                 for (int j = 0; j < vCount; j++)
                 {
-                    dir = normalize(Maths.RotateAroundPivot(dir, float3(false),
+                    dir = normalize(Maths.RotateAroundPivot(dir, float3(0f),
                         axis == AxisPair.XY ? float3(0f, 0f, (math.PI) / vCount) : float3(0f, (math.PI) / vCount, 0f)));
                     pt = pt + dir * Random.Range(1f, maxObstacleRadius);
                     vList.Add(pt);
@@ -161,14 +165,15 @@ namespace Nebukam.ORCA
                 {
                     a = agents.Add((float3)transform.position + float3(Random.value, 0f, Random.value)) as IAgent;
                 }
+
                 a.radius = 0.5f + Random.value * maxAgentRadius;
                 a.radiusObst = a.radius + Random.value * maxAgentRadius;
-                a.prefVelocity = float3(false);
+                a.prefVelocity = float3(0f);
             }
 
             #endregion
 
-            #region create agents
+            #region create raycasts
 
             Raycast r;
 
@@ -189,8 +194,6 @@ namespace Nebukam.ORCA
             }
 
             #endregion
-
-
 
         }
 
@@ -213,7 +216,8 @@ namespace Nebukam.ORCA
                 agent = agents[i] as IAgent;
                 agentPos = agent.pos;
                 //Agent body
-                if (axis == AxisPair.XY) {
+                if (axis == AxisPair.XY) 
+                {
                     Draw.Circle2D(agentPos, agent.radius, Color.green, 12);
                     Draw.Circle2D(agentPos, agent.radiusObst, Color.cyan.A(0.15f), 12);
                 }
@@ -228,7 +232,9 @@ namespace Nebukam.ORCA
                 Draw.Line(agentPos, agentPos + (normalize(agent.prefVelocity) * agent.radius), Color.grey);
 
                 //Update agent preferred velocity so it always tries to reach the "target" object
-                agent.prefVelocity = normalize(tr - agent.pos) * 10f;
+                float agentSpeed = ((i + 1) * 0.5f);
+                agent.maxSpeed = agentSpeed;
+                agent.prefVelocity = normalize(tr - agent.pos) * agentSpeed;
 
             }
 
@@ -291,12 +297,12 @@ namespace Nebukam.ORCA
                     if (axis == AxisPair.XY)
                     {
                         if (r.obstacleHit != null) { Draw.Circle2D(r.obstacleHitLocation, rad, Color.cyan, 3); }
-                        if (r.agentHit != null) { Draw.Circle2D(r.agentHitLocation, rad, Color.cyan, 3); }
+                        if (r.agentHit != null) { Draw.Circle2D(r.agentHitLocation, rad, Color.magenta, 3); }
                     }
                     else
                     {
                         if (r.obstacleHit != null) { Draw.Circle(r.obstacleHitLocation, rad, Color.cyan, 3); }
-                        if (r.agentHit != null) { Draw.Circle(r.agentHitLocation, rad, Color.cyan, 3); }
+                        if (r.agentHit != null) { Draw.Circle(r.agentHitLocation, rad, Color.magenta, 3); }
                     }
 
                 }
@@ -335,3 +341,4 @@ namespace Nebukam.ORCA
 
     }
 }
+#endif

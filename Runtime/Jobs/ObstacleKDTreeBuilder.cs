@@ -27,7 +27,7 @@ namespace Nebukam.ORCA
     public class ObstacleKDTreeBuilder<T, P, KD> : ProcessorChain, IPlanar
         where T : class, IProcessor, IObstacleProvider
         where P : class, T, new()
-        where KD : ObstacleKDTreeProcessor<T>, new()
+        where KD : ObstacleKDTree<T>, new()
     {
 
         #region IPlanar
@@ -42,10 +42,13 @@ namespace Nebukam.ORCA
         #endregion
 
         protected P m_obstacleProvider;
-        public IObstacleGroup obstacles { get { return m_obstacleProvider.obstacles; } set { m_obstacleProvider.obstacles = value; } }
+        public IObstacleGroup obstacles { 
+            get { return m_obstacleProvider.obstacles; } 
+            set { m_obstacleProvider.obstacles = value; } 
+        }
 
-        protected ObstacleOrientationProcessor<T> m_orientation;
-        protected ObstacleFixProcessor<T> m_fix;
+        protected ObstacleOrientationPass<T> m_orientation;
+        protected ObstacleFix<T> m_fix;
         protected KD m_kdTree;
 
         public ObstacleKDTreeBuilder()

@@ -27,61 +27,70 @@ using Nebukam.Common;
 
 namespace Nebukam.ORCA
 {
-    public class RaycastsProcessor : ParallelProcessor<RaycastsJob>
+    public class RaycastsPass : ParallelProcessor<RaycastsJob>
     {
 
         public AxisPair plane { get; set; } = AxisPair.XY;
 
-        /// 
-        /// Fields
-        /// 
+        protected NativeArray<RaycastResult> m_results = new NativeArray<RaycastResult>(0, Allocator.Persistent);
+        public NativeArray<RaycastResult> results { get { return m_results; } }
+
+        #region Inputs
+
+        protected bool m_inputsDirty = true;
 
         protected IRaycastProvider m_raycastProvider;
-        protected IAgentProvider m_agentProvider;
-        protected IAgentKDTreeProvider m_agentKDTreeProvider;
-        protected IStaticObstacleProvider m_staticObstaclesProvider;
-        protected IStaticObstacleKDTreeProvider m_staticObstacleKDTreeProvider;
-        protected IDynObstacleProvider m_dynObstaclesProvider;
-        protected IDynObstacleKDTreeProvider m_dynObstacleKDTreeProvider;
-
-        protected NativeArray<RaycastResult> m_results = new NativeArray<RaycastResult>(0, Allocator.Persistent);
-
-        /// 
-        /// Properties
-        /// 
-
         public IRaycastProvider raycastProvider { get { return m_raycastProvider; } }
+
+        protected IAgentProvider m_agentProvider;
         public IAgentProvider agentProvider { get { return m_agentProvider; } }
+
+        protected IAgentKDTreeProvider m_agentKDTreeProvider;
         public IAgentKDTreeProvider agentKDTreeProvider { get { return m_agentKDTreeProvider; } }
+
+        protected IStaticObstacleProvider m_staticObstaclesProvider;
         public IStaticObstacleProvider staticObstaclesProvider { get { return m_staticObstaclesProvider; } }
+
+        protected IStaticObstacleKDTreeProvider m_staticObstacleKDTreeProvider;
         public IStaticObstacleKDTreeProvider staticObstacleKDTreeProvider { get { return m_staticObstacleKDTreeProvider; } }
+
+        protected IDynObstacleProvider m_dynObstaclesProvider;
         public IDynObstacleProvider dynObstaclesProvider { get { return m_dynObstaclesProvider; } }
+
+        protected IDynObstacleKDTreeProvider m_dynObstacleKDTreeProvider;
         public IDynObstacleKDTreeProvider dynObstacleKDTreeProvider { get { return m_dynObstacleKDTreeProvider; } }
 
-        public NativeArray<RaycastResult> results { get { return m_results; } }
+        #endregion
 
         protected override int Prepare(ref RaycastsJob job, float delta)
         {
 
-            if (!TryGetFirstInCompound(out m_raycastProvider, true)
-                || !TryGetFirstInCompound(out m_agentProvider, true)
-                || !TryGetFirstInCompound(out m_agentKDTreeProvider, true)
-                || !TryGetFirstInCompound(out m_staticObstaclesProvider, true)
-                || !TryGetFirstInCompound(out m_staticObstacleKDTreeProvider, true)
-                || !TryGetFirstInCompound(out m_dynObstaclesProvider, true)
-                || !TryGetFirstInCompound(out m_dynObstacleKDTreeProvider, true))
+            if (m_inputsDirty)
             {
-                string msg = string.Format("Missing provider : Raycasts = {7}, Agents = {0}, Static obs = {1}, Agent KD = {2}, Static obs KD= {3}, " +
-                    "Dyn obs = {5}, Dyn obs KD= {6}, group = {4}",
-                    m_agentProvider,
-                    m_staticObstaclesProvider,
-                    m_agentKDTreeProvider,
-                    m_staticObstacleKDTreeProvider,
-                    m_dynObstaclesProvider,
-                    m_dynObstacleKDTreeProvider, m_compound,
-                    m_raycastProvider);
 
-                throw new System.Exception(msg);
+                if (!TryGetFirstInCompound(out m_raycastProvider, true)
+                    || !TryGetFirstInCompound(out m_agentProvider, true)
+                    || !TryGetFirstInCompound(out m_agentKDTreeProvider, true)
+                    || !TryGetFirstInCompound(out m_staticObstaclesProvider, true)
+                    || !TryGetFirstInCompound(out m_staticObstacleKDTreeProvider, true)
+                    || !TryGetFirstInCompound(out m_dynObstaclesProvider, true)
+                    || !TryGetFirstInCompound(out m_dynObstacleKDTreeProvider, true))
+                {
+                    string msg = string.Format("Missing provider : Raycasts = {7}, Agents = {0}, Static obs = {1}, Agent KD = {2}, Static obs KD= {3}, " +
+                        "Dyn obs = {5}, Dyn obs KD= {6}, group = {4}",
+                        m_agentProvider,
+                        m_staticObstaclesProvider,
+                        m_agentKDTreeProvider,
+                        m_staticObstacleKDTreeProvider,
+                        m_dynObstaclesProvider,
+                        m_dynObstacleKDTreeProvider, m_compound,
+                        m_raycastProvider);
+
+                    throw new System.Exception(msg);
+                }
+
+                m_inputsDirty = false;
+
             }
 
             int rayCount = m_raycastProvider.outputRaycasts.Length;

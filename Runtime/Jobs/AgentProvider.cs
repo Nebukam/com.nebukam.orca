@@ -41,22 +41,22 @@ namespace Nebukam.ORCA
 
         public AxisPair plane { get; set; } = AxisPair.XY;
 
-        /// 
-        /// Fields
-        ///
-
         protected IAgentGroup<IAgent> m_agents = null;
-        protected List<Agent> m_lockedAgents = new List<Agent>();
-        protected NativeArray<AgentData> m_outputAgents = new NativeArray<AgentData>(0, Allocator.Persistent);
-        protected float m_maxRadius = 0f;
-        /// 
-        /// Properties
-        ///
+        public IAgentGroup<IAgent> agents 
+        { 
+            get { return m_agents; } 
+            set { m_agents = value; } 
+        }
 
-        public IAgentGroup<IAgent> agents { get { return m_agents; } set { m_agents = value; } }
+        internal List<Agent> m_lockedAgents = new List<Agent>();
         public List<Agent> lockedAgents { get { return m_lockedAgents; } }
+
+        protected NativeArray<AgentData> m_outputAgents = new NativeArray<AgentData>(0, Allocator.Persistent);
         public NativeArray<AgentData> outputAgents { get { return m_outputAgents; } }
+
+        protected float m_maxRadius = 0f;
         public float maxRadius { get { return m_maxRadius; } }
+                
 
         protected override void InternalLock()
         {

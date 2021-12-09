@@ -33,30 +33,34 @@ namespace Nebukam.ORCA
     public interface IDynObstacleKDTreeProvider : IObstacleKDTreeProvider { }
     public interface IStaticObstacleKDTreeProvider : IObstacleKDTreeProvider { }
 
-    public class ObstacleKDTreeProcessor<T> : Processor<ObstacleKDTreeJob>, IObstacleKDTreeProvider
+    public class ObstacleKDTree<T> : Processor<ObstacleKDTreeJob>, IObstacleKDTreeProvider
         where T : class, IProcessor, IObstacleProvider
     {
-
-        /// 
-        /// Fields
-        /// 
-
-        protected T m_obstaclesProvider;
+        
         protected NativeArray<ObstacleTreeNode> m_outputTree = new NativeArray<ObstacleTreeNode>(0, Allocator.Persistent);
         public NativeArray<ObstacleTreeNode> outputTree { get { return m_outputTree; } }
 
-        /// 
-        /// Properties
-        /// 
+        #region Inputs
 
-        public T obstaclesProvider { get { return m_obstaclesProvider; } }
+        protected bool m_inputsDirty = true;
+
+        protected T m_obstaclesProvider;
+
+        #endregion
 
         protected override void Prepare(ref ObstacleKDTreeJob job, float delta)
         {
 
-            if (!TryGetFirstInCompound(out m_obstaclesProvider))
+            if (m_inputsDirty)
             {
-                throw new System.Exception("No IObstacleSplitProvider or IObstacleProvider in chain !");
+
+                if (!TryGetFirstInCompound(out m_obstaclesProvider))
+                {
+                    throw new System.Exception("IObstacleProvider missing.");
+                }
+                
+                m_inputsDirty = false;
+
             }
 
             if (m_obstaclesProvider.recompute)
@@ -87,7 +91,7 @@ namespace Nebukam.ORCA
 
     }
 
-    public class DynObstacleKDTreeProcessor : ObstacleKDTreeProcessor<IDynObstacleProvider>, IDynObstacleKDTreeProvider { }
-    public class StaticObstacleKDTreeProcessor : ObstacleKDTreeProcessor<IStaticObstacleProvider>, IStaticObstacleKDTreeProvider { }
+    public class DynObstacleKDTreeProcessor : ObstacleKDTree<IDynObstacleProvider>, IDynObstacleKDTreeProvider { }
+    public class StaticObstacleKDTreeProcessor : ObstacleKDTree<IStaticObstacleProvider>, IStaticObstacleKDTreeProvider { }
 
 }

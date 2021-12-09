@@ -38,19 +38,13 @@ namespace Nebukam.ORCA
 
         #endregion
 
-        /// 
-        /// Fields
-        ///
-
         protected AgentProvider m_agentProvider;
-        protected AgentKDTreeProcessor m_agentKDTreeProvider;
+        protected AgentKDTree m_agentKDTreeProvider;
 
-
-        /// 
-        /// Properties
-        ///
-
-        public IAgentGroup<IAgent> agents { get { return m_agentProvider.agents; } set { m_agentProvider.agents = value; } }
+        public IAgentGroup<IAgent> agents { 
+            get { return m_agentProvider.agents; } 
+            set { m_agentProvider.agents = value; } 
+        }
 
         public AgentKDTreeBuilder()
         {
