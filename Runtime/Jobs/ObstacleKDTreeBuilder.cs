@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 using Nebukam.JobAssist;
+using Nebukam.Common;
 
 namespace Nebukam.ORCA
 {

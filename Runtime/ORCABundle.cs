@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 using Unity.Mathematics;
+using Nebukam.Common;
 
 namespace Nebukam.ORCA
 {

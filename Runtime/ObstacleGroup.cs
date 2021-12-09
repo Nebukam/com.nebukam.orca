@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using Nebukam.Pooling;
+
 using System.Collections.Generic;
 using Unity.Mathematics;
 
@@ -34,7 +34,7 @@ namespace Nebukam.ORCA
     public class ObstacleGroup : IObstacleGroup
     {
 
-        protected Pooling.Pool.OnItemReleased m_onObstacleReleased;
+        protected Pool.OnItemReleased m_onObstacleReleased;
 
         public ObstacleGroup()
         {

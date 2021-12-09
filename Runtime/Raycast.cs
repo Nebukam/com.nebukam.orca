@@ -21,6 +21,7 @@
 using Unity.Burst;
 using Unity.Mathematics;
 using static Unity.Mathematics.math;
+using Nebukam.Common;
 
 namespace Nebukam.ORCA
 {
@@ -67,7 +68,7 @@ namespace Nebukam.ORCA
 
     }
 
-    public class Raycast : Vertex, Pooling.IRequireCleanUp
+    public class Raycast : Vertex, IRequireCleanUp
     {
 
         protected internal float3 m_dir = float3(0f);

@@ -21,6 +21,7 @@
 using Nebukam.JobAssist;
 using static Nebukam.JobAssist.CollectionsUtils;
 using Unity.Collections;
+using Nebukam.Common;
 
 namespace Nebukam.ORCA
 {

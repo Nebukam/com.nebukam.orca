@@ -23,6 +23,7 @@ using static Nebukam.JobAssist.CollectionsUtils;
 using System.Collections.Generic;
 using Unity.Collections;
 using static Unity.Mathematics.math;
+using Nebukam.Common;
 
 namespace Nebukam.ORCA
 {

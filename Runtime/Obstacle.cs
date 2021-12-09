@@ -18,11 +18,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using Nebukam.Common;
 
 namespace Nebukam.ORCA
 {
 
-    public class Obstacle : VertexGroup<ObstacleVertex>, Pooling.IRequireInit
+    public class Obstacle : VertexGroup<ObstacleVertex>, IRequireInit
     {
 
         protected internal ORCALayer m_layerOccupation = ORCALayer.ANY;
