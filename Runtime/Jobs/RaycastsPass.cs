@@ -32,7 +32,7 @@ namespace Nebukam.ORCA
 
         public AxisPair plane { get; set; } = AxisPair.XY;
 
-        protected NativeArray<RaycastResult> m_results = new NativeArray<RaycastResult>(0, Allocator.Persistent);
+        protected NativeArray<RaycastResult> m_results = default;
         public NativeArray<RaycastResult> results { get { return m_results; } }
 
         #region Inputs

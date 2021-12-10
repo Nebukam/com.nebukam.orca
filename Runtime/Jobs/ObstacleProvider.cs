@@ -50,9 +50,9 @@ namespace Nebukam.ORCA
 
         protected bool m_recompute = true;
         protected IObstacleGroup m_obstacles = null;
-        protected NativeArray<ObstacleInfos> m_outputObstacleInfos = new NativeArray<ObstacleInfos>(0, Allocator.Persistent);
-        protected NativeArray<ObstacleVertexData> m_referenceObstacles = new NativeArray<ObstacleVertexData>(0, Allocator.Persistent);
-        protected NativeArray<ObstacleVertexData> m_outputObstacles = new NativeArray<ObstacleVertexData>(0, Allocator.Persistent);
+        protected NativeArray<ObstacleInfos> m_outputObstacleInfos = default;
+        protected NativeArray<ObstacleVertexData> m_referenceObstacles = default;
+        protected NativeArray<ObstacleVertexData> m_outputObstacles = default;
 
 
         /// 

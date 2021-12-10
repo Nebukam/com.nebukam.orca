@@ -37,7 +37,7 @@ namespace Nebukam.ORCA
 
         public AxisPair plane { get; set; } = AxisPair.XY;
 
-        protected NativeArray<AgentDataResult> m_results = new NativeArray<AgentDataResult>(0, Allocator.Persistent);
+        protected NativeArray<AgentDataResult> m_results = default;
         public NativeArray<AgentDataResult> results { get { return m_results; } }
         
 

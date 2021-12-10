@@ -51,7 +51,7 @@ namespace Nebukam.ORCA
         internal List<Agent> m_lockedAgents = new List<Agent>();
         public List<Agent> lockedAgents { get { return m_lockedAgents; } }
 
-        protected NativeArray<AgentData> m_outputAgents = new NativeArray<AgentData>(0, Allocator.Persistent);
+        protected NativeArray<AgentData> m_outputAgents = default;
         public NativeArray<AgentData> outputAgents { get { return m_outputAgents; } }
 
         protected float m_maxRadius = 0f;

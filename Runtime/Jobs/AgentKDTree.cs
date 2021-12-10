@@ -34,7 +34,7 @@ namespace Nebukam.ORCA
     {
 
         
-        protected NativeArray<AgentTreeNode> m_outputTree = new NativeArray<AgentTreeNode>(0, Allocator.Persistent);
+        protected NativeArray<AgentTreeNode> m_outputTree = default;
         public NativeArray<AgentTreeNode> outputTree { get { return m_outputTree; } }
 
         #region Inputs

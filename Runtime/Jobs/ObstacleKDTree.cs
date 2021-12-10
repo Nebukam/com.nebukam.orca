@@ -37,7 +37,7 @@ namespace Nebukam.ORCA
         where T : class, IProcessor, IObstacleProvider
     {
         
-        protected NativeArray<ObstacleTreeNode> m_outputTree = new NativeArray<ObstacleTreeNode>(0, Allocator.Persistent);
+        protected NativeArray<ObstacleTreeNode> m_outputTree = default;
         public NativeArray<ObstacleTreeNode> outputTree { get { return m_outputTree; } }
 
         #region Inputs

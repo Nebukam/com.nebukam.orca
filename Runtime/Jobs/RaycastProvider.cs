@@ -46,7 +46,7 @@ namespace Nebukam.ORCA
 
         protected IRaycastGroup m_raycasts = null;
         protected List<Raycast> m_lockedRaycasts = new List<Raycast>();
-        protected NativeArray<RaycastData> m_outputRaycast = new NativeArray<RaycastData>(0, Allocator.Persistent);
+        protected NativeArray<RaycastData> m_outputRaycast = default;
 
         /// 
         /// Properties

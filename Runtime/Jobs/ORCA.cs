@@ -33,33 +33,68 @@ namespace Nebukam.ORCA
         public AxisPair plane
         {
             get { return m_plane; }
-            set { m_plane = m_orcaPreparation.plane = m_orcaLines.plane = m_orcaApply.plane = m_raycasts.plane = value; }
+            set { 
+                m_plane =
+                m_staticObstacles.plane =
+                m_dynamicObstacles.plane =
+                m_agents.plane =
+                m_raycasts.plane =
+                m_orcaLines.plane = 
+                m_orcaApply.plane = 
+                m_raycasts.plane = value; 
+            }
         }
 
         #endregion
 
-        /// 
-        /// Fields
-        /// 
+        #region Preparation
 
-        protected ORCAPreparation m_orcaPreparation;
+        // Preparation
+        protected ObstacleKDTreeBuilder<IDynObstacleProvider, DynObstacleProvider, DynObstacleKDTreeProcessor> m_dynamicObstacles;
+        protected ObstacleKDTreeBuilder<IStaticObstacleProvider, StaticObstacleProvider, StaticObstacleKDTreeProcessor> m_staticObstacles;
+        protected AgentKDTreeBuilder m_agents;
+        protected RaycastProvider m_raycastsProvider;
+
+        public IObstacleGroup staticObstacles
+        {
+            get { return m_staticObstacles.obstacles; }
+            set { m_staticObstacles.obstacles = value; }
+        }
+
+        public IObstacleGroup dynamicObstacles
+        {
+            get { return m_dynamicObstacles.obstacles; }
+            set { m_dynamicObstacles.obstacles = value; }
+        }
+
+        public IAgentGroup<IAgent> agents
+        {
+            get { return m_agents.agents; }
+            set { m_agents.agents = value; }
+        }
+
+        public IRaycastGroup raycasts
+        {
+            get { return m_raycastsProvider.raycasts; }
+            set { m_raycastsProvider.raycasts = value; }
+        }
+
+        #endregion
+
         protected ORCALines m_orcaLines;
         protected ORCAApply m_orcaApply;
         protected RaycastsPass m_raycasts;
 
-        /// 
-        /// Properties
-        /// 
-
-        public IObstacleGroup staticObstacles { get { return m_orcaPreparation.staticObstacles; } set { m_orcaPreparation.staticObstacles = value; } }
-        public IObstacleGroup dynamicObstacles { get { return m_orcaPreparation.dynamicObstacles; } set { m_orcaPreparation.dynamicObstacles = value; } }
-        public IAgentGroup<IAgent> agents { get { return m_orcaPreparation.agents; } set { m_orcaPreparation.agents = value; } }
-        public IRaycastGroup raycasts { get { return m_orcaPreparation.raycasts; } set { m_orcaPreparation.raycasts = value; } }
-
         public ORCA()
         {
 
-            Add(ref m_orcaPreparation);
+            // Preparation
+            Add(ref m_dynamicObstacles);
+            Add(ref m_staticObstacles);
+            Add(ref m_agents);
+            Add(ref m_raycastsProvider);
+
+            // Execution
             Add(ref m_orcaLines);
             m_orcaLines.chunkSize = 5; //Linear programs are hefty >.<
 
