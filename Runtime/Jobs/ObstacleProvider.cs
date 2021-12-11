@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 using Nebukam.JobAssist;
-using static Nebukam.JobAssist.CollectionsUtils;
+using static Nebukam.JobAssist.Extensions;
 using Unity.Collections;
 using Nebukam.Common;
 
@@ -221,9 +221,9 @@ namespace Nebukam.ORCA
         protected override void InternalDispose()
         {
             m_obstacles = null;
-            m_outputObstacleInfos.Dispose();
-            m_referenceObstacles.Dispose();
-            m_outputObstacles.Dispose();
+            m_outputObstacleInfos.Release();
+            m_referenceObstacles.Release();
+            m_outputObstacles.Release();
         }
 
     }

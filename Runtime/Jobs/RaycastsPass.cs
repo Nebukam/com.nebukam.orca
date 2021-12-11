@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 using Nebukam.JobAssist;
-using static Nebukam.JobAssist.CollectionsUtils;
+using static Nebukam.JobAssist.Extensions;
 using System.Collections.Generic;
 using Unity.Collections;
 using static Unity.Mathematics.math;
@@ -178,7 +178,7 @@ namespace Nebukam.ORCA
 
         protected override void InternalDispose()
         {
-            m_results.Dispose();
+            m_results.Release();
         }
 
     }

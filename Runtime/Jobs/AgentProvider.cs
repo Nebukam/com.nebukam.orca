@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 using Nebukam.JobAssist;
-using static Nebukam.JobAssist.CollectionsUtils;
+using static Nebukam.JobAssist.Extensions;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Mathematics;
@@ -161,7 +161,7 @@ namespace Nebukam.ORCA
             m_lockedAgents.Clear();
             m_lockedAgents = null;
 
-            m_outputAgents.Dispose();
+            m_outputAgents.Release();
         }
 
     }

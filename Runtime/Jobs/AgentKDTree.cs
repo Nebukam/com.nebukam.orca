@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 using Nebukam.JobAssist;
-using static Nebukam.JobAssist.CollectionsUtils;
+using static Nebukam.JobAssist.Extensions;
 using Unity.Collections;
 
 namespace Nebukam.ORCA
@@ -72,7 +72,7 @@ namespace Nebukam.ORCA
 
         protected override void InternalDispose()
         {
-            m_outputTree.Dispose();
+            m_outputTree.Release();
         }
 
     }

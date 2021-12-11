@@ -19,7 +19,7 @@
 // SOFTWARE.
 
 using Nebukam.JobAssist;
-using static Nebukam.JobAssist.CollectionsUtils;
+using static Nebukam.JobAssist.Extensions;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Mathematics;
@@ -130,7 +130,7 @@ namespace Nebukam.ORCA
             m_lockedRaycasts.Clear();
             m_lockedRaycasts = null;
 
-            m_outputRaycast.Dispose();
+            m_outputRaycast.Release();
         }
 
     }

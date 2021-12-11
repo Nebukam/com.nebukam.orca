@@ -18,12 +18,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using Nebukam.Common;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
+using static Nebukam.JobAssist.Extensions;
 using static Unity.Mathematics.math;
-using Nebukam.Common;
 
 namespace Nebukam.ORCA
 {
@@ -252,8 +253,8 @@ namespace Nebukam.ORCA
 
                 }
 
-                staticObstacleNeighbors.Dispose();
-                coveredStaticEdges.Dispose();
+                staticObstacleNeighbors.Release();
+                coveredStaticEdges.Release();
 
             }
 
@@ -337,8 +338,8 @@ namespace Nebukam.ORCA
 
                 }
 
-                dynObstacleNeighbors.Dispose();
-                coveredDynEdges.Dispose();
+                dynObstacleNeighbors.Release();
+                coveredDynEdges.Release();
 
             }
 
@@ -459,7 +460,7 @@ namespace Nebukam.ORCA
 
                 }
 
-                agentNeighbors.Dispose();
+                agentNeighbors.Release();
 
             }
 

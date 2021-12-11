@@ -22,6 +22,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
+using static Nebukam.JobAssist.Extensions;
 using static Unity.Mathematics.math;
 
 namespace Nebukam.ORCA
@@ -380,7 +381,7 @@ namespace Nebukam.ORCA
                     m_orcaLines.Add(line);
                 }
 
-                staticObstacleNeighbors.Dispose();
+                staticObstacleNeighbors.Release();
 
             }
 
@@ -649,7 +650,7 @@ namespace Nebukam.ORCA
                     m_orcaLines.Add(line);
                 }
 
-                dynObstacleNeighbors.Dispose();
+                dynObstacleNeighbors.Release();
 
             }
 
@@ -742,7 +743,7 @@ namespace Nebukam.ORCA
                 m_orcaLines.Add(line);
             }
 
-            agentNeighbors.Dispose();
+            agentNeighbors.Release();
 
             #endregion
 
@@ -760,7 +761,7 @@ namespace Nebukam.ORCA
 
             m_results[index] = result;
 
-            m_orcaLines.Dispose();
+            m_orcaLines.Release();
 
         }
 
