@@ -1,12 +1,13 @@
-﻿#if UNITY_EDITOR
+﻿
+using Nebukam.Common;
+#if UNITY_EDITOR
+using Nebukam.Common.Editor;
+#endif
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 using static Unity.Mathematics.math;
 using Random = UnityEngine.Random;
-
-using Nebukam.Common;
-using Nebukam.Common.Editor;
 
 namespace Nebukam.ORCA
 {
@@ -215,6 +216,8 @@ namespace Nebukam.ORCA
             {
                 agent = agents[i] as IAgent;
                 agentPos = agent.pos;
+
+#if UNITY_EDITOR
                 //Agent body
                 if (axis == AxisPair.XY) 
                 {
@@ -225,12 +228,13 @@ namespace Nebukam.ORCA
                 {
                     Draw.Circle(agentPos, agent.radius, Color.green, 12);
                     Draw.Circle(agentPos, agent.radiusObst, Color.cyan.A(0.15f), 12);
+
                 }
                 //Agent simulated velocity (ORCA compliant)
                 Draw.Line(agentPos, agentPos + (normalize(agent.velocity) * agent.radius), Color.green);
                 //Agent goal vector
                 Draw.Line(agentPos, agentPos + (normalize(agent.prefVelocity) * agent.radius), Color.grey);
-
+#endif
                 //Update agent preferred velocity so it always tries to reach the "target" object
                 float agentSpeed = ((i + 1) * 0.5f);
                 agent.maxSpeed = agentSpeed;
@@ -239,6 +243,8 @@ namespace Nebukam.ORCA
             }
 
             #endregion
+
+#if UNITY_EDITOR
 
             #region draw obstacles
 
@@ -314,6 +320,8 @@ namespace Nebukam.ORCA
 
             #endregion
 
+#endif
+
         }
 
         private void LateUpdate()
@@ -341,4 +349,3 @@ namespace Nebukam.ORCA
 
     }
 }
-#endif
