@@ -63,16 +63,21 @@ The most straightforward way to setup and use ORCA is by using a ```ORCABundle<T
     void Update(){
 
         // Complete the simulation job only if the handle is flagged as completed.
-        if(bundle.TryComplete())
+        if(bundle.orca.TryComplete())
         {
             // Simulation step completed.
             myFirstAgent.velocity // -> simulated agent velocity
             myFirstAgent.position // -> simulated agent position
+
+            bundle.orca.Schedule(Time.deltaTime);
+            
+        }else{
+            // Keep the job updated with current delta time
+            // ensuring we are framerate-agnostic
+            bundle.orca.Schedule(Time.deltaTime);
         }
 
-        // Keep the job updated with current delta time, 
-        // ensuring we are framerate-agnostic
-        bundle.Schedule(Time.deltaTime);
+        
 
     }
     
