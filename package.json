@@ -5,7 +5,7 @@
   "description": "Optimal Reciprocal Collision Avoidance",
   "unity": "2019.4",
   "unityRelease": "17f1",
-  "documentationUrl":"https://nebukam.github.io/docs/unity/com.nebukam.orca/",
+  "documentationUrl":"https://github.com/Nebukam/com.nebukam.orca/wiki",
   "keywords": [
     "ORCA",
     "RVO",
