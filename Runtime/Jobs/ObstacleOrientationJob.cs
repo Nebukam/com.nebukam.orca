@@ -64,6 +64,8 @@ namespace Nebukam.ORCA
                 v.convex = LeftOf(prevPos, pos, nextPos) >= 0.0f;
             }
 
+            //TODO : Fix obstacle direction... ?
+
             v.dir = normalize(nextPos - pos);
             m_referenceObstacles[index] = v;
 

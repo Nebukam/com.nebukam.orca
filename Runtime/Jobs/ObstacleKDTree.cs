@@ -21,9 +21,29 @@
 using Nebukam.JobAssist;
 using static Nebukam.JobAssist.Extensions;
 using Unity.Collections;
+using Unity.Burst;
 
 namespace Nebukam.ORCA
 {
+
+    [BurstCompile]
+    public struct ObstacleTreeNode
+    {
+        public const int MAX_LEAF_SIZE = 10;
+
+        public int index;
+        public int vertex;
+        public int left;
+        public int right;
+
+        public int begin;
+        public int end;
+
+        public float maxX;
+        public float maxY;
+        public float minX;
+        public float minY;
+    }
 
     public interface IObstacleKDTreeProvider : IProcessor
     {
@@ -36,7 +56,7 @@ namespace Nebukam.ORCA
     public class ObstacleKDTree<T> : Processor<ObstacleKDTreeJob>, IObstacleKDTreeProvider
         where T : class, IProcessor, IObstacleProvider
     {
-        
+
         protected NativeArray<ObstacleTreeNode> m_outputTree = default;
         public NativeArray<ObstacleTreeNode> outputTree { get { return m_outputTree; } }
 
@@ -58,7 +78,7 @@ namespace Nebukam.ORCA
                 {
                     throw new System.Exception("IObstacleProvider missing.");
                 }
-                
+
                 m_inputsDirty = false;
 
             }

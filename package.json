@@ -1,6 +1,6 @@
 {
   "name": "com.nebukam.orca",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "displayName": "N:ORCA",
   "description": "Optimal Reciprocal Collision Avoidance",
   "unity": "2019.4",
@@ -32,9 +32,19 @@
   },
   "samples": [
     {
-      "displayName": "Setup Example",
+      "displayName": "Setup Example (flock)",
       "description": "An example setup. See in editor view, not game view.",
       "path": "Samples~/Setup"
+    },
+	{
+      "displayName": "Setup Example (Ring)",
+      "description": "An example setup. See in editor view, not game view.",
+      "path": "Samples~/SetupRing"
+    },
+	{
+      "displayName": "Demos",
+      "description": "Small demos setups used for documentation. See in editor view, not game view.",
+      "path": "Samples~/Demos"
     }
   ]
 }

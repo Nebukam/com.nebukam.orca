@@ -27,7 +27,7 @@ namespace Nebukam.ORCA
 
     public interface IAgent : IVertex
     {
-        
+
         /// <summary>
         /// Preferred velocity of the agent.
         /// This is the 'ideal', desired velocity.
@@ -39,6 +39,9 @@ namespace Nebukam.ORCA
         /// </summary>
         float3 velocity { get; set; }
 
+        /// <summary>
+        /// Height of the agent.
+        /// </summary>
         float height { get; set; }
         /// <summary>
         /// Radius of the agent when resolving agent-agent collisions.
@@ -63,9 +66,23 @@ namespace Nebukam.ORCA
         /// Maximum distance at which this agent consider avoiding other agents
         /// </summary>
         float neighborDist { get; set; }
+
+        [System.Obsolete("neighborElevation is ignored by the simulation")]
         float neighborElevation { get; set; }
 
+        /// <summary>
+        /// Used to modulate distance checks toward other agents within the simulation.
+        /// Picture this property as an 'anticipation' capability toward other agents.
+        /// The impact of that value on the simulation is highly dependent on the surrounding of an agent.
+        /// Should be > 0f
+        /// </summary>
         float timeHorizon { get; set; }
+        /// <summary>
+        /// Used to modulate distance checks toward Obstacles within the simulation.
+        /// Picture this property as an 'anticipation' capability toward other obstacles.
+        /// The impact of that value on the simulation is highly dependent on the surroundings of an agent.
+        /// Should be > 0f
+        /// </summary>
         float timeHorizonObst { get; set; }
 
         /// <summary>
@@ -89,7 +106,7 @@ namespace Nebukam.ORCA
         bool collisionEnabled { get; set; }
 
     }
-    
+
     public class Agent : Vertex, IAgent
     {
 
@@ -121,70 +138,131 @@ namespace Nebukam.ORCA
         /// Properties
         /// 
 
-        public float3 prefVelocity {
+        /// <summary>
+        /// Preferred velocity of the agent.
+        /// This is the 'ideal', desired velocity.
+        /// Note : The agent velocity is multiplied by the simulation's timestep.
+        /// </summary>
+        public float3 prefVelocity
+        {
             get { return m_prefVelocity; }
             set { m_prefVelocity = value; }
         }
-        public float3 velocity {
+        /// <summary>
+        /// Simulated, collision-free velocity.
+        /// </summary>
+        public float3 velocity
+        {
             get { return m_velocity; }
             set { m_velocity = value; }
         }
 
+        /// <summary>
+        /// Height of the agent.
+        /// </summary>
         public float height
         {
             get { return m_height; }
             set { m_height = value; }
         }
-        public float radius {
+        /// <summary>
+        /// Radius of the agent when resolving agent-agent collisions.
+        /// </summary>
+        public float radius
+        {
             get { return m_radius; }
             set { m_radius = value; }
         }
+        /// <summary>
+        /// Radius of the agent when resolving agent-obstacle collisions.
+        /// </summary>
         public float radiusObst
         {
             get { return m_radiusObst; }
             set { m_radiusObst = value; }
         }
-        public float maxSpeed {
+        /// <summary>
+        /// Maximum allowed speed of the agent.
+        /// This is used to avoid deadlock situation where a slight
+        /// boost in velocity could help solve more complex scenarios.
+        /// </summary>
+        public float maxSpeed
+        {
             get { return m_maxSpeed; }
             set { m_maxSpeed = value; }
         }
 
-        public int maxNeighbors {
+        /// <summary>
+        /// Maxmimum number of neighbors this agent accounts for in the simulation
+        /// </summary>
+        public int maxNeighbors
+        {
             get { return m_maxNeighbors; }
             set { m_maxNeighbors = value; }
         }
-        public float neighborDist {
+        /// <summary>
+        /// Maximum distance at which this agent consider avoiding other agents
+        /// </summary>
+        public float neighborDist
+        {
             get { return m_neighborDist; }
             set { m_neighborDist = value; }
         }
+        [System.Obsolete("neighborElevation is ignored by the simulation")]
         public float neighborElevation
         {
             get { return m_neighborElev; }
             set { m_neighborElev = value; }
         }
-
-        public float timeHorizon {
+        /// <summary>
+        /// Used to modulate distance checks toward other Agents within the simulation.
+        /// </summary>
+        public float timeHorizon
+        {
             get { return m_timeHorizon; }
             set { m_timeHorizon = value; }
         }
-        public float timeHorizonObst {
+        /// <summary>
+        /// Used to modulate distance checks toward Obstacles within the simulation.
+        /// </summary>
+        public float timeHorizonObst
+        {
             get { return m_timeHorizonObst; }
             set { m_timeHorizonObst = value; }
         }
 
-        public ORCALayer layerOccupation {
+        /// <summary>
+        /// Layers on which this agent is physically present, and thus will affect
+        /// other agents navigation.
+        /// </summary>
+        public ORCALayer layerOccupation
+        {
             get { return m_layerOccupation; }
             set { m_layerOccupation = value; }
         }
-        public ORCALayer layerIgnore {
+        /// <summary>
+        /// Ignored layers while resolving the simulation.
+        /// </summary>
+        public ORCALayer layerIgnore
+        {
             get { return m_layerIgnore; }
             set { m_layerIgnore = value; }
         }
-        public bool navigationEnabled {
+        /// <summary>
+        /// Whether this agent's navigation is controlled by the simulation.
+        /// This property has precedence over layers.
+        /// </summary>
+        public bool navigationEnabled
+        {
             get { return m_navigationEnabled; }
             set { m_navigationEnabled = value; }
         }
-        public bool collisionEnabled {
+        /// <summary>
+        /// Whether this agent's collision is enabled.
+        /// This property has precedence over layers.
+        /// </summary>
+        public bool collisionEnabled
+        {
             get { return m_collisionEnabled; }
             set { m_collisionEnabled = value; }
         }

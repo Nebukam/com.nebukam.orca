@@ -20,10 +20,12 @@
 
 using Nebukam.JobAssist;
 using Nebukam.Common;
+using Unity.Burst;
 
 namespace Nebukam.ORCA
 {
 
+    [BurstCompile]
     public class AgentKDTreeBuilder : ProcessorChain, IPlanar
     {
 

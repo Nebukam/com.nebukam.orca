@@ -21,7 +21,7 @@
 namespace Nebukam.ORCA
 {
 
-    /**
+    /*
      Bitwise with flags :
 
      AB = A | B
@@ -35,6 +35,9 @@ namespace Nebukam.ORCA
      foo |= A; //Adds A to foo
      */
 
+    /// <summary>
+    /// Available layers to manage Agents, Obstacles & Raycasts
+    /// </summary>
     [System.Flags]
     public enum ORCALayer
     {

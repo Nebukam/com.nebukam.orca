@@ -24,16 +24,51 @@ using Unity.Mathematics;
 namespace Nebukam.ORCA
 {
 
+    /// <summary>
+    /// Job-friendly Agent data.
+    /// </summary>
     [BurstCompile]
-    public struct ObstacleVertexData
+    public struct AgentData
     {
-        public int infos;
         public int index;
-        public int next;
-        public int prev;
-        public bool convex;
-        public float2 pos;
-        public float2 dir;
+        public int kdIndex;
+
+        public float2 position;
+        public float baseline;
+        public float2 prefVelocity;
+        public float2 velocity;
+
+        public float height;
+        public float radius;
+        public float radiusObst;
+        public float maxSpeed;
+
+        public int maxNeighbors;
+        public float neighborDist;
+        public float neighborElev;
+
+        public float timeHorizon;
+        public float timeHorizonObst;
+
+        public ORCALayer layerOccupation;
+        public ORCALayer layerIgnore;
+        public bool navigationEnabled;
+        public bool collisionEnabled;
+
+        public float3 worldPosition;
+        public float3 worldVelocity;
+    }
+
+    /// <summary>
+    /// Agent result data after a simulation step.
+    /// </summary>
+    [BurstCompile]
+    public struct AgentDataResult
+    {
+
+        public float2 position;
+        public float2 velocity;
+
     }
 
 }

@@ -23,6 +23,10 @@ using Nebukam.Common;
 namespace Nebukam.ORCA
 {
 
+    /// <summary>
+    /// Obstacle definition within an ORCA simulation.
+    /// An Obstacle can be seen as an either open or closed polyline : it is a list of linked points in space
+    /// </summary>
     public class Obstacle : VertexGroup<ObstacleVertex>, IRequireInit
     {
 
@@ -33,13 +37,31 @@ namespace Nebukam.ORCA
         protected internal float m_baseline = 0.0f;
         protected internal bool m_edge = false;
 
+        /// <summary>
+        /// Which layer this Obstacle occupies within the simulation.
+        /// This define whether an Agent will account for this obstacle or not based on its own layerOccupation.
+        /// </summary>
         public ORCALayer layerOccupation { get { return m_layerOccupation; } set { m_layerOccupation = value; } }
+        /// <summary>
+        /// Whether the collision is enabled or not for this Obstacle.
+        /// If True, the agents will avoid it, otherwise ignore it.
+        /// </summary>
         public bool collisionEnabled { get { return m_collisionEnabled; } set { m_collisionEnabled = value; } }
+        /// <summary>
+        /// The thickness of the obstacle' line, in both directions.
+        /// </summary>
         public float thickness { get { return m_thickness; } set { m_thickness = value; } }
+        /// <summary>
+        /// The height of the obstacle. Used by the simulation to check whether an Agent would collide with that obstacle or not based
+        /// on both the Obstacle & Agent baseline & height.
+        /// </summary>
         public float height { get { return m_height; } set { m_height = value; } }
+        /// <summary>
+        /// The vertical position of the Obstacle (Z if in XY plane, otherwise Y)
+        /// </summary>
         public float baseline { get { return m_baseline; } set { m_baseline = value; } }
         /// <summary>
-        /// Treat obstacle as an open group of line instead of a closed polygon
+        /// If true, reat obstacle as an open group of line instead of a closed polygon
         /// </summary>
         public bool edge { get { return m_edge; } set { m_edge = value; } }
 

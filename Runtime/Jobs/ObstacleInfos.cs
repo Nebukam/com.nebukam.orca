@@ -19,50 +19,24 @@
 // SOFTWARE.
 
 using Unity.Burst;
-using Unity.Mathematics;
 
 namespace Nebukam.ORCA
 {
-
+    /// <summary>
+    /// Job-friendly Obstaclle infos.
+    /// Wraps the necessary infos to manipulate the related obstacle within the simulation.
+    /// </summary>
     [BurstCompile]
-    public struct AgentData
+    public struct ObstacleInfos
     {
         public int index;
-        public int kdIndex;
-
-        public float2 position;
-        public float baseline;
-        public float2 prefVelocity;
-        public float2 velocity;
-
-        public float height;
-        public float radius;
-        public float radiusObst;
-        public float maxSpeed;
-
-        public int maxNeighbors;
-        public float neighborDist;
-        public float neighborElev;
-
-        public float timeHorizon;
-        public float timeHorizonObst;
-
+        public int start;
+        public int length;
         public ORCALayer layerOccupation;
-        public ORCALayer layerIgnore;
-        public bool navigationEnabled;
         public bool collisionEnabled;
-
-        public float3 worldPosition;
-        public float3 worldVelocity;
+        public bool edge;
+        public float thickness;
+        public float baseline;
+        public float height;
     }
-
-    [BurstCompile]
-    public struct AgentDataResult
-    {
-
-        public float2 position;
-        public float2 velocity;
-
-    }
-
 }

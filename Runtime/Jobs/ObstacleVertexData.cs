@@ -19,20 +19,23 @@
 // SOFTWARE.
 
 using Unity.Burst;
+using Unity.Mathematics;
 
 namespace Nebukam.ORCA
 {
+    /// <summary>
+    /// Job-friendly Obstacle Vertex data.
+    /// </summary>
     [BurstCompile]
-    public struct ObstacleInfos
+    public struct ObstacleVertexData
     {
+        public int infos;
         public int index;
-        public int start;
-        public int length;
-        public ORCALayer layerOccupation;
-        public bool collisionEnabled;
-        public bool edge;
-        public float thickness;
-        public float baseline;
-        public float height;
+        public int next;
+        public int prev;
+        public bool convex;
+        public float2 pos;
+        public float2 dir;
     }
+
 }

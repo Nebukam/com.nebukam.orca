@@ -33,15 +33,16 @@ namespace Nebukam.ORCA
         public AxisPair plane
         {
             get { return m_plane; }
-            set { 
+            set
+            {
                 m_plane =
                 m_staticObstacles.plane =
                 m_dynamicObstacles.plane =
                 m_agents.plane =
                 m_raycasts.plane =
-                m_orcaLines.plane = 
-                m_orcaApply.plane = 
-                m_raycasts.plane = value; 
+                m_orcaLines.plane =
+                m_orcaApply.plane =
+                m_raycasts.plane = value;
             }
         }
 

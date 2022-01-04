@@ -21,19 +21,36 @@
 using Nebukam.JobAssist;
 using static Nebukam.JobAssist.Extensions;
 using Unity.Collections;
+using Unity.Burst;
 
 namespace Nebukam.ORCA
 {
+
+    [BurstCompile]
+    public struct AgentTreeNode
+    {
+        public const int MAX_LEAF_SIZE = 10;
+
+        public int begin;
+        public int end;
+        public int left;
+        public int right;
+        public float maxX;
+        public float maxY;
+        public float minX;
+        public float minY;
+    }
 
     public interface IAgentKDTreeProvider : IProcessor
     {
         NativeArray<AgentTreeNode> outputTree { get; }
     }
 
+    [BurstCompile]
     public class AgentKDTree : Processor<AgentKDTreeJob>, IAgentKDTreeProvider
     {
 
-        
+
         protected NativeArray<AgentTreeNode> m_outputTree = default;
         public NativeArray<AgentTreeNode> outputTree { get { return m_outputTree; } }
 
@@ -51,12 +68,12 @@ namespace Nebukam.ORCA
 
             if (m_inputsDirty)
             {
-                
+
                 if (!TryGetFirstInCompound(out m_agentProvider))
                 {
                     throw new System.Exception("No IAgentProvider in chain !");
                 }
-                
+
                 m_inputsDirty = false;
 
             }

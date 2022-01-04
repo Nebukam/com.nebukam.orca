@@ -26,6 +26,9 @@ using Nebukam.Common;
 namespace Nebukam.ORCA
 {
 
+    /// <summary>
+    /// Defines which type of object the raycast should include in its checks.
+    /// </summary>
     [System.Flags]
     public enum RaycastFilter
     {
@@ -37,7 +40,10 @@ namespace Nebukam.ORCA
         ANY = AGENTS | OBSTACLES
     }
 
-
+    /// <summary>
+    /// Job-friendly representation of a Raycast.
+    /// Primarily used within RaycastProvider.
+    /// </summary>
     [BurstCompile]
     public struct RaycastData
     {
@@ -52,6 +58,10 @@ namespace Nebukam.ORCA
         public bool twoSided;
     }
 
+    /// <summary>
+    /// Result of a raycast.
+    /// Primarily used within RaycastPass
+    /// </summary>
     [BurstCompile]
     public struct RaycastResult
     {
@@ -68,6 +78,9 @@ namespace Nebukam.ORCA
 
     }
 
+    /// <summary>
+    /// A Raycast object. Holds the Raycast settings as well as its results.
+    /// </summary>
     public class Raycast : Vertex, IRequireCleanUp
     {
 
@@ -78,19 +91,55 @@ namespace Nebukam.ORCA
         protected internal bool m_anyHit = false;
         protected internal bool m_twoSided = false;
 
+        /// <summary>
+        /// The direction of the raycast
+        /// </summary>
         public float3 dir { get { return m_dir; } set { m_dir = value; } }
+        /// <summary>
+        /// Layers to be ignored by the Raycast when resolved
+        /// </summary>
         public ORCALayer layerIgnore { get { return m_layerIgnore; } set { m_layerIgnore = value; } }
+        /// <summary>
+        /// Filters the type of ingredients this Raycast will hit
+        /// </summary>
         public RaycastFilter filter { get { return m_filter; } set { m_filter = value; } }
+        /// <summary>
+        /// Distance of the Raycast.
+        /// This is the length/reach of the Raycast, anything beyond that distance will be ignored.
+        /// </summary>
         public float distance { get { return m_distance; } set { m_distance = value; } }
+        /// <summary>
+        /// Whether that raycast hit anything
+        /// </summary>
         public bool anyHit { get { return m_anyHit; } }
+        /// <summary>
+        /// Whether that raycast is two-sided.
+        /// If true, will check for backface collisions, otherwise not. This is useful in situation
+        /// where the Raycast origin may be within an ingredient (agent or collision).
+        /// </summary>
         public bool twoSided { get { return m_twoSided; } }
 
+        /// <summary>
+        /// The Obstacle hit by the Raycast, if any
+        /// </summary>
         public Obstacle obstacleHit { get; set; }
+        /// <summary>
+        /// The location on the Obstacle surface where the Raycast hit.
+        /// </summary>
         public float3 obstacleHitLocation { get; set; }
 
+        /// <summary>
+        /// The Agent hit by the Raycast, if any
+        /// </summary>
         public Agent agentHit { get; set; }
+        /// <summary>
+        /// The location on the Agent surface (radius-driven circle) where the Raycast hit
+        /// </summary>
         public float3 agentHitLocation { get; set; }
 
+        /// <summary>
+        /// Cleanup/Reset the Raycast object when interacting with pools.
+        /// </summary>
         public virtual void CleanUp()
         {
             m_dir = float3(0f);

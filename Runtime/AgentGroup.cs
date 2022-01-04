@@ -23,12 +23,21 @@ using Nebukam.Common;
 namespace Nebukam.ORCA
 {
 
+    /// <summary>
+    /// Interface for an AgentGroup. Only exposes the methods required by the simulation.
+    /// </summary>
+    /// <typeparam name="V">Agent Type</typeparam>
     public interface IAgentGroup<out V> : IVertexGroup<V>
         where V : IAgent
     {
 
     }
 
+    /// <summary>
+    /// A group of agent to be used within an ORCA simulation.
+    /// An AgentGroup should not be used by multiple simulations simultaneously.
+    /// </summary>
+    /// <typeparam name="V">Agent Type</typeparam>
     public class AgentGroup<V> : VertexGroup<V>, IAgentGroup<V>
         where V : Agent, IAgent, new()
     {
