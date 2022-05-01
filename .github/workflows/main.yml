@@ -1,0 +1,2 @@
+- name: Automatic GitHub Release
+  uses: justincy/github-action-npm-release@2.0.2
