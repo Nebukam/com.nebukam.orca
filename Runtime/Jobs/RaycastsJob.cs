@@ -188,7 +188,7 @@ namespace Nebukam.ORCA
                     QueryObstacleTreeRecursive(ref raycast, ref a_sqRange, 0, ref staticObstacleNeighbors,
                     ref m_staticObstacles, ref m_staticRefObstacles, ref m_staticObstacleInfos, ref m_staticObstacleTree);
 
-                NativeHashMap<UIntPair, bool> coveredStaticEdges = new NativeHashMap<UIntPair, bool>(m_staticObstacleTree.Length * 2, Allocator.Temp);
+                NativeParallelHashMap<UIntPair, bool> coveredStaticEdges = new NativeParallelHashMap<UIntPair, bool>(m_staticObstacleTree.Length * 2, Allocator.Temp);
 
                 for (int i = 0; i < staticObstacleNeighbors.Length; ++i)
                 {
@@ -271,7 +271,7 @@ namespace Nebukam.ORCA
                     QueryObstacleTreeRecursive(ref raycast, ref a_sqRange, 0, ref dynObstacleNeighbors,
                         ref m_dynObstacles, ref m_dynRefObstacles, ref m_dynObstacleInfos, ref m_dynObstacleTree);
 
-                NativeHashMap<UIntPair, bool> coveredDynEdges = new NativeHashMap<UIntPair, bool>(m_dynObstacleTree.Length * 2, Allocator.Temp);
+                NativeParallelHashMap<UIntPair, bool> coveredDynEdges = new NativeParallelHashMap<UIntPair, bool>(m_dynObstacleTree.Length * 2, Allocator.Temp);
 
                 for (int i = 0; i < dynObstacleNeighbors.Length; ++i)
                 {

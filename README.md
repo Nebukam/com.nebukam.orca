@@ -101,8 +101,7 @@ The package include a Setup sample showing how to use the library. Note that it 
 ---
 ## Dependencies
 - **Unity.Burst 1.1.2** [com.unity.burst]()
-- **Unity.Jobs 0.0.7** [com.unity.jobs]()
-- **Unity.Collections 0.0.9** [com.unity.collections]()
+- **Unity.Collections 1.3.1** [com.unity.collections]()
 - **Unity.Mathematics 1.1.0** -- [com.unity.mathematics](https://github.com/Unity-Technologies/Unity.Mathematics)
 - **N:Common** -- [com.nebukam.common](https://github.com/Nebukam/com.nebukam.common.git)
 - **N:JobAssist** -- [com.nebukam.job-assist](https://github.com/Nebukam/com.nebukam.job-assist.git)
