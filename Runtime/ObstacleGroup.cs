@@ -88,24 +88,31 @@ namespace Nebukam.ORCA
         /// <summary>
         /// Add an obstacle to the group, in the form of a list of vertices.
         /// </summary>
-        /// <param name="m_vertices">A list of vertices</param>
+        /// <param name="vertices">A list of vertices</param>
         /// <param name="inverseOrder">Whether or not the vertices should be added in reverse order</param>
+        /// <param name="maxSegmentLength">If > 0.0f, will subdivide segments larger than this threshold.</param>
         /// <returns>The newly created Obstacle</returns>
-        public Obstacle Add(IList<float3> m_vertices, bool inverseOrder = false)
+        public Obstacle Add(IList<float3> vertices, bool inverseOrder = false, float maxSegmentLength = 10.0f)
         {
             Obstacle obstacle = Pool.Rent<Obstacle>();
 
-            int count = m_vertices.Count;
+            int count = vertices.Count;
             if (!inverseOrder)
             {
                 for (int i = 0; i < count; i++)
-                    obstacle.Add(m_vertices[i]);
+                    obstacle.Add(vertices[i]);
             }
             else
             {
                 for (int i = count - 1; i >= 0; i--)
-                    obstacle.Add(m_vertices[i]);
+                    obstacle.Add(vertices[i]);
             }
+
+            if (math.distancesq(obstacle.vertices.Last().pos, obstacle.vertices.First().pos) != 0.0f)
+                obstacle.Add(obstacle.vertices.First().pos); // Close obstacle
+
+            if (maxSegmentLength > 0.0f)
+                obstacle.Subdivide(maxSegmentLength);
 
             return Add(obstacle);
         }
@@ -113,24 +120,31 @@ namespace Nebukam.ORCA
         /// <summary>
         /// Add an obstacle to the group, in the form of a list of vertices.
         /// </summary>
-        /// <param name="m_vertices">An array of vertices</param>
+        /// <param name="vertices">An array of vertices</param>
         /// <param name="inverseOrder">Whether or not the vertices should be added in reverse order</param>
+        /// <param name="maxSegmentLength">If > 0.0f, will subdivide segments larger than this threshold.</param>
         /// <returns>The newly created Obstacle</returns>
-        public Obstacle Add(float3[] m_vertices, bool inverseOrder = false)
+        public Obstacle Add(float3[] vertices, bool inverseOrder = false, float maxSegmentLength = 10.0f)
         {
             Obstacle obstacle = Pool.Rent<Obstacle>();
 
-            int count = m_vertices.Length;
+            int count = vertices.Length;
             if (!inverseOrder)
             {
                 for (int i = 0; i < count; i++)
-                    obstacle.Add(m_vertices[i]);
+                    obstacle.Add(vertices[i]);
             }
             else
             {
                 for (int i = count - 1; i >= 0; i--)
-                    obstacle.Add(m_vertices[i]);
+                    obstacle.Add(vertices[i]);
             }
+
+            if (math.distancesq(obstacle.vertices.Last().pos, obstacle.vertices.First().pos) != 0.0f)
+                obstacle.Add(obstacle.vertices.First().pos); // Close obstacle
+
+            if (maxSegmentLength > 0.0f)
+                obstacle.Subdivide(maxSegmentLength);
 
             return Add(obstacle);
         }

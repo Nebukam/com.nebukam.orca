@@ -158,9 +158,10 @@ MonoBehaviour:
   agentCount: 1000
   maxAgentRadius: 2
   maxSpeed: 1
-  obstacleCount: 25
+  minSpeed: 1
+  obstacleCount: 50
   dynObstacleCount: 0
-  maxObstacleRadius: 5
+  maxObstacleRadius: 10
   minObstacleEdgeCount: 3
   maxObstacleEdgeCount: 12
   min:
@@ -179,7 +180,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 311397813}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -17.8, y: 63.7, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -353,7 +354,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1867022038}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 125.6, y: -98.4, z: 0}
+  m_LocalPosition: {x: 128.9, y: -129.9, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

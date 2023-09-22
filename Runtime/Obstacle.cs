@@ -27,7 +27,7 @@ namespace Nebukam.ORCA
     /// Obstacle definition within an ORCA simulation.
     /// An Obstacle can be seen as an either open or closed polyline : it is a list of linked points in space
     /// </summary>
-    public class Obstacle : VertexGroup<ObstacleVertex>, IRequireInit
+    public class Obstacle : PolyLine<ObstacleVertex>, IRequireInit
     {
 
         protected internal ORCALayer m_layerOccupation = ORCALayer.ANY;

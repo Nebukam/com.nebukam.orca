@@ -29,6 +29,7 @@ namespace Nebukam.ORCA
         public int agentCount = 50;
         public float maxAgentRadius = 2f;
         public float maxSpeed = 1f;
+        public float minSpeed = 1f;
 
         [Header("Obstacles")]
         public int obstacleCount = 100;
@@ -111,6 +112,25 @@ namespace Nebukam.ORCA
 
             #endregion
 
+            #region create encompasing square boundary
+
+            float3[] squarePoints = new float3[] {
+                float3(min.x, min.y, 0f) * 1.2f,
+                float3(min.x, max.y, 0f)* 1.2f,
+                float3(max.x, max.y, 0f)* 1.2f,
+                float3(max.x, min.y, 0f)* 1.2f,
+            };
+
+            if (axis == AxisPair.XZ)
+            {
+                for (int i = 0; i < squarePoints.Length; i++)
+                    squarePoints[i] = float3(squarePoints[i].x, 0f, squarePoints[i].y);
+            }
+
+            obstacles.Add(squarePoints, false, 10.0f);
+
+            #endregion
+
             Random.InitState(seed + 10);
 
             #region create dyanmic obstacles
@@ -158,7 +178,7 @@ namespace Nebukam.ORCA
 
             for (int i = 0; i < agentCount; i++)
             {
-                if(axis == AxisPair.XY)
+                if (axis == AxisPair.XY)
                 {
                     a = agents.Add((float3)transform.position + float3(Random.value, Random.value, 0f)) as IAgent;
                 }
@@ -188,7 +208,7 @@ namespace Nebukam.ORCA
                 else
                 {
                     r = raycasts.Add(float3(Random.Range(min.x, max.x), 0f, Random.Range(min.y, max.y))) as Raycast;
-                    r.dir = normalize(float3(Random.Range(-1f, 1f),0f, Random.Range(-1f, 1f)));
+                    r.dir = normalize(float3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f)));
                 }
 
                 r.distance = raycastDistance;
@@ -219,7 +239,7 @@ namespace Nebukam.ORCA
 
 #if UNITY_EDITOR
                 //Agent body
-                if (axis == AxisPair.XY) 
+                if (axis == AxisPair.XY)
                 {
                     Draw.Circle2D(agentPos, agent.radius, Color.green, 12);
                     Draw.Circle2D(agentPos, agent.radiusObst, Color.cyan.A(0.15f), 12);
@@ -236,8 +256,10 @@ namespace Nebukam.ORCA
                 Draw.Line(agentPos, agentPos + (normalize(agent.prefVelocity) * agent.radius), Color.grey);
 #endif
                 //Update agent preferred velocity so it always tries to reach the "target" object
-                float agentSpeed = ((i + 1) * 0.5f);
-                agent.maxSpeed = agentSpeed;
+                float mspd = max(minSpeed + (i + 1) * 0.5f, maxSpeed);
+                float s = min(1f, distance(agent.pos, tr) / mspd);
+                float agentSpeed = mspd * s;
+                agent.maxSpeed = agentSpeed * s;
                 agent.prefVelocity = normalize(tr - agent.pos) * agentSpeed;
 
             }
@@ -260,9 +282,10 @@ namespace Nebukam.ORCA
                 for (int j = 1, count = o.Count; j < count; j++)
                 {
                     Draw.Line(o[j - 1].pos, o[j].pos, staticObstacleColor);
+                    Draw.Circle(o[j - 1].pos, 0.2f, Color.magenta, 6);
                 }
                 //Draw closing segment (simulation consider 2+ segments to be closed.)
-                if(!o.edge)
+                if (!o.edge)
                     Draw.Line(o[subCount - 1].pos, o[0].pos, staticObstacleColor);
             }
 
@@ -292,7 +315,7 @@ namespace Nebukam.ORCA
 
             Raycast r;
             float rad = 0.2f;
-            for(int i = 0, count = raycasts.Count; i < count; i++)
+            for (int i = 0, count = raycasts.Count; i < count; i++)
             {
                 r = raycasts[i] as Raycast;
                 Draw.Circle2D(r.pos, rad, Color.white, 3);
