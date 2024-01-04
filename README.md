@@ -2,9 +2,10 @@
 ![version](https://img.shields.io/badge/dynamic/json?color=blue&label=version&query=version&url=https%3A%2F%2Fraw.githubusercontent.com%2FNebukam%2Fcom.nebukam.orca%2Fmaster%2Fpackage.json)
 ![in development](https://img.shields.io/badge/license-MIT-black.svg)
 [![doc](https://img.shields.io/badge/documentation-darkgreen.svg)](https://nebukam.github.io/docs/unity/com.nebukam.orca/)
+![in development](https://img.shields.io/badge/Unity-2023.2.3f1-black.svg)
 
 # N:ORCA
-#### Optimal Reciprocal Collision Avoidance for Unity _(Tested up to 2023.2.3f1)_
+#### Optimal Reciprocal Collision Avoidance for Unity 
 
 N:ORCA is a Library to add _local collision avoidance_ to your Unity projects. It allows you to create simulations in which you register agents that move toward a goal and avoid each other smoothly without the need for any physic.
 
